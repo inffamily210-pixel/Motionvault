@@ -635,6 +635,11 @@ button{ font-family:inherit; }
 .video-preview img{ width:48px; height:68px; object-fit:cover; border-radius:6px; }
 .video-preview span{ font-size:12px; color:var(--success); font-weight:600; display:flex; align-items:center; gap:5px; }
 
+/* Shown instead of the single-video preview when the pasted URL is a
+   channel/account link rather than one specific video. */
+.video-preview--channel{ flex-direction:column; align-items:stretch; gap:10px; padding:14px; border-color:var(--accent); }
+.video-preview--channel .channel-detected-text{ font-size:13px; color:var(--text-dim); line-height:1.5; }
+
 .form-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
 
 .data-card{
@@ -661,6 +666,42 @@ button{ font-family:inherit; }
   display:flex; align-items:center; justify-content:center; transition:border-color .15s, color .15s;
 }
 .dl-remove-btn:hover{ color:var(--danger); border-color:var(--danger); }
+
+/* ============================================================
+   YOUTUBE CHANNEL BULK IMPORT (admin form)
+============================================================ */
+.yt-import-modal{ max-width:560px; }
+.yt-import-modal__body{ padding:24px 20px 8px; display:flex; flex-direction:column; gap:14px; }
+.yt-import-modal__title{ font-size:18px; font-weight:700; }
+.yt-import-modal__status{ font-size:13.5px; color:var(--text-dim); padding:20px 0; text-align:center; }
+
+.yt-import-modal__channel{ display:flex; align-items:center; gap:12px; padding:10px; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); }
+.yt-import-modal__channel img{ width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; background:var(--bg); }
+.yt-import-modal__channel div{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.yt-import-modal__channel strong{ font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.yt-import-modal__channel span{ font-size:12px; color:var(--text-faint); }
+
+.yt-import-toolbar{ display:flex; align-items:center; justify-content:space-between; font-size:13px; }
+.yt-import-toolbar .checkbox-row{ height:auto; }
+.yt-import-count{ color:var(--text-faint); font-family:var(--font-mono); font-size:12px; flex-shrink:0; }
+
+.yt-import-list{ display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow-y:auto; padding-bottom:8px; margin:0 -8px; }
+.yt-import-empty{ text-align:center; color:var(--text-faint); font-size:13px; padding:24px 0; }
+
+.yt-import-row{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:var(--radius-sm); cursor:pointer; }
+.yt-import-row:hover{ background:var(--surface); }
+.yt-import-row--empty{ opacity:.6; }
+.yt-import-row__check{ width:18px; height:18px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; }
+.yt-import-row__thumb{ width:64px; height:36px; object-fit:cover; border-radius:6px; flex-shrink:0; background:var(--surface); }
+.yt-import-row__info{ min-width:0; display:flex; flex-direction:column; gap:5px; }
+.yt-import-row__title{ font-size:13px; font-weight:600; line-height:1.35; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.yt-import-row__meta{ display:flex; gap:6px; flex-wrap:wrap; }
+
+.yt-pill{ font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:var(--radius-pill); background:var(--surface-border); color:var(--text-dim); white-space:nowrap; }
+.yt-pill--ok{ background:rgba(61,220,151,.15); color:var(--success); }
+.yt-pill--warn{ background:rgba(255,182,72,.15); color:var(--warn); }
+
+.yt-import-modal__footer{ display:flex; gap:10px; justify-content:flex-end; padding:14px 20px calc(16px + var(--safe-bottom)); border-top:1px solid var(--line); position:sticky; bottom:0; background:var(--bg-elevated); }
 
 /* ============================================================
    DOWNLOAD SOURCE PICKER
@@ -1257,6 +1298,32 @@ button{ font-family:inherit; }
   </div>
 </div>
 
+<!-- ============ YOUTUBE CHANNEL BULK IMPORT ============ -->
+<div class="modal-overlay" id="ytImportOverlay" hidden>
+  <div class="modal yt-import-modal">
+    <button type="button" class="modal__close" id="ytImportCloseBtn" aria-label="Tutup">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="yt-import-modal__body">
+      <h3 class="yt-import-modal__title">Impor dari Channel YouTube</h3>
+      <p class="yt-import-modal__status" id="ytImportStatus">Menghubungkan ke YouTube…</p>
+      <div class="yt-import-modal__channel" id="ytImportChannelInfo" hidden></div>
+      <div class="yt-import-toolbar" id="ytImportToolbar" hidden>
+        <label class="checkbox-row">
+          <input type="checkbox" id="ytImportSelectAll">
+          <span>Pilih semua</span>
+        </label>
+        <span class="yt-import-count" id="ytImportCount">0 dipilih</span>
+      </div>
+      <div class="yt-import-list" id="ytImportList"></div>
+    </div>
+    <div class="yt-import-modal__footer" id="ytImportFooter" hidden>
+      <button type="button" class="btn btn--ghost" id="ytImportCancelBtn">Batal</button>
+      <button type="button" class="btn btn--primary" id="ytImportSaveBtn" disabled>Impor 0 Preset</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============================================================
      FIREBASE SDK + CONFIG
      Ganti nilai di bawah dengan config project Firebase kamu sendiri
@@ -1730,7 +1797,7 @@ function openOverlay(el){
 function closeOverlay(el){
   el.hidden = true;
   // only restore scroll if no other overlay is open
-  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay']
+  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay']
     .some(id => {
       const node = document.getElementById(id);
       return node && !node.hidden;
@@ -2416,6 +2483,7 @@ document.addEventListener('keydown', (e) => {
   if(!confirmOverlay.hidden){ confirmCancelBtn.click(); return; }
   if(!downloadPickerOverlay.hidden){ closeDownloadPicker(); return; }
   if(!videoModalOverlay.hidden){ closeVideoModal(); return; }
+  if(!document.getElementById('ytImportOverlay').hidden){ closeYtImportModal(); return; }
   if(!document.getElementById('adminLoginOverlay').hidden){ closeAdminLogin(); return; }
   if(!document.getElementById('adminPanelOverlay').hidden){ closeAdminPanel(); return; }
 });
@@ -2688,6 +2756,9 @@ function inferLabelFromUrl(url){
     if(host.includes('alightcreative') || host.includes('alight')) return 'Alight Creative';
     if(host.includes('mediafire')) return 'Mediafire';
     if(host.includes('dropbox')) return 'Dropbox';
+    if(host.includes('mega.nz')) return 'Mega';
+    if(host.includes('gofile.io')) return 'Gofile';
+    if(/\.xml(\?|#|$)/i.test(url)) return 'File XML';
     return host;
   }catch(e){ return 'Download'; }
 }
@@ -2757,12 +2828,21 @@ function updateVideoPreview(){
 
   if(source === 'youtube'){
     const id = extractYouTubeId(url);
+    videoUrlPreview.classList.remove('video-preview--channel');
     if(id){
       videoUrlPreview.hidden = false;
       videoUrlPreview.innerHTML = `
         <img src="${youtubeThumbUrl(id)}" alt="">
         <span style="color:var(--success);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Video terdeteksi</span>
       `;
+    }else if(looksLikeYouTubeChannelRef(url)){
+      videoUrlPreview.hidden = false;
+      videoUrlPreview.classList.add('video-preview--channel');
+      videoUrlPreview.innerHTML = `
+        <span class="channel-detected-text"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>Ini link akun/channel YouTube, bukan satu video. Mau impor semua video sekaligus jadi preset baru?</span>
+        <button type="button" class="btn btn--secondary btn--sm" id="ytImportTriggerBtn">Impor semua video dari channel ini</button>
+      `;
+      document.getElementById('ytImportTriggerBtn').addEventListener('click', () => openYtImportModal(url));
     }else{
       videoUrlPreview.hidden = true;
     }
@@ -2976,6 +3056,246 @@ async function firestoreReplaceAllPresets(presetsArray){
   if(count > 0) commits.push(batch.commit());
   await Promise.all(commits);
 }
+
+/* ============================================================
+   YOUTUBE CHANNEL BULK IMPORT
+   Paste a channel/@handle link into the video URL field above (YouTube
+   mode) instead of a single video link, and this lets the admin pull in
+   every upload from that channel as ready-to-review preset drafts —
+   title, thumbnail and video link auto-filled, plus any download links
+   (Google Drive, Mediafire, direct .xml files, etc.) found in each
+   video's description. Nothing is saved to Firestore until the admin
+   picks which ones to import. Needs YOUTUBE_API_KEY set in Vercel (see
+   README.md) — api/youtube-import.js is what actually calls YouTube.
+============================================================ */
+
+/** Lightweight client-side check: does this look like a YouTube channel/
+ *  account link (not one specific video)? Just decides whether to show the
+ *  "import channel" banner — api/youtube-import.js does the real, careful
+ *  parsing server-side. */
+function looksLikeYouTubeChannelRef(url){
+  if(!url) return false;
+  const s = url.trim();
+  if(/^@[\w.-]{2,}$/.test(s)) return true;
+
+  let u;
+  try{ u = new URL(/^https?:\/\//i.test(s) ? s : `https://${s}`); }
+  catch(e){ return false; }
+
+  const host = u.hostname.replace(/^www\./, '').replace(/^m\./, '');
+  if(host !== 'youtube.com') return false;
+
+  const parts = u.pathname.split('/').filter(Boolean);
+  if(!parts.length) return false;
+  if(['watch','shorts','embed','live','playlist'].includes(parts[0])) return false;
+  if(parts[0].startsWith('@')) return true;
+  if(['channel','c','user'].includes(parts[0]) && parts[1]) return true;
+  return parts.length === 1;
+}
+
+// Hosts that show up constantly in video descriptions but are never the
+// actual preset file — no point surfacing them as download-link candidates.
+const YT_IMPORT_EXCLUDE_HOST_RE = /(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)instagram\.com$|(^|\.)tiktok\.com$|(^|\.)facebook\.com$|(^|\.)fb\.watch$|(^|\.)twitter\.com$|(^|\.)x\.com$|(^|\.)wa\.me$|(^|\.)whatsapp\.com$|(^|\.)threads\.net$/;
+
+/** Pull out plausible download links from a video description. Deliberately
+ *  generous — anything that isn't obviously a social/video link gets
+ *  surfaced — since this only feeds a review list the admin checks before
+ *  anything is saved. Better to show a maybe-irrelevant link than silently
+ *  miss a real one. */
+function extractLinksFromText(text){
+  if(!text) return [];
+  const found = text.match(/https?:\/\/[^\s<>"')\]]+/g) || [];
+  const seen = new Set();
+  const results = [];
+  found.forEach(raw => {
+    const url = raw.replace(/[.,;:!?]+$/, '');
+    if(seen.has(url)) return;
+    let host;
+    try{ host = new URL(url).hostname.replace(/^www\./, ''); }
+    catch(e){ return; }
+    if(YT_IMPORT_EXCLUDE_HOST_RE.test(host)) return;
+    seen.add(url);
+    results.push({ label: inferLabelFromUrl(url), url, isXml: /\.xml(\?|#|$)/i.test(url) });
+  });
+  return results;
+}
+
+/** Best-effort category guess from a video's title+description so the admin
+ *  has less to fix by hand — always double-checked in the review list. */
+function guessCategoryFromText(text){
+  const t = (text || '').toLowerCase();
+  if(/alight\s*motion|alightmotion/.test(t)) return 'Alight Motion';
+  if(/capcut/.test(t)) return 'CapCut';
+  if(/premiere/.test(t)) return 'Premiere';
+  return 'Lainnya';
+}
+
+/** Grabs up to 8 #hashtags from a description to prefill the tags field. */
+function extractHashtagsAsTags(text){
+  const found = (text || '').match(/#([a-zA-Z0-9_]{2,30})/g) || [];
+  const seen = new Set();
+  const tags = [];
+  found.forEach(h => {
+    const tag = h.slice(1).toLowerCase();
+    if(!seen.has(tag) && tags.length < 8){ seen.add(tag); tags.push(tag); }
+  });
+  return tags;
+}
+
+const ytImportOverlay = document.getElementById('ytImportOverlay');
+const ytImportStatus = document.getElementById('ytImportStatus');
+const ytImportChannelInfo = document.getElementById('ytImportChannelInfo');
+const ytImportToolbar = document.getElementById('ytImportToolbar');
+const ytImportSelectAll = document.getElementById('ytImportSelectAll');
+const ytImportCount = document.getElementById('ytImportCount');
+const ytImportList = document.getElementById('ytImportList');
+const ytImportFooter = document.getElementById('ytImportFooter');
+const ytImportSaveBtn = document.getElementById('ytImportSaveBtn');
+
+let ytImportData = { channel: null, videos: [] };
+
+async function openYtImportModal(rawUrl){
+  ytImportData = { channel: null, videos: [] };
+  ytImportStatus.hidden = false;
+  ytImportStatus.textContent = 'Menghubungkan ke YouTube…';
+  ytImportChannelInfo.hidden = true;
+  ytImportToolbar.hidden = true;
+  ytImportFooter.hidden = true;
+  ytImportSelectAll.checked = false;
+  ytImportList.innerHTML = '';
+  openOverlay(ytImportOverlay);
+
+  try{
+    const res = await fetch('/api/youtube-import?url=' + encodeURIComponent(rawUrl));
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Gagal mengambil data channel.');
+
+    ytImportData.channel = data.channel;
+    ytImportData.videos = (data.videos || []).map(v => ({
+      ...v,
+      links: extractLinksFromText(v.description),
+      category: guessCategoryFromText((v.title || '') + ' ' + (v.description || '')),
+      tags: extractHashtagsAsTags(v.description)
+    }));
+
+    ytImportStatus.hidden = true;
+    ytImportChannelInfo.hidden = false;
+    ytImportChannelInfo.innerHTML = `
+      <img src="${escapeHtml(data.channel.thumbnail)}" alt="">
+      <div>
+        <strong>${escapeHtml(data.channel.title)}</strong>
+        <span>${ytImportData.videos.length} video${data.truncated ? ' (200 terbaru)' : ''} ditemukan</span>
+      </div>
+    `;
+
+    if(!ytImportData.videos.length){
+      ytImportList.innerHTML = `<p class="yt-import-empty">Belum ada video di channel ini, atau channelnya tidak bisa diakses.</p>`;
+      return;
+    }
+
+    renderYtImportList();
+    ytImportToolbar.hidden = false;
+    ytImportFooter.hidden = false;
+  }catch(err){
+    ytImportStatus.hidden = false;
+    ytImportStatus.textContent = 'Gagal memuat: ' + err.message;
+  }
+}
+
+function renderYtImportList(){
+  ytImportList.innerHTML = ytImportData.videos.map((v, i) => {
+    const hasLinks = v.links.length > 0;
+    const xmlCount = v.links.filter(l => l.isXml).length;
+    return `
+      <label class="yt-import-row${hasLinks ? '' : ' yt-import-row--empty'}">
+        <input type="checkbox" class="yt-import-row__check" data-idx="${i}" ${hasLinks ? 'checked' : ''}>
+        <img class="yt-import-row__thumb" src="${escapeHtml(v.thumbnail)}" alt="" loading="lazy">
+        <div class="yt-import-row__info">
+          <div class="yt-import-row__title">${escapeHtml(v.title || 'Tanpa judul')}</div>
+          <div class="yt-import-row__meta">
+            <span class="yt-pill">${escapeHtml(v.category)}</span>
+            ${hasLinks
+              ? `<span class="yt-pill yt-pill--ok">${v.links.length} link${xmlCount ? ' · ' + xmlCount + ' XML' : ''}</span>`
+              : `<span class="yt-pill yt-pill--warn">Tidak ada link terdeteksi</span>`}
+          </div>
+        </div>
+      </label>
+    `;
+  }).join('');
+
+  ytImportList.querySelectorAll('.yt-import-row__check').forEach(cb => {
+    cb.addEventListener('change', updateYtImportCount);
+  });
+  updateYtImportCount();
+}
+
+function updateYtImportCount(){
+  const total = ytImportList.querySelectorAll('.yt-import-row__check').length;
+  const checked = ytImportList.querySelectorAll('.yt-import-row__check:checked').length;
+  ytImportCount.textContent = `${checked} dipilih`;
+  ytImportSelectAll.checked = total > 0 && checked === total;
+  ytImportSaveBtn.textContent = `Impor ${checked} Preset`;
+  ytImportSaveBtn.disabled = checked === 0;
+}
+
+ytImportSelectAll.addEventListener('change', () => {
+  const check = ytImportSelectAll.checked;
+  ytImportList.querySelectorAll('.yt-import-row__check').forEach(cb => { cb.checked = check; });
+  updateYtImportCount();
+});
+
+function closeYtImportModal(){ closeOverlay(ytImportOverlay); }
+document.getElementById('ytImportCloseBtn').addEventListener('click', closeYtImportModal);
+document.getElementById('ytImportCancelBtn').addEventListener('click', closeYtImportModal);
+ytImportOverlay.addEventListener('click', (e) => { if(e.target === ytImportOverlay) closeYtImportModal(); });
+
+ytImportSaveBtn.addEventListener('click', async () => {
+  const idxs = Array.from(ytImportList.querySelectorAll('.yt-import-row__check:checked')).map(cb => Number(cb.dataset.idx));
+  if(!idxs.length) return;
+
+  ytImportSaveBtn.disabled = true;
+  const prevLabel = ytImportSaveBtn.textContent;
+  ytImportSaveBtn.textContent = 'Mengimpor…';
+
+  try{
+    let batch = db.batch();
+    let count = 0;
+    const commits = [];
+
+    idxs.forEach(i => {
+      const v = ytImportData.videos[i];
+      const ref = db.collection(PRESETS_COLLECTION).doc(genId());
+      batch.set(ref, {
+        name: (v.title || 'Tanpa judul').slice(0, 80),
+        category: CATEGORIES.includes(v.category) ? v.category : 'Lainnya',
+        creator: (ytImportData.channel && ytImportData.channel.title) || '',
+        description: (v.description || '').slice(0, 500),
+        tags: v.tags,
+        videoSource: 'youtube',
+        videoUrl: `https://www.youtube.com/watch?v=${v.id}`,
+        downloadLinks: v.links.map(l => ({ label: l.label, url: l.url })),
+        thumbUrl: '',
+        featured: false,
+        downloads: 0,
+        createdAt: (v.publishedAt && new Date(v.publishedAt).getTime()) || Date.now()
+      });
+      count++;
+      if(count === 450){ commits.push(batch.commit()); batch = db.batch(); count = 0; }
+    });
+    if(count > 0) commits.push(batch.commit());
+    await Promise.all(commits);
+
+    showToast(`${idxs.length} preset berhasil diimpor dari channel`, 'success');
+    closeYtImportModal();
+    resetPresetForm();
+    switchAdminTab('list');
+  }catch(err){
+    showToast('Gagal mengimpor: ' + err.message, 'error');
+  }finally{
+    ytImportSaveBtn.disabled = false;
+    ytImportSaveBtn.textContent = prevLabel;
+  }
+});
 
 /* ============================================================
    ADMIN — DATA TAB (export / import / password / reset)

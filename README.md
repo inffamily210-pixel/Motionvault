@@ -7,6 +7,7 @@ Website preset Alight Motion & CapCut dengan video demo. Data preset disimpan di
 Isi paket ini:
 ```
 index.html        → seluruh website (HTML+CSS+JS jadi satu file, config Firebase sudah terisi)
+api/youtube-import.js → backend kecil (Vercel Function) khusus buat fitur impor channel YouTube — lihat bagian 4 di bawah
 firestore.rules   → aturan keamanan database, tinggal copy-paste ke Firebase Console
 vercel.json       → konfigurasi kecil buat Vercel
 README.md         → panduan ini
@@ -49,6 +50,26 @@ vercel --prod
 ```
 
 Setelah deploy, situs kamu langsung online dengan domain `*.vercel.app` (bisa diganti custom domain lewat dashboard Vercel).
+
+## 4. (Opsional) Aktifkan impor otomatis dari channel YouTube
+
+Di form **Tambah Baru**, kalau field URL video ditempelin link **akun/channel YouTube** (bukan link satu video), muncul tombol buat impor semua video dari channel itu sekaligus jadi draft preset — judul, thumbnail, dan link download yang ketemu di deskripsi tiap video (Google Drive, Mediafire, file `.xml`, dll.) otomatis keisi. Nggak langsung tersimpan — tinggal dicek satu-satu di daftar, pilih mana yang mau diimpor, baru disimpan ke Firestore.
+
+Fitur ini butuh file baru `api/youtube-import.js` (sudah ada di paket ini) plus satu **YouTube Data API v3 key** (beda dari config Firebase di atas, dan cuma dipakai di server, nggak pernah kekirim ke browser):
+
+1. Buka [console.cloud.google.com](https://console.cloud.google.com) → bikin/pilih project → **APIs & Services → Library** → cari **YouTube Data API v3** → **Enable**.
+2. **APIs & Services → Credentials → Create Credentials → API key** → salin key-nya.
+3. Di **Vercel** → project kamu → **Settings → Environment Variables** → tambah:
+   - Name: `YOUTUBE_API_KEY`
+   - Value: (key dari langkah 2)
+4. Redeploy project (push ulang / drag-drop zip ini lagi) biar env variable-nya kepakai.
+
+Kalau langkah ini belum dilakuin, tombol impor channel bakal nunjukin pesan error yang jelas — sisa website tetap jalan normal seperti biasa.
+
+Catatan:
+- Maksimal 200 video terbaru per channel dalam satu kali impor (biar nggak timeout / boros quota). Channel yang videonya lebih dari itu, video lama di luar itu perlu ditambahin manual lewat form biasa.
+- Link `@handle`, `/channel/ID`, dan `/user/nama` selalu akurat. Link `/c/NamaCustom` (format URL lama) di-resolve lewat pencarian nama channel — best-effort, bisa salah kalau ada beberapa channel dengan nama mirip.
+- Video yang deskripsinya nggak ada link sama sekali otomatis nggak dicentang di daftar (biar nggak ke-import kosong tanpa sadar), tapi tetap bisa dicentang manual kalau kamu tau linknya ada di tempat lain (mis. komentar) — lengkapi link-nya lewat Edit setelah diimpor.
 
 ---
 
