@@ -631,6 +631,15 @@ button{ font-family:inherit; }
 }
 .video-source-toggle__btn.is-active{ background:var(--accent); color:#fff; }
 
+.yt-import-entry-btn{
+  display:flex; align-items:center; gap:8px; width:100%; margin-top:10px;
+  padding:10px 12px; background:var(--accent-soft); border:1px dashed var(--accent);
+  border-radius:var(--radius-sm); color:var(--accent-2); font-size:12.5px; font-weight:600;
+  cursor:pointer; text-align:left; line-height:1.4;
+}
+.yt-import-entry-btn:hover{ filter:brightness(1.15); }
+.yt-import-entry-btn svg{ flex-shrink:0; }
+
 .video-preview{ margin-top:8px; display:flex; align-items:center; gap:10px; padding:8px; background:var(--surface); border-radius:10px; border:1px solid var(--surface-border); }
 .video-preview img{ width:48px; height:68px; object-fit:cover; border-radius:6px; }
 .video-preview span{ font-size:12px; color:var(--success); font-weight:600; display:flex; align-items:center; gap:5px; }
@@ -673,6 +682,8 @@ button{ font-family:inherit; }
 .yt-import-modal{ max-width:560px; }
 .yt-import-modal__body{ padding:24px 20px 8px; display:flex; flex-direction:column; gap:14px; }
 .yt-import-modal__title{ font-size:18px; font-weight:700; }
+.yt-import-input-step{ display:flex; flex-direction:column; gap:10px; }
+.yt-import-modal__hint{ font-size:13px; color:var(--text-dim); line-height:1.5; }
 .yt-import-modal__status{ font-size:13.5px; color:var(--text-dim); padding:20px 0; text-align:center; }
 
 .yt-import-modal__channel{ display:flex; align-items:center; gap:12px; padding:10px; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); }
@@ -1200,6 +1211,10 @@ button{ font-family:inherit; }
                 <button type="button" class="video-source-toggle__btn" data-source="tiktok">TikTok</button>
                 <button type="button" class="video-source-toggle__btn" data-source="mp4">Link MP4</button>
               </div>
+              <button type="button" class="yt-import-entry-btn" id="ytImportEntryBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none"/></svg>
+                Punya banyak preset di 1 channel? Impor sekaligus dari sini
+              </button>
             </div>
 
             <div class="field field--full">
@@ -1306,7 +1321,12 @@ button{ font-family:inherit; }
     </button>
     <div class="yt-import-modal__body">
       <h3 class="yt-import-modal__title">Impor dari Channel YouTube</h3>
-      <p class="yt-import-modal__status" id="ytImportStatus">Menghubungkan ke YouTube…</p>
+      <form id="ytImportInputStep" class="yt-import-input-step">
+        <p class="yt-import-modal__hint">Tempel link channel/akun YouTube-nya di sini (bukan link satu video).</p>
+        <input type="text" id="ytImportUrlInput" class="text-input" placeholder="https://www.youtube.com/@namachannel" autocomplete="off" required>
+        <button type="submit" class="btn btn--primary btn--block">Cari Channel</button>
+      </form>
+      <p class="yt-import-modal__status" id="ytImportStatus" hidden>Menghubungkan ke YouTube…</p>
       <div class="yt-import-modal__channel" id="ytImportChannelInfo" hidden></div>
       <div class="yt-import-toolbar" id="ytImportToolbar" hidden>
         <label class="checkbox-row">
@@ -2814,6 +2834,8 @@ function setVideoSourceToggle(source){
   };
   fieldVideoUrl.placeholder = placeholders[source];
 
+  document.getElementById('ytImportEntryBtn').hidden = source !== 'youtube';
+
   updateVideoPreview();
 }
 
@@ -3143,6 +3165,8 @@ function extractHashtagsAsTags(text){
 }
 
 const ytImportOverlay = document.getElementById('ytImportOverlay');
+const ytImportInputStep = document.getElementById('ytImportInputStep');
+const ytImportUrlInput = document.getElementById('ytImportUrlInput');
 const ytImportStatus = document.getElementById('ytImportStatus');
 const ytImportChannelInfo = document.getElementById('ytImportChannelInfo');
 const ytImportToolbar = document.getElementById('ytImportToolbar');
@@ -3154,16 +3178,41 @@ const ytImportSaveBtn = document.getElementById('ytImportSaveBtn');
 
 let ytImportData = { channel: null, videos: [] };
 
-async function openYtImportModal(rawUrl){
+/** Opens the modal. Pass a URL when it's already known (from the inline
+ *  channel-detected banner) to skip straight to fetching; call with no
+ *  argument (the persistent "Impor sekaligus" button) to ask for the link
+ *  first. */
+function openYtImportModal(prefilledUrl){
   ytImportData = { channel: null, videos: [] };
-  ytImportStatus.hidden = false;
-  ytImportStatus.textContent = 'Menghubungkan ke YouTube…';
   ytImportChannelInfo.hidden = true;
   ytImportToolbar.hidden = true;
   ytImportFooter.hidden = true;
   ytImportSelectAll.checked = false;
   ytImportList.innerHTML = '';
+  ytImportStatus.hidden = true;
   openOverlay(ytImportOverlay);
+
+  if(prefilledUrl){
+    ytImportInputStep.hidden = true;
+    startYtImportFetch(prefilledUrl);
+  }else{
+    ytImportInputStep.hidden = false;
+    ytImportUrlInput.value = '';
+    ytImportUrlInput.focus();
+  }
+}
+
+ytImportInputStep.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const val = ytImportUrlInput.value.trim();
+  if(!val) return;
+  ytImportInputStep.hidden = true;
+  startYtImportFetch(val);
+});
+
+async function startYtImportFetch(rawUrl){
+  ytImportStatus.hidden = false;
+  ytImportStatus.textContent = 'Menghubungkan ke YouTube…';
 
   try{
     const res = await fetch('/api/youtube-import?url=' + encodeURIComponent(rawUrl));
@@ -3201,6 +3250,7 @@ async function openYtImportModal(rawUrl){
     ytImportStatus.textContent = 'Gagal memuat: ' + err.message;
   }
 }
+
 
 function renderYtImportList(){
   ytImportList.innerHTML = ytImportData.videos.map((v, i) => {
@@ -3245,6 +3295,7 @@ ytImportSelectAll.addEventListener('change', () => {
 });
 
 function closeYtImportModal(){ closeOverlay(ytImportOverlay); }
+document.getElementById('ytImportEntryBtn').addEventListener('click', () => openYtImportModal());
 document.getElementById('ytImportCloseBtn').addEventListener('click', closeYtImportModal);
 document.getElementById('ytImportCancelBtn').addEventListener('click', closeYtImportModal);
 ytImportOverlay.addEventListener('click', (e) => { if(e.target === ytImportOverlay) closeYtImportModal(); });

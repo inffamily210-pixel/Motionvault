@@ -53,7 +53,7 @@ Setelah deploy, situs kamu langsung online dengan domain `*.vercel.app` (bisa di
 
 ## 4. (Opsional) Aktifkan impor otomatis dari channel YouTube
 
-Di form **Tambah Baru**, kalau field URL video ditempelin link **akun/channel YouTube** (bukan link satu video), muncul tombol buat impor semua video dari channel itu sekaligus jadi draft preset — judul, thumbnail, dan link download yang ketemu di deskripsi tiap video (Google Drive, Mediafire, file `.xml`, dll.) otomatis keisi. Nggak langsung tersimpan — tinggal dicek satu-satu di daftar, pilih mana yang mau diimpor, baru disimpan ke Firestore.
+Di form **Tambah Baru**, tab YouTube, ada tombol **"Punya banyak preset di 1 channel? Impor sekaligus dari sini"** tepat di bawah pilihan YouTube/TikTok/Link MP4 — tinggal ketuk, tempel link akun/channel-nya (boleh juga langsung tempel link channel di field URL video, nanti kedeteksi otomatis). Semua video channel itu jadi draft preset — judul, thumbnail, dan link download yang ketemu di deskripsi tiap video (Google Drive, Mediafire, file `.xml`, dll.) otomatis keisi. Nggak langsung tersimpan — tinggal dicek satu-satu di daftar, pilih mana yang mau diimpor, baru disimpan ke Firestore.
 
 Fitur ini butuh file baru `api/youtube-import.js` (sudah ada di paket ini) plus satu **YouTube Data API v3 key** (beda dari config Firebase di atas, dan cuma dipakai di server, nggak pernah kekirim ke browser):
 
