@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Firestore Security Rules untuk MotionVault
+// Cara pakai: Firebase Console → Firestore Database → Rules → tempel isi file ini → Publish
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Semua orang boleh BACA daftar preset (biar situs bisa dibuka publik).
+    // Hanya email admin di bawah ini yang boleh tambah/edit/hapus preset.
+    // (Dikunci ke email spesifik, bukan cuma "asal sudah login", sebagai
+    // lapisan keamanan ekstra kalau suatu saat ada akun lain di project ini.)
+    match /presets/{presetId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                    && request.auth.token.email == 'nezzstore081@gmail.com';
+    }
+  }
+}
