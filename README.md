@@ -8,6 +8,7 @@ Isi paket ini:
 ```
 index.html        → seluruh website (HTML+CSS+JS jadi satu file, config Firebase sudah terisi)
 api/youtube-import.js → backend kecil (Vercel Function) khusus buat fitur impor channel YouTube — lihat bagian 4 di bawah
+package.json       → penanda buat Vercel supaya folder api/ di-build jadi function beneran (bukan disajikan sebagai file statis)
 firestore.rules   → aturan keamanan database, tinggal copy-paste ke Firebase Console
 vercel.json       → konfigurasi kecil buat Vercel
 README.md         → panduan ini
