@@ -74,6 +74,17 @@ Catatan:
 
 ---
 
+## 5. Update: rating, laporan link rusak, mode gelap/terang
+
+**⚠️ Wajib dilakukan:** `firestore.rules` di paket ini isinya berubah (nambah aturan buat koleksi baru `reports` dan sub-koleksi `ratings`, plus benerin bug lama soal hitungan unduhan). Ulangi langkah 3 di bagian 1 di atas — **Firebase Console → Firestore Database → Rules → hapus isi lama → tempel isi `firestore.rules` yang baru → Publish.** Tanpa ini, fitur rating & laporan di bawah nggak akan bisa nyimpen data (kena tolak sama rule lama).
+
+Yang baru:
+- **Mode gelap/terang** — tombol ikon matahari/bulan di pojok kanan atas, tersimpan otomatis per perangkat.
+- **Rating bintang** — muncul di detail preset (pas video-nya dibuka), pengunjung bisa kasih 1–5 bintang sekali per preset per perangkat. Rata-rata dihitung otomatis dari semua rating yang masuk.
+- **Laporkan link rusak** — tombol ikon bendera di sebelah tombol favorit/share di detail preset. Laporan masuk ke tab baru **"Laporan"** di panel admin, lengkap dengan daftar link preset itu waktu dilaporkan dan tombol "Tandai selesai".
+- **Cegah dobel impor** — pas impor channel YouTube yang sama lagi, video yang link-nya udah ada di database otomatis dikasih label "Sudah pernah diimpor" dan nggak dicentang default.
+- **Perbaikan:** hitungan "unduhan" di tiap preset sekarang beneran kesimpen ke database waktu pengunjung (bukan cuma admin) klik download — sebelumnya cuma nambah di layar orang yang klik, nggak pernah benar-benar tersimpan.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
