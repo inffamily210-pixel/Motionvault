@@ -3146,11 +3146,34 @@ function detectRatioHint(line){
   return '';
 }
 
+/** Strips list markers, arrows, and stray colons/dashes off a chunk of text
+ *  sitting right next to a link, so "→ 9:16 :" becomes "9:16" and "- Preset
+ *  Sad Boy:" becomes "Preset Sad Boy". Returns '' if nothing usable is left. */
+function cleanLinePrefix(raw){
+  let s = (raw || '')
+    .replace(/^[\s\-•*·►▶➡→‣][\s\-•*·►▶➡→]*/, '')
+    .replace(/^\d+[.)]\s*/, '')
+    .replace(/[\s:：\-–—|]+$/, '')
+    .trim();
+  const wrapped = s.match(/^[\[(【]([^\])】]+)[\])】]$/);
+  if(wrapped) s = wrapped[1].trim();
+  return s;
+}
+
 /** Pull out plausible download links from a video description. Deliberately
  *  generous — anything that isn't obviously a social/video link gets
  *  surfaced — since this only feeds a review list the admin checks before
  *  anything is saved. Better to show a maybe-irrelevant link than silently
- *  miss a real one. */
+ *  miss a real one.
+ *
+ *  Labeling priority per link: (1) whatever short text the creator actually
+ *  wrote right before/after it on the same line — this is the most specific
+ *  and correct label there is, whether that's a ratio, a preset name, or
+ *  anything else; (2) a detected ratio/format hint anywhere on that line;
+ *  (3) a bare host name (Google Drive, Alight Creative, etc). This matters
+ *  because a lot of creators list several links on one host (e.g. multiple
+ *  Alight Creative share links) that would otherwise all render with the
+ *  exact same unhelpful label. */
 function extractLinksFromText(text){
   if(!text) return [];
   const urlRe = /https?:\/\/[^\s<>"')\]]+/g;
@@ -3166,15 +3189,26 @@ function extractLinksFromText(text){
     if(YT_IMPORT_EXCLUDE_HOST_RE.test(host)) continue;
     seen.add(url);
 
-    // Same line as the link usually carries the ratio, e.g. "9:16: <link>"
-    // or "<link> (1:1)" — check the whole line, not just before/after.
     let lineStart = text.lastIndexOf('\n', m.index) + 1;
     let lineEnd = text.indexOf('\n', m.index);
     if(lineEnd === -1) lineEnd = text.length;
-    const ratio = detectRatioHint(text.slice(lineStart, lineEnd));
+    const fullLine = text.slice(lineStart, lineEnd);
+    const before = cleanLinePrefix(text.slice(lineStart, m.index));
+    const after = cleanLinePrefix(text.slice(m.index + raw.length, lineEnd));
+    const usable = (s) => s && s.length <= 40 && /[a-zA-Z0-9]/.test(s);
+    const customText = usable(before) ? before : (usable(after) ? after : '');
 
-    let label = inferLabelFromUrl(url);
-    if(ratio && !(label === 'File XML' && ratio === 'XML')) label += ` · ${ratio}`;
+    const hostLabel = inferLabelFromUrl(url);
+    const ratio = detectRatioHint(fullLine);
+
+    let label;
+    if(customText){
+      label = customText;
+    }else if(ratio && !(hostLabel === 'File XML' && ratio === 'XML')){
+      label = `${hostLabel} · ${ratio}`;
+    }else{
+      label = hostLabel;
+    }
 
     results.push({ label, url, isXml: /\.xml(\?|#|$)/i.test(url) });
   }
