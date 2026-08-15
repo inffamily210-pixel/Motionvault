@@ -1233,7 +1233,16 @@ button{ font-family:inherit; }
                 <option value="Google Drive"></option>
                 <option value="Alight Creative"></option>
                 <option value="Mediafire"></option>
+                <option value="Google Drive · 9:16"></option>
+                <option value="Google Drive · 1:1"></option>
+                <option value="Google Drive · 16:9"></option>
+                <option value="9:16"></option>
+                <option value="1:1"></option>
+                <option value="16:9"></option>
+                <option value="4:5"></option>
+                <option value="XML"></option>
               </datalist>
+              <p class="hint" style="display:block;margin-top:6px;">Kalau ada beberapa link buat ukuran beda (9:16, 1:1, 16:9), tulis ukurannya di nama sumber tiap baris biar nggak ketuker pas orang mau download.</p>
             </div>
 
             <div class="field field--full">
@@ -3119,6 +3128,24 @@ function looksLikeYouTubeChannelRef(url){
 // actual preset file — no point surfacing them as download-link candidates.
 const YT_IMPORT_EXCLUDE_HOST_RE = /(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)instagram\.com$|(^|\.)tiktok\.com$|(^|\.)facebook\.com$|(^|\.)fb\.watch$|(^|\.)twitter\.com$|(^|\.)x\.com$|(^|\.)wa\.me$|(^|\.)whatsapp\.com$|(^|\.)threads\.net$/;
 
+/** Looks for an aspect-ratio or format hint (9:16, 1:1, 16:9, "vertical",
+ *  "XML", etc.) in a line of text. Presets are commonly shared as several
+ *  links side by side — one per ratio — on the same host, so without this
+ *  they'd all get an identical label like "Google Drive" and be impossible
+ *  to tell apart in the download picker. */
+function detectRatioHint(line){
+  const t = (line || '').toLowerCase();
+  if(/\b9\s*[:x]\s*16\b/.test(t)) return '9:16';
+  if(/\b16\s*[:x]\s*9\b/.test(t)) return '16:9';
+  if(/\b1\s*[:x]\s*1\b/.test(t)) return '1:1';
+  if(/\b4\s*[:x]\s*5\b/.test(t)) return '4:5';
+  if(/\bvertical\b|\bportrait\b/.test(t)) return '9:16';
+  if(/\bsquare\b/.test(t)) return '1:1';
+  if(/\bhorizontal\b|\blandscape\b/.test(t)) return '16:9';
+  if(/\bxml\b/.test(t)) return 'XML';
+  return '';
+}
+
 /** Pull out plausible download links from a video description. Deliberately
  *  generous — anything that isn't obviously a social/video link gets
  *  surfaced — since this only feeds a review list the admin checks before
@@ -3126,19 +3153,31 @@ const YT_IMPORT_EXCLUDE_HOST_RE = /(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)in
  *  miss a real one. */
 function extractLinksFromText(text){
   if(!text) return [];
-  const found = text.match(/https?:\/\/[^\s<>"')\]]+/g) || [];
+  const urlRe = /https?:\/\/[^\s<>"')\]]+/g;
   const seen = new Set();
   const results = [];
-  found.forEach(raw => {
+  for(const m of text.matchAll(urlRe)){
+    const raw = m[0];
     const url = raw.replace(/[.,;:!?]+$/, '');
-    if(seen.has(url)) return;
+    if(seen.has(url)) continue;
     let host;
     try{ host = new URL(url).hostname.replace(/^www\./, ''); }
-    catch(e){ return; }
-    if(YT_IMPORT_EXCLUDE_HOST_RE.test(host)) return;
+    catch(e){ continue; }
+    if(YT_IMPORT_EXCLUDE_HOST_RE.test(host)) continue;
     seen.add(url);
-    results.push({ label: inferLabelFromUrl(url), url, isXml: /\.xml(\?|#|$)/i.test(url) });
-  });
+
+    // Same line as the link usually carries the ratio, e.g. "9:16: <link>"
+    // or "<link> (1:1)" — check the whole line, not just before/after.
+    let lineStart = text.lastIndexOf('\n', m.index) + 1;
+    let lineEnd = text.indexOf('\n', m.index);
+    if(lineEnd === -1) lineEnd = text.length;
+    const ratio = detectRatioHint(text.slice(lineStart, lineEnd));
+
+    let label = inferLabelFromUrl(url);
+    if(ratio && !(label === 'File XML' && ratio === 'XML')) label += ` · ${ratio}`;
+
+    results.push({ label, url, isXml: /\.xml(\?|#|$)/i.test(url) });
+  }
   return results;
 }
 
