@@ -562,6 +562,17 @@ button{ font-family:inherit; }
 .video-modal__actions{ display:flex; gap:8px; margin-top:2px; }
 
 .video-modal__rating{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding-top:2px; }
+
+.video-modal__similar{ padding-top:14px; border-top:1px solid var(--line); }
+
+/* Horizontal recommendation shelf (reused by "Rekomendasi buat kamu" + "Preset Serupa") */
+.rec-row{
+  display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;
+  scrollbar-width:none; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+}
+.rec-row::-webkit-scrollbar{ display:none; }
+.rec-row .preset-card{ flex:0 0 128px; width:128px; scroll-snap-align:start; }
+@media (min-width:560px){ .rec-row .preset-card{ flex-basis:156px; width:156px; } }
 .rating-summary{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-dim); }
 .rating-summary__stars{ display:inline-flex; gap:1px; color:var(--warn); }
 .rating-summary__stars svg{ display:block; }
@@ -986,6 +997,11 @@ button{ font-family:inherit; }
 
       <div class="container">
 
+        <div class="stats-block" id="recommendedSection" hidden>
+          <h3 class="stats-block__title" id="recommendedTitle">✨ Rekomendasi buat kamu</h3>
+          <div class="rec-row" id="recommendedGrid"></div>
+        </div>
+
         <!-- Search + Filters -->
         <div class="toolbar">
           <div class="search">
@@ -1149,6 +1165,11 @@ button{ font-family:inherit; }
       </div>
 
       <div class="video-modal__rating" id="videoModalRating"></div>
+
+      <div class="video-modal__similar" id="videoModalSimilarWrap" hidden>
+        <h3 class="stats-block__title" style="margin-bottom:10px;">Preset Serupa</h3>
+        <div class="rec-row" id="videoModalSimilarGrid"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2055,6 +2076,94 @@ function allEffectsFromPresets(){
 }
 
 /* ============================================================
+   RECOMMENDATIONS
+   Two flavors, both content-based (no server-side ML needed):
+   1. "Preset Serupa"      — presets similar to the one being viewed
+                              (shared category/creator/effect/ratio/tags).
+   2. "Rekomendasi buat kamu" — presets matching a lightweight profile
+                              built from this device's favorites, with
+                              a popularity/featured fallback for visitors
+                              who haven't favorited anything yet.
+============================================================ */
+function scorePresetSimilarity(base, candidate){
+  let score = 0;
+  if(candidate.category === base.category) score += 3;
+  if(base.creator && candidate.creator === base.creator) score += 2;
+  if(base.effect && candidate.effect === base.effect) score += 2;
+  if(base.ratio && candidate.ratio === base.ratio) score += 1;
+  if(base.fps && candidate.fps === base.fps) score += 1;
+  const baseTags = new Set(base.tags||[]);
+  const overlap = (candidate.tags||[]).filter(t => baseTags.has(t)).length;
+  score += overlap * 2;
+  return score;
+}
+
+/** Presets related to `preset` — same category/creator/effect/tags, ranked by relevance then popularity. */
+function getSimilarPresets(preset, limit){
+  limit = limit || 8;
+  return State.presets
+    .filter(p => p.id !== preset.id)
+    .map(p => ({ preset: p, score: scorePresetSimilarity(preset, p) }))
+    .filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score || b.preset.downloads - a.preset.downloads || b.preset.createdAt - a.preset.createdAt)
+    .slice(0, limit)
+    .map(x => x.preset);
+}
+
+/** Aggregate what this device's favorited presets have in common (category/tag/creator/effect frequency). */
+function buildFavoriteProfile(){
+  const favPresets = State.presets.filter(p => State.favorites.includes(p.id));
+  const profile = { category:{}, tag:{}, creator:{}, effect:{} };
+  favPresets.forEach(p => {
+    if(p.category) profile.category[p.category] = (profile.category[p.category]||0) + 1;
+    if(p.creator) profile.creator[p.creator] = (profile.creator[p.creator]||0) + 1;
+    if(p.effect) profile.effect[p.effect] = (profile.effect[p.effect]||0) + 1;
+    (p.tags||[]).forEach(t => { profile.tag[t] = (profile.tag[t]||0) + 1; });
+  });
+  return profile;
+}
+
+function scoreAgainstProfile(profile, candidate){
+  let score = (profile.category[candidate.category]||0) * 3;
+  if(candidate.creator) score += (profile.creator[candidate.creator]||0) * 2;
+  if(candidate.effect) score += (profile.effect[candidate.effect]||0) * 1.5;
+  (candidate.tags||[]).forEach(t => { score += (profile.tag[t]||0) * 2; });
+  return score;
+}
+
+/**
+ * Personalized picks based on this device's favorites. Falls back to
+ * featured/most-downloaded when there aren't any favorites yet, so new
+ * visitors still get a useful shelf instead of an empty one.
+ */
+function getRecommendedForYou(limit){
+  limit = limit || 10;
+  const pool = State.presets.filter(p => !State.favorites.includes(p.id));
+
+  if(State.favorites.length === 0){
+    return pool.slice()
+      .sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.downloads - a.downloads)
+      .slice(0, limit);
+  }
+
+  const profile = buildFavoriteProfile();
+  const scored = pool
+    .map(p => ({ preset: p, score: scoreAgainstProfile(profile, p) }))
+    .sort((a,b) => b.score - a.score || b.preset.downloads - a.preset.downloads);
+
+  // if favorites are too niche to produce enough matches, top up with popular picks
+  const matched = scored.filter(x => x.score > 0).map(x => x.preset);
+  if(matched.length < limit){
+    const usedIds = new Set(matched.map(p => p.id));
+    const filler = pool
+      .filter(p => !usedIds.has(p.id))
+      .sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.downloads - a.downloads);
+    return matched.concat(filler).slice(0, limit);
+  }
+  return matched.slice(0, limit);
+}
+
+/* ============================================================
    TOAST SYSTEM
 ============================================================ */
 const toastStack = document.getElementById('toastStack');
@@ -2224,6 +2333,42 @@ function renderGridInto(container, presets, emptyEl, opts){
   const frag = document.createDocumentFragment();
   presets.forEach((p, i) => frag.appendChild(buildPresetCard(p, i)));
   container.appendChild(frag);
+}
+
+/** "Preset Serupa" shelf inside the video modal — hidden entirely if nothing is genuinely related. */
+function renderSimilarPresets(preset){
+  const wrap = document.getElementById('videoModalSimilarWrap');
+  const grid = document.getElementById('videoModalSimilarGrid');
+  const similar = getSimilarPresets(preset, 8);
+  wrap.hidden = similar.length === 0;
+  if(similar.length === 0) return;
+  renderGridInto(grid, similar, null);
+}
+
+/**
+ * "Rekomendasi buat kamu" shelf on the homepage. Only shown once there's
+ * a large enough catalog that a curated shelf adds something beyond the
+ * main grid right below it.
+ */
+function renderRecommendedSection(){
+  const section = document.getElementById('recommendedSection');
+  const title = document.getElementById('recommendedTitle');
+  const grid = document.getElementById('recommendedGrid');
+
+  if(State.presets.length <= 6){
+    section.hidden = true;
+    return;
+  }
+
+  const picks = getRecommendedForYou(10);
+  if(picks.length === 0){
+    section.hidden = true;
+    return;
+  }
+
+  title.textContent = State.favorites.length > 0 ? '✨ Rekomendasi buat kamu' : '🔥 Lagi Populer';
+  section.hidden = false;
+  renderGridInto(grid, picks, null);
 }
 
 /* ============================================================
@@ -2415,6 +2560,7 @@ function renderBrowseView(){
   renderCategoryChips();
   renderTagFilterPanel();
   renderActiveFilters();
+  renderRecommendedSection();
 
   const filtered = getFilteredPresets();
   renderGridInto(presetGrid, filtered, emptyState);
@@ -2777,8 +2923,10 @@ function openVideoModal(id){
 
   syncVideoModalFavButton(id);
   loadAndRenderRatings(id);
+  renderSimilarPresets(preset);
 
   openOverlay(videoModalOverlay);
+  document.getElementById('videoModal').scrollTop = 0;
 
   // update URL hash for shareability (without triggering scroll)
   if(history.replaceState){

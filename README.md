@@ -85,6 +85,15 @@ Yang baru:
 - **Cegah dobel impor** — pas impor channel YouTube yang sama lagi, video yang link-nya udah ada di database otomatis dikasih label "Sudah pernah diimpor" dan nggak dicentang default.
 - **Perbaikan:** hitungan "unduhan" di tiap preset sekarang beneran kesimpen ke database waktu pengunjung (bukan cuma admin) klik download — sebelumnya cuma nambah di layar orang yang klik, nggak pernah benar-benar tersimpan.
 
+## 6. Update: Smart Search & Rekomendasi Preset
+
+Nggak perlu update `firestore.rules` — dua fitur ini cuma nambah field baru di preset yang sudah ada, bukan koleksi baru.
+
+Yang baru:
+- **Smart Search** — tombol ikon slider di toolbar, buka modal pencarian lanjutan: nama preset, creator, kategori, effect, rasio video, FPS, resolution — semua kriteria bisa digabung sekaligus. Field Effect/Rasio video/FPS/Resolution baru ada di form Tambah/Edit Preset (semua opsional — preset lama tetap aman, cuma dianggap "belum diisi").
+- **Preset Serupa** — otomatis muncul di bagian bawah tiap detail preset (di bawah rating), isinya preset lain yang mirip (kategori/creator/effect/tag yang sama). Section-nya sembunyi otomatis kalau memang nggak ada yang mirip.
+- **Rekomendasi buat kamu** — shelf horizontal di atas daftar utama beranda. Kalau pengunjung sudah pernah nge-favorit sesuatu, isinya dipersonalisasi berdasarkan kategori/tag/creator/effect dari favoritnya. Belum ada favorit sama sekali → otomatis nampilin preset Unggulan & paling banyak diunduh dulu (label section-nya ganti jadi "🔥 Lagi Populer"). Section ini baru muncul kalau total preset di database lebih dari 6, biar nggak keliatan redundan sama daftar utama pas katalog masih dikit.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
