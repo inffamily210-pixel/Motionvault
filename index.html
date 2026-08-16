@@ -838,6 +838,23 @@ button{ font-family:inherit; }
    STATS VIEW
 ============================================================ */
 .stat-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:28px; }
+
+.data-card__hint{ font-size:12.5px; color:var(--text-faint); line-height:1.5; margin-bottom:12px; }
+
+.dash-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:24px; }
+.dash-stat{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius); padding:14px; }
+.dash-stat__num{ display:block; font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
+.dash-stat__label{ font-size:11.5px; color:var(--text-faint); }
+.dash-shortcuts{ display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+
+.manage-list{ display:flex; flex-direction:column; gap:2px; border:1px solid var(--surface-border); border-radius:var(--radius); overflow:hidden; margin-bottom:24px; }
+.manage-row{ display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--surface); }
+.manage-row__name{ flex:1; min-width:0; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.manage-row__count{ font-size:11.5px; color:var(--text-faint); font-family:var(--font-mono); flex-shrink:0; }
+.manage-row__actions{ display:flex; gap:6px; flex-shrink:0; }
+.manage-row__actions button{ background:none; border:1px solid var(--surface-border); border-radius:8px; padding:5px 9px; font-size:11.5px; color:var(--text-dim); cursor:pointer; }
+.manage-row__actions button:hover{ border-color:var(--accent); color:var(--accent); }
+.manage-row__actions button.is-danger:hover{ border-color:var(--danger); color:var(--danger); }
 @media (min-width:640px){ .stat-cards{ grid-template-columns:repeat(4,1fr); } }
 .stat-card{
   background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius);
@@ -1318,16 +1335,34 @@ button{ font-family:inherit; }
     </header>
 
     <nav class="admin-tabs" aria-label="Tab admin">
-      <button class="admin-tabs__btn is-active" data-admin-tab="list" type="button">Semua Preset</button>
+      <button class="admin-tabs__btn is-active" data-admin-tab="dashboard" type="button">Dashboard</button>
+      <button class="admin-tabs__btn" data-admin-tab="list" type="button">Semua Preset</button>
       <button class="admin-tabs__btn" data-admin-tab="form" type="button">Tambah Baru</button>
+      <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Tag &amp; Creator</button>
       <button class="admin-tabs__btn" data-admin-tab="reports" type="button">Laporan <span class="count-pill" id="reportsCountPill" hidden>0</span></button>
       <button class="admin-tabs__btn" data-admin-tab="data" type="button">Data &amp; Backup</button>
     </nav>
 
     <div class="admin-content">
 
+      <!-- DASHBOARD TAB -->
+      <div class="admin-tabpanel" data-admin-panel="dashboard">
+        <div class="dash-stats" id="dashStats"></div>
+
+        <div class="stats-block">
+          <h3 class="stats-block__title">Preset Terbaru</h3>
+          <div class="rank-list" id="dashRecentList"></div>
+        </div>
+
+        <div class="dash-shortcuts">
+          <button class="btn btn--secondary btn--sm" id="dashShortcutAdd" type="button">+ Preset Baru</button>
+          <button class="btn btn--secondary btn--sm" id="dashShortcutReports" type="button">Lihat Laporan</button>
+          <button class="btn btn--secondary btn--sm" id="dashShortcutManage" type="button">Kelola Tag &amp; Creator</button>
+        </div>
+      </div>
+
       <!-- LIST TAB -->
-      <div class="admin-tabpanel" data-admin-panel="list">
+      <div class="admin-tabpanel" data-admin-panel="list" hidden>
         <div class="admin-listbar">
           <input type="search" id="adminSearchInput" class="text-input text-input--sm" placeholder="Cari preset…">
           <select id="adminCategoryFilter" class="select-sort select-sort--sm">
@@ -1495,6 +1530,21 @@ button{ font-family:inherit; }
             <button type="submit" class="btn btn--primary" id="formSubmitBtn">Simpan Preset</button>
           </div>
         </form>
+      </div>
+
+      <!-- MANAGE TAGS & CREATORS TAB -->
+      <div class="admin-tabpanel" data-admin-panel="manage" hidden>
+        <div class="stats-block">
+          <h3 class="stats-block__title">Tag <span class="hint" id="manageTagCount"></span></h3>
+          <p class="data-card__hint">Ganti nama tag akan langsung berlaku di semua preset yang memakainya. Hapus akan mencopot tag itu dari semua preset (preset-nya sendiri tidak terhapus).</p>
+          <div class="manage-list" id="manageTagList"></div>
+        </div>
+
+        <div class="stats-block">
+          <h3 class="stats-block__title">Creator <span class="hint" id="manageCreatorCount"></span></h3>
+          <p class="data-card__hint">Sama seperti tag — ganti nama creator otomatis berlaku di semua presetnya.</p>
+          <div class="manage-list" id="manageCreatorList"></div>
+        </div>
       </div>
 
       <!-- REPORTS TAB -->
@@ -1919,6 +1969,8 @@ function onPresetsSnapshot(snapshot){
   if(!adminPanelOverlay.hidden){
     populateAdminCategoryFilter();
     renderAdminTable();
+    renderAdminDashboard();
+    renderManageTagsCreators();
   }
 
   if(!State.deepLinkHandled){
@@ -3248,7 +3300,7 @@ document.getElementById('adminLogoutBtn').addEventListener('click', () => {
 function openAdminPanel(){
   openOverlay(adminPanelOverlay);
   populateAdminCategoryFilter();
-  switchAdminTab('list');
+  switchAdminTab('dashboard');
   refreshReportsBadge();
 }
 function closeAdminPanel(){
@@ -3267,8 +3319,10 @@ function switchAdminTab(tab){
   document.querySelectorAll('.admin-tabs__btn').forEach(b => b.classList.toggle('is-active', b.dataset.adminTab === tab));
   document.querySelectorAll('[data-admin-panel]').forEach(p => p.hidden = p.dataset.adminPanel !== tab);
 
+  if(tab === 'dashboard') renderAdminDashboard();
   if(tab === 'list') renderAdminTable();
   if(tab === 'form' && !State.adminEditingId) resetPresetForm();
+  if(tab === 'manage') renderManageTagsCreators();
   if(tab === 'reports') loadAndRenderReports();
 }
 
@@ -3380,6 +3434,188 @@ function getAdminFilteredPresets(){
     list = list.filter(p => p.name.toLowerCase().includes(q) || (p.creator||'').toLowerCase().includes(q));
   }
   return list;
+}
+
+/* ============================================================
+   ADMIN — DASHBOARD TAB
+============================================================ */
+function renderAdminDashboard(){
+  const total = State.presets.length;
+  const totalDownloads = State.presets.reduce((s,p) => s + (p.downloads||0), 0);
+  const incompleteMeta = State.presets.filter(p => !p.effect && !p.ratio && !p.fps && !p.resolution).length;
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="dash-stat"><span class="dash-stat__num">${formatNumber(total)}</span><span class="dash-stat__label">Total Preset</span></div>
+    <div class="dash-stat"><span class="dash-stat__num">${formatNumber(totalDownloads)}</span><span class="dash-stat__label">Total Unduhan</span></div>
+    <div class="dash-stat"><span class="dash-stat__num" id="dashReportsNum">…</span><span class="dash-stat__label">Laporan Belum Selesai</span></div>
+    <div class="dash-stat"><span class="dash-stat__num">${formatNumber(incompleteMeta)}</span><span class="dash-stat__label">Belum Ada Effect/Rasio/FPS/Res</span></div>
+  `;
+
+  db.collection('reports').get()
+    .then(snap => {
+      const openCount = snap.docs.filter(d => d.data().status !== 'resolved').length;
+      const el = document.getElementById('dashReportsNum');
+      if(el) el.textContent = formatNumber(openCount);
+    })
+    .catch(() => {
+      const el = document.getElementById('dashReportsNum');
+      if(el) el.textContent = '–';
+    });
+
+  const recent = State.presets.slice().sort((a,b) => b.createdAt - a.createdAt).slice(0, 5);
+  document.getElementById('dashRecentList').innerHTML = recent.length
+    ? recent.map(p => `
+        <button type="button" class="rank-item" data-open-edit="${p.id}" style="width:100%; text-align:left; cursor:pointer; border:none; font:inherit; color:inherit;">
+          <img class="rank-item__thumb" src="${escapeHtml(resolveThumb(p))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+          <span class="rank-item__name">${escapeHtml(p.name)}</span>
+          <span class="rank-item__stat">${formatDate(p.createdAt)}</span>
+        </button>
+      `).join('')
+    : `<p class="stats-empty">Belum ada preset.</p>`;
+
+  document.getElementById('dashRecentList').querySelectorAll('[data-open-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchAdminTab('form');
+      startEditPreset(btn.dataset.openEdit);
+    });
+  });
+}
+
+document.getElementById('dashShortcutAdd').addEventListener('click', () => switchAdminTab('form'));
+document.getElementById('dashShortcutReports').addEventListener('click', () => switchAdminTab('reports'));
+document.getElementById('dashShortcutManage').addEventListener('click', () => switchAdminTab('manage'));
+
+/* ============================================================
+   ADMIN — TAG & CREATOR MANAGEMENT
+   Tags/creators aren't a separate collection — they live as fields on
+   preset docs — so "managing" them means batch-editing every preset
+   that references a given value. bulkUpdatePresets() chunks writes
+   under Firestore's 500-ops-per-batch limit.
+============================================================ */
+function bulkUpdatePresets(presets, updateFn){
+  if(presets.length === 0) return Promise.resolve();
+  let batch = db.batch();
+  let count = 0;
+  const commits = [];
+  presets.forEach(p => {
+    batch.update(db.collection(PRESETS_COLLECTION).doc(p.id), updateFn(p));
+    count++;
+    if(count === 450){ commits.push(batch.commit()); batch = db.batch(); count = 0; }
+  });
+  commits.push(batch.commit());
+  return Promise.all(commits);
+}
+
+function bulkRenameTag(oldTag, newTag){
+  const affected = State.presets.filter(p => (p.tags||[]).includes(oldTag));
+  return bulkUpdatePresets(affected, p => ({
+    tags: Array.from(new Set(p.tags.map(t => t === oldTag ? newTag : t)))
+  }));
+}
+function bulkDeleteTag(tag){
+  const affected = State.presets.filter(p => (p.tags||[]).includes(tag));
+  return bulkUpdatePresets(affected, p => ({ tags: p.tags.filter(t => t !== tag) }));
+}
+function bulkRenameCreator(oldCreator, newCreator){
+  const affected = State.presets.filter(p => p.creator === oldCreator);
+  return bulkUpdatePresets(affected, () => ({ creator: newCreator }));
+}
+function bulkClearCreator(creator){
+  const affected = State.presets.filter(p => p.creator === creator);
+  return bulkUpdatePresets(affected, () => ({ creator: '' }));
+}
+
+function renderManageTagsCreators(){
+  const tags = allTagsFromPresets();
+  const creators = allCreatorsFromPresets();
+  const tagCounts = {}, creatorCounts = {};
+  State.presets.forEach(p => {
+    (p.tags||[]).forEach(t => tagCounts[t] = (tagCounts[t]||0) + 1);
+    if(p.creator) creatorCounts[p.creator] = (creatorCounts[p.creator]||0) + 1;
+  });
+
+  document.getElementById('manageTagCount').textContent = `(${tags.length})`;
+  document.getElementById('manageCreatorCount').textContent = `(${creators.length})`;
+
+  const tagListEl = document.getElementById('manageTagList');
+  tagListEl.innerHTML = tags.length ? tags.map(t => `
+    <div class="manage-row">
+      <span class="manage-row__name">${escapeHtml(t)}</span>
+      <span class="manage-row__count">${tagCounts[t]||0} preset</span>
+      <div class="manage-row__actions">
+        <button type="button" data-rename-tag="${escapeHtml(t)}">Ganti nama</button>
+        <button type="button" class="is-danger" data-delete-tag="${escapeHtml(t)}">Hapus</button>
+      </div>
+    </div>
+  `).join('') : `<p class="stats-empty">Belum ada tag.</p>`;
+
+  const creatorListEl = document.getElementById('manageCreatorList');
+  creatorListEl.innerHTML = creators.length ? creators.map(c => `
+    <div class="manage-row">
+      <span class="manage-row__name">${escapeHtml(c)}</span>
+      <span class="manage-row__count">${creatorCounts[c]||0} preset</span>
+      <div class="manage-row__actions">
+        <button type="button" data-rename-creator="${escapeHtml(c)}">Ganti nama</button>
+        <button type="button" class="is-danger" data-clear-creator="${escapeHtml(c)}">Kosongkan</button>
+      </div>
+    </div>
+  `).join('') : `<p class="stats-empty">Belum ada creator.</p>`;
+
+  tagListEl.querySelectorAll('[data-rename-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const oldTag = btn.dataset.renameTag;
+      const input = window.prompt(`Ganti nama tag "${oldTag}" jadi:`, oldTag);
+      if(input === null) return;
+      const newTag = input.trim();
+      if(!newTag || newTag === oldTag) return;
+      bulkRenameTag(oldTag, newTag)
+        .then(() => showToast('Tag berhasil diganti nama', 'success'))
+        .catch(err => { console.error(err); showToast('Gagal mengganti nama tag', 'error'); });
+    });
+  });
+  tagListEl.querySelectorAll('[data-delete-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.deleteTag;
+      askConfirm({
+        title: `Hapus tag "${tag}"?`,
+        body: `Tag ini akan dicopot dari ${tagCounts[tag]||0} preset yang memakainya. Preset-nya sendiri tidak ikut terhapus.`,
+        okLabel: 'Hapus Tag',
+        onConfirm: () => {
+          bulkDeleteTag(tag)
+            .then(() => showToast('Tag berhasil dihapus', 'success'))
+            .catch(err => { console.error(err); showToast('Gagal menghapus tag', 'error'); });
+        }
+      });
+    });
+  });
+
+  creatorListEl.querySelectorAll('[data-rename-creator]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const oldCreator = btn.dataset.renameCreator;
+      const input = window.prompt(`Ganti nama creator "${oldCreator}" jadi:`, oldCreator);
+      if(input === null) return;
+      const newCreator = input.trim();
+      if(!newCreator || newCreator === oldCreator) return;
+      bulkRenameCreator(oldCreator, newCreator)
+        .then(() => showToast('Creator berhasil diganti nama', 'success'))
+        .catch(err => { console.error(err); showToast('Gagal mengganti nama creator', 'error'); });
+    });
+  });
+  creatorListEl.querySelectorAll('[data-clear-creator]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const creator = btn.dataset.clearCreator;
+      askConfirm({
+        title: `Kosongkan creator "${creator}"?`,
+        body: `Field creator akan dikosongkan di ${creatorCounts[creator]||0} preset yang memakainya. Preset-nya sendiri tidak ikut terhapus.`,
+        okLabel: 'Kosongkan',
+        onConfirm: () => {
+          bulkClearCreator(creator)
+            .then(() => showToast('Creator berhasil dikosongkan', 'success'))
+            .catch(err => { console.error(err); showToast('Gagal mengosongkan creator', 'error'); });
+        }
+      });
+    });
+  });
 }
 
 function renderAdminTable(){
