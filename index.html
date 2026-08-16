@@ -519,6 +519,9 @@ button{ font-family:inherit; }
 }
 .modal__close:hover{ background:var(--danger); border-color:var(--danger); }
 
+/* Generic modal body (reused by Smart Search modal, etc.) */
+.modal__body{ padding:20px 20px calc(20px + var(--safe-bottom)); display:flex; flex-direction:column; gap:14px; }
+
 /* Video modal specific */
 .video-modal__player{
   width:100%; aspect-ratio:16/9; background:#000; position:relative;
@@ -998,6 +1001,10 @@ button{ font-family:inherit; }
           </div>
 
           <div class="toolbar__row2">
+            <button class="tagfilter__toggle" id="smartSearchToggleBtn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+              <span id="smartSearchToggleLabel">Smart Search</span>
+            </button>
             <div class="tagfilter" id="tagFilterWrap">
               <button class="tagfilter__toggle" id="tagFilterToggle" type="button" aria-expanded="false">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 10.6 12 2H4v8l8.6 8.6a2 2 0 0 0 2.8 0l5.2-5.2a2 2 0 0 0 0-2.8Z"/><circle cx="8" cy="8" r="1"/></svg>
@@ -1160,6 +1167,88 @@ button{ font-family:inherit; }
   </div>
 </div>
 
+<!-- ============ SMART SEARCH MODAL ============ -->
+<div class="modal-overlay" id="smartSearchOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="smartSearchTitle">
+    <button class="modal__close" id="smartSearchClose" type="button" aria-label="Tutup">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal__body">
+      <div class="video-modal__headline">
+        <span class="badge">FILTER LANJUTAN</span>
+        <h3 id="smartSearchTitle">🔎 Smart Search</h3>
+      </div>
+
+      <div class="form-grid">
+        <div class="field field--full">
+          <label for="ssName">Nama preset</label>
+          <input type="text" id="ssName" class="text-input" placeholder="Cari berdasarkan nama preset…">
+        </div>
+        <div class="field">
+          <label for="ssCreator">Creator</label>
+          <select id="ssCreator" class="text-input">
+            <option value="all">Semua creator</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssCategory">Kategori</label>
+          <select id="ssCategory" class="text-input">
+            <option value="all">Semua kategori</option>
+            <option value="Alight Motion">Alight Motion</option>
+            <option value="CapCut">CapCut</option>
+            <option value="Premiere">Premiere</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssEffect">Effect</label>
+          <select id="ssEffect" class="text-input">
+            <option value="all">Semua effect</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssRatio">Rasio video</label>
+          <select id="ssRatio" class="text-input">
+            <option value="all">Semua rasio</option>
+            <option value="9:16">9:16 (Reels/TikTok/Shorts)</option>
+            <option value="16:9">16:9 (Landscape)</option>
+            <option value="1:1">1:1 (Persegi)</option>
+            <option value="4:5">4:5 (Portrait)</option>
+            <option value="3:4">3:4</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssFps">FPS</label>
+          <select id="ssFps" class="text-input">
+            <option value="all">Semua FPS</option>
+            <option value="24">24 fps</option>
+            <option value="30">30 fps</option>
+            <option value="60">60 fps</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssResolution">Resolution</label>
+          <select id="ssResolution" class="text-input">
+            <option value="all">Semua resolusi</option>
+            <option value="720p">720p (HD)</option>
+            <option value="1080p">1080p (Full HD)</option>
+            <option value="1440p">1440p (2K)</option>
+            <option value="2160p">2160p (4K)</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" id="smartSearchResetBtn">Reset Form</button>
+        <button type="button" class="btn btn--primary" id="smartSearchApplyBtn">Terapkan Filter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ ADMIN LOGIN MODAL ============ -->
 <div class="modal-overlay" id="adminLoginOverlay" hidden>
   <div class="modal login-modal" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
@@ -1283,6 +1372,48 @@ button{ font-family:inherit; }
             <div class="field field--full">
               <label for="fieldTags">Tag <span class="hint">(pisahkan pakai koma)</span></label>
               <input type="text" id="fieldTags" class="text-input" placeholder="Contoh: cinematic, warm, aesthetic, slow-mo">
+            </div>
+
+            <div class="field field--full">
+              <label for="fieldEffect">Effect <span class="hint">(opsional — biar bisa dicari lewat Smart Search)</span></label>
+              <input type="text" id="fieldEffect" class="text-input" list="effectSuggestions" placeholder="Contoh: Zoom Transition, Glitch RGB, Shake">
+              <datalist id="effectSuggestions"></datalist>
+            </div>
+
+            <div class="field">
+              <label for="fieldRatio">Rasio video <span class="hint">(opsional)</span></label>
+              <select id="fieldRatio" class="text-input">
+                <option value="">Pilih rasio</option>
+                <option value="9:16">9:16 (Reels/TikTok/Shorts)</option>
+                <option value="16:9">16:9 (Landscape)</option>
+                <option value="1:1">1:1 (Persegi)</option>
+                <option value="4:5">4:5 (Portrait)</option>
+                <option value="3:4">3:4</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="fieldFps">FPS <span class="hint">(opsional)</span></label>
+              <select id="fieldFps" class="text-input">
+                <option value="">Pilih FPS</option>
+                <option value="24">24 fps</option>
+                <option value="30">30 fps</option>
+                <option value="60">60 fps</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="fieldResolution">Resolution <span class="hint">(opsional)</span></label>
+              <select id="fieldResolution" class="text-input">
+                <option value="">Pilih resolusi</option>
+                <option value="720p">720p (HD)</option>
+                <option value="1080p">1080p (Full HD)</option>
+                <option value="1440p">1440p (2K)</option>
+                <option value="2160p">2160p (4K)</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
             </div>
 
             <div class="field field--full">
@@ -1676,7 +1807,13 @@ const State = {
     search: '',
     category: 'all',
     tags: [],          // selected tag filters (AND logic)
-    sort: 'newest'
+    sort: 'newest',
+    // Smart Search facets (all 'all' = not filtering on that facet)
+    creator: 'all',
+    effect: 'all',
+    ratio: 'all',
+    fps: 'all',
+    resolution: 'all'
   },
 
   adminTab: 'list',
@@ -1733,6 +1870,10 @@ function normalizePresetDoc(id, data){
     creator: data.creator ? String(data.creator) : '',
     description: data.description ? String(data.description) : '',
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+    effect: data.effect ? String(data.effect) : '',
+    ratio: data.ratio ? String(data.ratio) : '',
+    fps: data.fps ? String(data.fps) : '',
+    resolution: data.resolution ? String(data.resolution) : '',
     videoSource: ['youtube','tiktok','mp4'].includes(data.videoSource) ? data.videoSource : 'youtube',
     videoUrl: data.videoUrl ? String(data.videoUrl) : '',
     downloadLinks: rawLinks.filter(l => l && l.url).map(l => ({ label: String(l.label || 'Download'), url: String(l.url) })),
@@ -1901,6 +2042,18 @@ function allTagsFromPresets(){
   return Array.from(set).sort();
 }
 
+function allCreatorsFromPresets(){
+  const set = new Set();
+  State.presets.forEach(p => { if(p.creator && p.creator.trim()) set.add(p.creator.trim()); });
+  return Array.from(set).sort((a,b) => a.localeCompare(b, 'id'));
+}
+
+function allEffectsFromPresets(){
+  const set = new Set();
+  State.presets.forEach(p => { if(p.effect && p.effect.trim()) set.add(p.effect.trim()); });
+  return Array.from(set).sort((a,b) => a.localeCompare(b, 'id'));
+}
+
 /* ============================================================
    TOAST SYSTEM
 ============================================================ */
@@ -1940,7 +2093,7 @@ function openOverlay(el){
 function closeOverlay(el){
   el.hidden = true;
   // only restore scroll if no other overlay is open
-  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay']
+  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay']
     .some(id => {
       const node = document.getElementById(id);
       return node && !node.hidden;
@@ -2088,6 +2241,22 @@ function getFilteredPresets(){
     list = list.filter(p => f.tags.every(t => (p.tags||[]).includes(t)));
   }
 
+  if(f.creator !== 'all'){
+    list = list.filter(p => (p.creator||'') === f.creator);
+  }
+  if(f.effect !== 'all'){
+    list = list.filter(p => (p.effect||'') === f.effect);
+  }
+  if(f.ratio !== 'all'){
+    list = list.filter(p => (p.ratio||'') === f.ratio);
+  }
+  if(f.fps !== 'all'){
+    list = list.filter(p => (p.fps||'') === f.fps);
+  }
+  if(f.resolution !== 'all'){
+    list = list.filter(p => (p.resolution||'') === f.resolution);
+  }
+
   if(f.search.trim()){
     const q = f.search.trim().toLowerCase();
     list = list.filter(p => {
@@ -2115,7 +2284,8 @@ function getFilteredPresets(){
   }
 
   // Featured items float up within their sort tier only for 'newest' default view w/ no active filters
-  if(f.sort === 'newest' && f.category === 'all' && !f.search.trim() && f.tags.length === 0){
+  const noSmartFilters = f.creator === 'all' && f.effect === 'all' && f.ratio === 'all' && f.fps === 'all' && f.resolution === 'all';
+  if(f.sort === 'newest' && f.category === 'all' && !f.search.trim() && f.tags.length === 0 && noSmartFilters){
     list.sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || b.createdAt - a.createdAt);
   }
 
@@ -2139,6 +2309,8 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const searchInput = document.getElementById('searchInput');
 const searchClearBtn = document.getElementById('searchClearBtn');
 const sortSelect = document.getElementById('sortSelect');
+const smartSearchToggleBtn = document.getElementById('smartSearchToggleBtn');
+const smartSearchToggleLabel = document.getElementById('smartSearchToggleLabel');
 
 function renderCategoryChips(){
   const counts = {};
@@ -2192,12 +2364,34 @@ function renderActiveFilters(){
   if(f.category !== 'all'){
     chips.push({ label: f.category, onRemove: () => { f.category = 'all'; renderBrowseView(); } });
   }
+  if(f.creator !== 'all'){
+    chips.push({ label: 'Creator: '+f.creator, onRemove: () => { f.creator = 'all'; renderBrowseView(); } });
+  }
+  if(f.effect !== 'all'){
+    chips.push({ label: 'Effect: '+f.effect, onRemove: () => { f.effect = 'all'; renderBrowseView(); } });
+  }
+  if(f.ratio !== 'all'){
+    chips.push({ label: 'Rasio '+f.ratio, onRemove: () => { f.ratio = 'all'; renderBrowseView(); } });
+  }
+  if(f.fps !== 'all'){
+    chips.push({ label: f.fps+' fps', onRemove: () => { f.fps = 'all'; renderBrowseView(); } });
+  }
+  if(f.resolution !== 'all'){
+    chips.push({ label: f.resolution, onRemove: () => { f.resolution = 'all'; renderBrowseView(); } });
+  }
   f.tags.forEach(t => {
     chips.push({ label: '#'+t, onRemove: () => { f.tags = f.tags.filter(x=>x!==t); renderBrowseView(); } });
   });
   if(f.search.trim()){
     chips.push({ label: '"'+f.search.trim()+'"', onRemove: () => { f.search=''; searchInput.value=''; renderBrowseView(); } });
   }
+
+  // keep the Tag / Smart Search toggle buttons in sync regardless of whether any chips are shown
+  tagFilterLabel.textContent = f.tags.length ? `Tag (${f.tags.length})` : 'Tag';
+  tagFilterToggle.classList.toggle('is-active', f.tags.length > 0);
+  const smartCount = ['creator','effect','ratio','fps','resolution'].filter(k => f[k] !== 'all').length;
+  smartSearchToggleLabel.textContent = smartCount ? `Smart Search (${smartCount})` : 'Smart Search';
+  smartSearchToggleBtn.classList.toggle('is-active', smartCount > 0);
 
   const anyActive = chips.length > 0;
   clearFiltersBtn.hidden = !anyActive;
@@ -2215,10 +2409,6 @@ function renderActiveFilters(){
   activeFiltersWrap.querySelectorAll('.active-filter-tag button').forEach((btn, i) => {
     btn.addEventListener('click', () => chips[i].onRemove());
   });
-
-  // update tag filter toggle label
-  tagFilterLabel.textContent = f.tags.length ? `Tag (${f.tags.length})` : 'Tag';
-  tagFilterToggle.classList.toggle('is-active', f.tags.length > 0);
 }
 
 function renderBrowseView(){
@@ -2280,7 +2470,10 @@ sortSelect.addEventListener('change', (e) => {
 });
 
 clearFiltersBtn.addEventListener('click', () => {
-  State.filters = { search:'', category:'all', tags:[], sort: State.filters.sort };
+  State.filters = {
+    search:'', category:'all', tags:[], sort: State.filters.sort,
+    creator:'all', effect:'all', ratio:'all', fps:'all', resolution:'all'
+  };
   searchInput.value = '';
   searchClearBtn.hidden = true;
   renderBrowseView();
@@ -2298,6 +2491,77 @@ document.addEventListener('click', (e) => {
     tagFilterPanel.hidden = true;
     tagFilterToggle.setAttribute('aria-expanded','false');
   }
+});
+
+/* ============================================================
+   SMART SEARCH (advanced filter modal: name + creator + category +
+   effect + ratio + fps + resolution, all applied together on top of
+   the regular toolbar filters — they share the same State.filters)
+============================================================ */
+const smartSearchOverlay = document.getElementById('smartSearchOverlay');
+const smartSearchClose = document.getElementById('smartSearchClose');
+const ssName = document.getElementById('ssName');
+const ssCreator = document.getElementById('ssCreator');
+const ssCategory = document.getElementById('ssCategory');
+const ssEffect = document.getElementById('ssEffect');
+const ssRatio = document.getElementById('ssRatio');
+const ssFps = document.getElementById('ssFps');
+const ssResolution = document.getElementById('ssResolution');
+
+function fillSelectOptions(selectEl, values, allLabel){
+  selectEl.innerHTML = `<option value="all">${escapeHtml(allLabel)}</option>` +
+    values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+}
+
+function openSmartSearch(){
+  fillSelectOptions(ssCreator, allCreatorsFromPresets(), 'Semua creator');
+  fillSelectOptions(ssEffect, allEffectsFromPresets(), 'Semua effect');
+
+  // sync current filter state into the form fields
+  const f = State.filters;
+  ssName.value = f.search;
+  ssCreator.value = f.creator;
+  ssCategory.value = f.category === 'all' ? 'all' : (CATEGORIES.includes(f.category) ? f.category : 'all');
+  ssEffect.value = f.effect;
+  ssRatio.value = f.ratio;
+  ssFps.value = f.fps;
+  ssResolution.value = f.resolution;
+
+  openOverlay(smartSearchOverlay);
+}
+function closeSmartSearch(){ closeOverlay(smartSearchOverlay); }
+
+smartSearchToggleBtn.addEventListener('click', openSmartSearch);
+smartSearchClose.addEventListener('click', closeSmartSearch);
+smartSearchOverlay.addEventListener('click', (e) => { if(e.target === smartSearchOverlay) closeSmartSearch(); });
+
+document.getElementById('smartSearchResetBtn').addEventListener('click', () => {
+  ssName.value = '';
+  ssCreator.value = 'all';
+  ssCategory.value = 'all';
+  ssEffect.value = 'all';
+  ssRatio.value = 'all';
+  ssFps.value = 'all';
+  ssResolution.value = 'all';
+});
+
+document.getElementById('smartSearchApplyBtn').addEventListener('click', () => {
+  const f = State.filters;
+  f.search = ssName.value.trim();
+  f.creator = ssCreator.value;
+  f.category = ssCategory.value;
+  f.effect = ssEffect.value;
+  f.ratio = ssRatio.value;
+  f.fps = ssFps.value;
+  f.resolution = ssResolution.value;
+
+  searchInput.value = f.search;
+  searchClearBtn.hidden = !f.search;
+
+  closeSmartSearch();
+  if(State.currentView !== 'browse') switchView('browse');
+  else renderBrowseView();
+  showToast('Filter diterapkan', 'success');
 });
 
 /* ============================================================
@@ -3057,6 +3321,10 @@ const fieldCategory = document.getElementById('fieldCategory');
 const fieldCreator = document.getElementById('fieldCreator');
 const fieldDesc = document.getElementById('fieldDesc');
 const fieldTags = document.getElementById('fieldTags');
+const fieldEffect = document.getElementById('fieldEffect');
+const fieldRatio = document.getElementById('fieldRatio');
+const fieldFps = document.getElementById('fieldFps');
+const fieldResolution = document.getElementById('fieldResolution');
 const fieldVideoUrl = document.getElementById('fieldVideoUrl');
 const fieldVideoUrlLabel = document.getElementById('fieldVideoUrlLabel');
 const downloadLinksList = document.getElementById('downloadLinksList');
@@ -3117,6 +3385,11 @@ function collectDownloadLinkRows(){
   }).filter(Boolean);
 }
 
+function populateEffectDatalist(){
+  document.getElementById('effectSuggestions').innerHTML =
+    allEffectsFromPresets().map(e => `<option value="${escapeHtml(e)}"></option>`).join('');
+}
+
 function resetPresetForm(){
   State.adminEditingId = null;
   presetForm.reset();
@@ -3125,6 +3398,7 @@ function resetPresetForm(){
   setVideoSourceToggle('youtube');
   renderDownloadLinkRows(null);
   videoUrlPreview.hidden = true;
+  populateEffectDatalist();
   formSubmitBtn.textContent = 'Simpan Preset';
   document.querySelector('.admin-tabs__btn[data-admin-tab="form"]').textContent = 'Tambah Baru';
 }
@@ -3234,6 +3508,11 @@ function startEditPreset(id){
   fieldCreator.value = preset.creator || '';
   fieldDesc.value = preset.description || '';
   fieldTags.value = (preset.tags||[]).join(', ');
+  populateEffectDatalist();
+  fieldEffect.value = preset.effect || '';
+  fieldRatio.value = preset.ratio || '';
+  fieldFps.value = preset.fps || '';
+  fieldResolution.value = preset.resolution || '';
   fieldVideoUrl.value = preset.videoUrl || '';
   renderDownloadLinkRows(preset.downloadLinks);
   fieldThumbUrl.value = preset.thumbUrl || '';
@@ -3323,6 +3602,10 @@ presetForm.addEventListener('submit', async (e) => {
     creator: fieldCreator.value.trim(),
     description: fieldDesc.value.trim(),
     tags: tags,
+    effect: fieldEffect.value.trim(),
+    ratio: fieldRatio.value,
+    fps: fieldFps.value,
+    resolution: fieldResolution.value,
     videoSource: State.videoFormSource,
     videoUrl: fieldVideoUrl.value.trim(),
     downloadLinks: downloadLinks,
