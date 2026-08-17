@@ -181,6 +181,7 @@ button{ font-family:inherit; }
   cursor:pointer; transition:border-color .15s, color .15s, background .15s;
 }
 .icon-btn:hover{ color:var(--text); border-color:var(--accent); background:var(--surface-hover); }
+.visitor-auth-avatar{ width:26px; height:26px; border-radius:50%; object-fit:cover; }
 
 .count-pill{
   background:rgba(255,255,255,.14); color:inherit; font-size:11px; font-weight:700;
@@ -975,6 +976,12 @@ button{ font-family:inherit; }
 .maintenance-overlay__icon{ font-size:40px; margin-bottom:14px; }
 .maintenance-overlay__box h2{ font-size:18px; font-weight:800; margin-bottom:8px; }
 .maintenance-overlay__box p{ font-size:13.5px; color:var(--text-dim); line-height:1.6; margin-bottom:20px; }
+
+.profile-header{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+.profile-header__avatar{ width:56px; height:56px; border-radius:50%; object-fit:cover; background:var(--bg-elevated); flex-shrink:0; }
+.profile-header__info{ min-width:0; }
+.profile-header__info h3{ font-size:16px; font-weight:800; }
+.profile-header__email{ font-size:12px; color:var(--text-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
 .toast__icon{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .toast--success .toast__icon{ background:rgba(61,220,151,.16); color:var(--success); }
@@ -1037,6 +1044,10 @@ button{ font-family:inherit; }
         <button class="icon-btn" id="themeToggleBtn" type="button" aria-label="Ganti tema gelap/terang" title="Ganti tema">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeToggleIconMoon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeToggleIconSun" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button class="icon-btn" id="visitorAuthBtn" type="button" aria-label="Masuk dengan Google" title="Masuk dengan Google">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="visitorAuthIcon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <img id="visitorAuthAvatar" class="visitor-auth-avatar" src="" alt="" hidden>
         </button>
         <button class="icon-btn" id="adminOpenBtn" type="button" aria-label="Buka Panel Admin" title="Panel Admin">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
@@ -1262,6 +1273,38 @@ button{ font-family:inherit; }
   </div>
 </div>
 
+<!-- ============ MY PROFILE MODAL (visitor, Google-signed-in) ============ -->
+<div class="modal-overlay" id="myProfileOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="myProfileTitle">
+    <button class="modal__close" id="myProfileClose" type="button" aria-label="Tutup">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal__body">
+      <div class="profile-header">
+        <img id="myProfileAvatar" class="profile-header__avatar" src="" alt="">
+        <div class="profile-header__info">
+          <h3 id="myProfileTitle">Profil Saya</h3>
+          <p class="profile-header__email" id="myProfileEmail"></p>
+        </div>
+      </div>
+
+      <div class="field field--full">
+        <label for="myProfileName">Nama tampilan</label>
+        <input type="text" id="myProfileName" class="text-input" maxlength="40">
+      </div>
+      <div class="field field--full">
+        <label for="myProfileBio">Bio <span class="hint">(opsional)</span></label>
+        <textarea id="myProfileBio" class="text-input textarea" rows="2" maxlength="160" placeholder="Ceritain dikit soal kamu…"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" id="myProfileLogoutBtn">Keluar</button>
+        <button type="button" class="btn btn--primary" id="myProfileSaveBtn">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ VIDEO MODAL ============ -->
 <div class="modal-overlay" id="videoModalOverlay" hidden>
   <div class="modal video-modal" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
@@ -1352,10 +1395,6 @@ button{ font-family:inherit; }
           <label for="ssCategory">Kategori</label>
           <select id="ssCategory" class="text-input">
             <option value="all">Semua kategori</option>
-            <option value="Alight Motion">Alight Motion</option>
-            <option value="CapCut">CapCut</option>
-            <option value="Premiere">Premiere</option>
-            <option value="Lainnya">Lainnya</option>
           </select>
         </div>
         <div class="field">
@@ -1528,10 +1567,6 @@ button{ font-family:inherit; }
               <label for="fieldCategory">Kategori <span class="req">*</span></label>
               <select id="fieldCategory" class="text-input" required>
                 <option value="">Pilih kategori</option>
-                <option value="Alight Motion">Alight Motion</option>
-                <option value="CapCut">CapCut</option>
-                <option value="Premiere">Premiere</option>
-                <option value="Lainnya">Lainnya</option>
               </select>
               <p class="field__error" id="errCategory" hidden></p>
             </div>
@@ -1840,6 +1875,7 @@ const auth = firebase.auth();
 const PRESETS_COLLECTION = 'presets';
 const SETTINGS_COLLECTION = 'settings';
 const SETTINGS_DOC_ID = 'site';
+const USERS_COLLECTION = 'users';
 
 // Project Firebase ini khusus buat MotionVault (bukan gabungan dengan aplikasi
 // lain), tapi email admin tetap dikunci eksplisit di sini sebagai lapisan
@@ -1859,6 +1895,16 @@ const STORAGE_KEYS = {
 };
 
 const CATEGORIES = ['Alight Motion', 'CapCut', 'Premiere', 'Lainnya'];
+
+/**
+ * Categories shown in dropdowns/chips: the fixed baseline plus whatever
+ * custom category names are actually in use on presets right now (e.g.
+ * after an admin renames one via Kelola Kategori). The baseline itself
+ * never changes — this only ever adds options, never removes the defaults.
+ */
+function getAllCategoryOptions(){
+  return Array.from(new Set([...CATEGORIES, ...State.presets.map(p => p.category).filter(Boolean)]));
+}
 const NEW_BADGE_DAYS = 7;        // preset shows a "Baru" badge for this many days after createdAt
 const RECENTLY_VIEWED_MAX = 12;  // how many entries to keep in the Recently Viewed shelf
 
@@ -2051,6 +2097,7 @@ const State = {
     announcementType: 'info',
     announcementId: ''
   },
+  currentUser: null,   // signed-in visitor's profile doc (from users/{uid}), null if logged out or admin
   isAdmin: false,
 
   currentView: 'browse',
@@ -2130,7 +2177,7 @@ function normalizePresetDoc(id, data){
   return {
     id,
     name: data.name ? String(data.name) : '',
-    category: CATEGORIES.includes(data.category) ? data.category : 'Lainnya',
+    category: data.category ? String(data.category) : 'Lainnya',
     creator: data.creator ? String(data.creator) : '',
     description: data.description ? String(data.description) : '',
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
@@ -2235,6 +2282,116 @@ document.getElementById('announcementCloseBtn').addEventListener('click', () => 
 });
 
 document.getElementById('maintenanceAdminLink').addEventListener('click', handleAdminEntry);
+
+/* ============================================================
+   VISITOR ACCOUNTS (Google Sign-In)
+   Separate identity from the single trusted admin (which still uses
+   email/password). Any signed-in user whose email isn't in ADMIN_EMAILS
+   is treated as a regular visitor profile, stored in users/{uid}.
+============================================================ */
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+function signInWithGoogle(){
+  auth.signInWithPopup(googleProvider).catch(err => {
+    console.error('Google sign-in error:', err);
+    if(err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request'){
+      showToast('Gagal masuk dengan Google', 'error');
+    }
+  });
+  // no .then() here on purpose — onAuthStateChanged (wired in init()) picks up
+  // the new session and calls ensureUserProfile/loadCurrentUserProfile itself
+}
+
+/** Create users/{uid} with sane defaults the first time someone signs in. No-op if it already exists. */
+function ensureUserProfile(user){
+  const ref = db.collection(USERS_COLLECTION).doc(user.uid);
+  return ref.get().then(doc => {
+    if(doc.exists) return;
+    return ref.set({
+      displayName: user.displayName || 'Pengguna MotionVault',
+      photoURL: user.photoURL || '',
+      email: user.email || '',
+      bio: '',
+      joinedAt: Date.now(),
+      // gamification fields start at zero and are locked from self-edit
+      // (see firestore.rules) until there's a proper auto-award system
+      level: 1,
+      xp: 0,
+      achievements: [],
+      followerCount: 0,
+      followingCount: 0
+    });
+  });
+}
+
+function loadCurrentUserProfile(uid){
+  return db.collection(USERS_COLLECTION).doc(uid).get().then(doc => {
+    State.currentUser = doc.exists ? { id: doc.id, ...doc.data() } : null;
+    refreshVisitorAuthUI();
+  });
+}
+
+function refreshVisitorAuthUI(){
+  const icon = document.getElementById('visitorAuthIcon');
+  const avatar = document.getElementById('visitorAuthAvatar');
+  const btn = document.getElementById('visitorAuthBtn');
+  const u = State.currentUser;
+
+  icon.hidden = !!u;
+  avatar.hidden = !u;
+  if(u){
+    avatar.src = u.photoURL || '';
+    btn.setAttribute('aria-label', 'Profil ' + (u.displayName || ''));
+    btn.title = u.displayName || 'Profil Saya';
+  }else{
+    btn.setAttribute('aria-label', 'Masuk dengan Google');
+    btn.title = 'Masuk dengan Google';
+  }
+}
+
+document.getElementById('visitorAuthBtn').addEventListener('click', () => {
+  if(State.currentUser) openMyProfileModal();
+  else signInWithGoogle();
+});
+
+/* ---- My Profile modal ---- */
+const myProfileOverlay = document.getElementById('myProfileOverlay');
+
+function openMyProfileModal(){
+  const u = State.currentUser;
+  if(!u) return;
+  document.getElementById('myProfileAvatar').src = u.photoURL || '';
+  document.getElementById('myProfileEmail').textContent = u.email || '';
+  document.getElementById('myProfileName').value = u.displayName || '';
+  document.getElementById('myProfileBio').value = u.bio || '';
+  openOverlay(myProfileOverlay);
+}
+function closeMyProfileModal(){ closeOverlay(myProfileOverlay); }
+
+document.getElementById('myProfileClose').addEventListener('click', closeMyProfileModal);
+myProfileOverlay.addEventListener('click', (e) => { if(e.target === myProfileOverlay) closeMyProfileModal(); });
+
+document.getElementById('myProfileSaveBtn').addEventListener('click', () => {
+  const u = State.currentUser;
+  if(!u) return;
+  const displayName = document.getElementById('myProfileName').value.trim().slice(0, 40) || 'Pengguna MotionVault';
+  const bio = document.getElementById('myProfileBio').value.trim().slice(0, 160);
+
+  db.collection(USERS_COLLECTION).doc(u.id).update({ displayName, bio })
+    .then(() => {
+      State.currentUser.displayName = displayName;
+      State.currentUser.bio = bio;
+      refreshVisitorAuthUI();
+      showToast('Profil disimpan', 'success');
+      closeMyProfileModal();
+    })
+    .catch(err => { console.error(err); showToast('Gagal menyimpan profil', 'error'); });
+});
+
+document.getElementById('myProfileLogoutBtn').addEventListener('click', () => {
+  auth.signOut();
+  closeMyProfileModal();
+});
 
 /* ============================================================
    UTILITIES
@@ -2504,7 +2661,7 @@ function openOverlay(el){
 function closeOverlay(el){
   el.hidden = true;
   // only restore scroll if no other overlay is open
-  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay']
+  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay','myProfileOverlay']
     .some(id => {
       const node = document.getElementById(id);
       return node && !node.hidden;
@@ -2791,15 +2948,16 @@ const smartSearchToggleBtn = document.getElementById('smartSearchToggleBtn');
 const smartSearchToggleLabel = document.getElementById('smartSearchToggleLabel');
 
 function renderCategoryChips(){
+  const cats = getAllCategoryOptions();
   const counts = {};
-  CATEGORIES.forEach(c => counts[c] = 0);
+  cats.forEach(c => counts[c] = 0);
   State.presets.forEach(p => { if(counts[p.category] !== undefined) counts[p.category]++; });
 
   const allChip = `
     <button class="chip${State.filters.category==='all' ? ' is-active' : ''}" data-cat="all" type="button" role="tab" aria-selected="${State.filters.category==='all'}">
       Semua <span class="chip__count">${State.presets.length}</span>
     </button>`;
-  const catChips = CATEGORIES.map(c => `
+  const catChips = cats.map(c => `
     <button class="chip${State.filters.category===c ? ' is-active' : ''}" data-cat="${escapeHtml(c)}" type="button" role="tab" aria-selected="${State.filters.category===c}">
       ${escapeHtml(c)} <span class="chip__count">${counts[c]}</span>
     </button>`).join('');
@@ -2996,12 +3154,13 @@ function fillSelectOptions(selectEl, values, allLabel){
 function openSmartSearch(){
   fillSelectOptions(ssCreator, allCreatorsFromPresets(), 'Semua creator');
   fillSelectOptions(ssEffect, allEffectsFromPresets(), 'Semua effect');
+  fillSelectOptions(ssCategory, getAllCategoryOptions(), 'Semua kategori');
 
   // sync current filter state into the form fields
   const f = State.filters;
   ssName.value = f.search;
   ssCreator.value = f.creator;
-  ssCategory.value = f.category === 'all' ? 'all' : (CATEGORIES.includes(f.category) ? f.category : 'all');
+  ssCategory.value = f.category;
   ssEffect.value = f.effect;
   ssRatio.value = f.ratio;
   ssFps.value = f.fps;
@@ -3814,7 +3973,7 @@ const adminCategoryFilter = document.getElementById('adminCategoryFilter');
 
 function populateAdminCategoryFilter(){
   adminCategoryFilter.innerHTML = '<option value="">Semua kategori</option>' +
-    CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    getAllCategoryOptions().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
 }
 
 function getAdminFilteredPresets(){
@@ -3908,6 +4067,11 @@ function bulkDeleteTag(tag){
   const affected = State.presets.filter(p => (p.tags||[]).includes(tag));
   return bulkUpdatePresets(affected, p => ({ tags: p.tags.filter(t => t !== tag) }));
 }
+function bulkRenameCategory(oldCat, newCat){
+  const affected = State.presets.filter(p => p.category === oldCat);
+  return bulkUpdatePresets(affected, () => ({ category: newCat }));
+}
+
 function bulkRenameCreator(oldCreator, newCreator){
   const affected = State.presets.filter(p => p.creator === oldCreator);
   return bulkUpdatePresets(affected, () => ({ creator: newCreator }));
@@ -4225,6 +4389,11 @@ function populateEffectDatalist(){
     allEffectsFromPresets().map(e => `<option value="${escapeHtml(e)}"></option>`).join('');
 }
 
+function populateCategorySelect(){
+  fieldCategory.innerHTML = '<option value="">Pilih kategori</option>' +
+    getAllCategoryOptions().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+}
+
 function resetPresetForm(){
   State.adminEditingId = null;
   presetForm.reset();
@@ -4234,6 +4403,7 @@ function resetPresetForm(){
   renderDownloadLinkRows(null);
   videoUrlPreview.hidden = true;
   populateEffectDatalist();
+  populateCategorySelect();
   formSubmitBtn.textContent = 'Simpan Preset';
   document.querySelector('.admin-tabs__btn[data-admin-tab="form"]').textContent = 'Tambah Baru';
 }
@@ -4339,6 +4509,7 @@ function startEditPreset(id){
 
   presetIdField.value = preset.id;
   fieldName.value = preset.name;
+  populateCategorySelect();
   fieldCategory.value = preset.category;
   fieldCreator.value = preset.creator || '';
   fieldDesc.value = preset.description || '';
@@ -4828,7 +4999,7 @@ ytImportSaveBtn.addEventListener('click', async () => {
       const ref = db.collection(PRESETS_COLLECTION).doc(genId());
       batch.set(ref, {
         name: (v.title || 'Tanpa judul').slice(0, 80),
-        category: CATEGORIES.includes(v.category) ? v.category : 'Lainnya',
+        category: getAllCategoryOptions().includes(v.category) ? v.category : 'Lainnya',
         creator: (ytImportData.channel && ytImportData.channel.title) || '',
         description: (v.description || '').slice(0, 500),
         tags: v.tags,
@@ -4928,7 +5099,7 @@ importJsonInput.addEventListener('change', (e) => {
       return {
         id: p.id || genId(),
         name: String(p.name).slice(0,120),
-        category: CATEGORIES.includes(p.category) ? p.category : 'Lainnya',
+        category: getAllCategoryOptions().includes(p.category) ? p.category : 'Lainnya',
         creator: p.creator ? String(p.creator).slice(0,80) : '',
         description: p.description ? String(p.description).slice(0,800) : '',
         tags: Array.isArray(p.tags) ? p.tags.slice(0,12).map(String) : [],
@@ -5062,8 +5233,9 @@ function renderStatsView(){
   `).join('');
 
   // category breakdown
+  const statCats = getAllCategoryOptions();
   const catCounts = {};
-  CATEGORIES.forEach(c => catCounts[c] = 0);
+  statCats.forEach(c => catCounts[c] = 0);
   State.presets.forEach(p => { if(catCounts[p.category] !== undefined) catCounts[p.category]++; });
   const maxCat = Math.max(1, ...Object.values(catCounts));
 
@@ -5071,7 +5243,7 @@ function renderStatsView(){
   if(totalPresets === 0){
     catBarList.innerHTML = `<p class="stats-empty">Belum ada data preset.</p>`;
   }else{
-    catBarList.innerHTML = CATEGORIES.map(c => `
+    catBarList.innerHTML = statCats.map(c => `
       <div class="bar-item">
         <div class="bar-item__top"><span class="bar-item__label">${escapeHtml(c)}</span><span class="bar-item__value">${catCounts[c]}</span></div>
         <div class="bar-item__track"><div class="bar-item__fill" style="width:${(catCounts[c]/maxCat*100)}%"></div></div>
@@ -5135,6 +5307,13 @@ function init(){
     const seedCard = document.getElementById('seedDataCard');
     if(seedCard) seedCard.hidden = !(State.isAdmin && State.presetsLoaded && State.presets.length === 0);
     applyMaintenanceState(); // admin logging in/out should immediately lift/restore the maintenance screen
+
+    if(user && !State.isAdmin){
+      ensureUserProfile(user).then(() => loadCurrentUserProfile(user.uid));
+    }else{
+      State.currentUser = null;
+      refreshVisitorAuthUI();
+    }
   });
 
   subscribeToPresets(); // wires up realtime Firestore listener + triggers handleDeepLink() once loaded

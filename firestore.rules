@@ -59,5 +59,29 @@ service cloud.firestore {
       allow write: if request.auth != null
                     && request.auth.token.email == 'nezzstore081@gmail.com';
     }
+
+    // Profil pengunjung (dari Login Google). Semua orang boleh BACA profil
+    // siapa aja (dibutuhkan buat halaman Creator/Leaderboard). Pengunjung
+    // cuma boleh bikin/ubah profil MILIK SENDIRI, dan cuma field identitas
+    // (nama tampilan, bio, foto) — xp/level/achievements/followerCount/
+    // followingCount SENGAJA dikunci dari pengunjung sendiri (nggak boleh
+    // ikut berubah di request yang sama), biar nggak bisa curang set level
+    // sendiri lewat console browser. Cuma admin yang boleh ubah field itu,
+    // sampai ada sistem auto-award yang lebih aman (Cloud Functions).
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (
+        request.auth.token.email == 'nezzstore081@gmail.com'
+        || (
+          request.auth.uid == userId
+          && request.resource.data.xp == resource.data.xp
+          && request.resource.data.level == resource.data.level
+          && request.resource.data.achievements == resource.data.achievements
+          && request.resource.data.followerCount == resource.data.followerCount
+          && request.resource.data.followingCount == resource.data.followingCount
+        )
+      );
+    }
   }
 }

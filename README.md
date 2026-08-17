@@ -125,6 +125,21 @@ Yang baru — tab **Pengaturan** di admin panel (antara Laporan & Data/Backup):
 - **Announcement Banner** — banner di paling atas situs, muncul ke semua pengunjung sampai mereka tutup sendiri (per-pesan — kalau kamu ganti pesannya, banner muncul lagi meskipun pesan lama udah pernah ditutup). Ada 3 tipe warna: Info/Peringatan/Sukses.
 - **Maintenance Mode** — kalau diaktifkan, semua pengunjung (kecuali kamu yang login admin) lihat layar "Sedang Maintenance" penuh, bukan situsnya. Ada tombol "Admin? Login di sini" di layar itu juga, jadi kamu tetap bisa masuk buat matiin lagi — nggak bakal kekunci sendiri.
 
+## 10. Update: Akun Pengunjung — Fase 1 (Login Google)
+
+⚠️ **Wajib update `firestore.rules` lagi** (collection baru: `users`) — sama seperti update sebelumnya, kalau langkah ini kelewat, situsnya tetap jalan normal, cuma tombol Login Google-nya nggak akan berfungsi (gagal dengan pesan error izin).
+
+**Langkah tambahan yang WAJIB di Firebase Console** (beda dari update-update sebelumnya, ini bukan cuma soal rules):
+1. **Build → Authentication → Sign-in method** → aktifkan provider **Google** (klik Enable → pilih email support kamu → Save).
+2. Kalau situsnya sudah live di domain custom, cek juga **Authentication → Settings → Authorized domains** — domain Vercel kamu harus ada di situ (biasanya otomatis kalau masih pakai `*.vercel.app`).
+
+Ini **fase pertama** dari sistem akun pengunjung — sengaja dipecah, karena ini pembalikan dari keputusan "admin-only" di awal proyek dan menyentuh banyak bagian sekaligus. Yang sudah jalan:
+- Tombol **Login dengan Google** di header (ikon orang, di sebelah tombol Admin) — pengunjung yang login dapet profil otomatis (`users/{uid}`) dengan foto & nama dari akun Google mereka.
+- Klik lagi tombol yang sama (sekarang jadi foto profil mereka) buka modal **Profil Saya** — bisa ganti nama tampilan & bio, atau Keluar.
+- Field `level`, `xp`, `achievements`, `followerCount`, `followingCount` sudah ada di data (default 0/kosong) tapi **sengaja dikunci** dari pengunjung sendiri lewat rules — cuma admin yang bisa ubah buat sekarang. Ini jaga-jaga biar nggak ada yang curang set level sendiri lewat console browser, sebelum ada sistem auto-award yang lebih aman.
+
+**Belum ada** (giliran-giliran berikutnya): sistem Follow, auto-award XP/Achievement dari aktivitas, Leaderboard, Pesan antar pengguna, Notifikasi, dan redesign tampilan ke arah sidebar/multi-halaman.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
