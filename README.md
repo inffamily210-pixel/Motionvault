@@ -106,6 +106,15 @@ Yang baru:
 - Kategori beda kelas dari tag/creator — dipakai sebagai daftar tetap di banyak tempat (chip filter, form, Smart Search), jadi bikin itu "manageable" perlu bongkar lebih banyak bagian dengan hati-hati.
 - Activity Log / Announcement / Maintenance Mode butuh collection Firestore baru + update `firestore.rules` — beda dari semua update sejauh ini yang murni nambah field ke collection `presets` yang sudah ada.
 
+## 8. Update: Badge "Baru", Baru Dilihat, Bandingkan Preset
+
+Nggak perlu update `firestore.rules` — Badge & Bandingkan murni tampilan (dihitung dari data yang sudah ada), dan Baru Dilihat cuma nambah satu key baru di localStorage pengunjung, sama kayak Favorit.
+
+Yang baru:
+- **Badge "Baru"** — nempel otomatis di preset yang ditambahkan dalam 7 hari terakhir (bisa diubah lewat konstanta `NEW_BADGE_DAYS` di `index.html`). Beda dari "Unggulan" yang manual, ini murni berdasarkan tanggal.
+- **Baru Dilihat** — shelf baru di atas "Rekomendasi buat kamu", isinya preset yang baru dibuka pengunjung ini (localStorage, maksimal 12 preset, terbaru duluan).
+- **Bandingkan Preset** — tiap card sekarang ada ikon compare (di sebelah ikon hati). Pilih 2 preset, muncul bar mengambang di bawah layar, tap "Bandingkan" buat lihat keduanya berdampingan (kategori, creator, effect, rasio, FPS, resolution, unduhan, tanggal ditambahkan).
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
