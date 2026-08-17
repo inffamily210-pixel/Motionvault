@@ -943,6 +943,38 @@ button{ font-family:inherit; }
 .compare-table th{ color:var(--text-faint); font-weight:600; width:30%; white-space:nowrap; }
 .compare-table td{ color:var(--text); font-weight:600; }
 .compare-table tr:last-child th, .compare-table tr:last-child td{ border-bottom:none; }
+
+/* ============================================================
+   ANNOUNCEMENT BANNER
+============================================================ */
+.announcement-banner{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:9px 42px 9px 16px; font-size:12.5px; font-weight:600; text-align:center;
+  position:relative; line-height:1.4;
+}
+.announcement-banner[hidden]{ display:none; }
+.announcement-banner--info{ background:var(--accent-soft); color:var(--accent); }
+.announcement-banner--warning{ background:rgba(255,182,72,.18); color:var(--warn); }
+.announcement-banner--success{ background:rgba(61,220,151,.18); color:var(--success); }
+.announcement-banner__close{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  background:none; border:none; color:inherit; cursor:pointer; padding:6px; opacity:.65; display:flex;
+}
+.announcement-banner__close:hover{ opacity:1; }
+
+/* ============================================================
+   MAINTENANCE OVERLAY — sits above normal app chrome but below modals,
+   so the "Admin? Login di sini" link can still open the login modal.
+============================================================ */
+.maintenance-overlay{
+  position:fixed; inset:0; z-index:80; background:var(--bg);
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.maintenance-overlay[hidden]{ display:none; }
+.maintenance-overlay__box{ max-width:340px; text-align:center; }
+.maintenance-overlay__icon{ font-size:40px; margin-bottom:14px; }
+.maintenance-overlay__box h2{ font-size:18px; font-weight:800; margin-bottom:8px; }
+.maintenance-overlay__box p{ font-size:13.5px; color:var(--text-dim); line-height:1.6; margin-bottom:20px; }
 @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
 .toast__icon{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .toast--success .toast__icon{ background:rgba(61,220,151,.16); color:var(--success); }
@@ -976,6 +1008,14 @@ button{ font-family:inherit; }
 </head>
 <body>
 <div id="app" class="app">
+
+  <!-- ============ ANNOUNCEMENT BANNER ============ -->
+  <div class="announcement-banner" id="announcementBanner" hidden>
+    <span id="announcementText"></span>
+    <button type="button" class="announcement-banner__close" id="announcementCloseBtn" aria-label="Tutup pengumuman">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
 
   <!-- ============ TOP HEADER ============ -->
   <header class="topbar" id="topbar">
@@ -1212,6 +1252,16 @@ button{ font-family:inherit; }
   </div>
 </div>
 
+<!-- ============ MAINTENANCE OVERLAY ============ -->
+<div class="maintenance-overlay" id="maintenanceOverlay" hidden>
+  <div class="maintenance-overlay__box">
+    <div class="maintenance-overlay__icon">🛠️</div>
+    <h2>Sedang Maintenance</h2>
+    <p id="maintenanceMessageText">Situs sedang dalam perbaikan. Balik lagi sebentar lagi ya!</p>
+    <button type="button" class="btn btn--ghost btn--sm" id="maintenanceAdminLink">Admin? Login di sini</button>
+  </div>
+</div>
+
 <!-- ============ VIDEO MODAL ============ -->
 <div class="modal-overlay" id="videoModalOverlay" hidden>
   <div class="modal video-modal" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
@@ -1410,6 +1460,7 @@ button{ font-family:inherit; }
       <button class="admin-tabs__btn" data-admin-tab="form" type="button">Tambah Baru</button>
       <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Tag &amp; Creator</button>
       <button class="admin-tabs__btn" data-admin-tab="reports" type="button">Laporan <span class="count-pill" id="reportsCountPill" hidden>0</span></button>
+      <button class="admin-tabs__btn" data-admin-tab="settings" type="button">Pengaturan</button>
       <button class="admin-tabs__btn" data-admin-tab="data" type="button">Data &amp; Backup</button>
     </nav>
 
@@ -1625,6 +1676,49 @@ button{ font-family:inherit; }
         <div id="reportsList" class="reports-list"></div>
       </div>
 
+      <!-- SETTINGS TAB -->
+      <div class="admin-tabpanel" data-admin-panel="settings" hidden>
+        <div class="stats-block">
+          <h3 class="stats-block__title">📢 Announcement Banner</h3>
+          <p class="data-card__hint">Banner ini muncul di paling atas situs, buat semua pengunjung, sampai mereka tutup sendiri (atau kamu ganti pesannya).</p>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingAnnouncementEnabled">
+            <span>Aktifkan banner</span>
+          </label>
+          <div class="field field--full">
+            <label for="settingAnnouncementMessage">Pesan</label>
+            <textarea id="settingAnnouncementMessage" class="text-input textarea" rows="2" maxlength="200" placeholder="Contoh: Server download lagi kami perbaiki, mohon maaf atas ketidaknyamanannya."></textarea>
+          </div>
+          <div class="field">
+            <label for="settingAnnouncementType">Tipe</label>
+            <select id="settingAnnouncementType" class="text-input">
+              <option value="info">Info (biru)</option>
+              <option value="warning">Peringatan (kuning)</option>
+              <option value="success">Sukses (hijau)</option>
+            </select>
+          </div>
+          <div class="form-actions" style="border-top:none; padding-top:6px;">
+            <button type="button" class="btn btn--primary btn--sm" id="saveAnnouncementBtn">Simpan Announcement</button>
+          </div>
+        </div>
+
+        <div class="stats-block">
+          <h3 class="stats-block__title">🛠️ Maintenance Mode</h3>
+          <p class="data-card__hint">Kalau aktif, semua pengunjung selain kamu (yang login admin) bakal lihat layar "Sedang Maintenance" — bukan situsnya. Kamu tetap bisa akses admin panel seperti biasa buat matiin ini lagi.</p>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingMaintenanceEnabled">
+            <span>Aktifkan maintenance mode</span>
+          </label>
+          <div class="field field--full">
+            <label for="settingMaintenanceMessage">Pesan buat pengunjung</label>
+            <textarea id="settingMaintenanceMessage" class="text-input textarea" rows="2" maxlength="200" placeholder="Situs sedang dalam perbaikan. Balik lagi sebentar lagi ya!"></textarea>
+          </div>
+          <div class="form-actions" style="border-top:none; padding-top:6px;">
+            <button type="button" class="btn btn--primary btn--sm" id="saveMaintenanceBtn">Simpan Maintenance Mode</button>
+          </div>
+        </div>
+      </div>
+
       <!-- DATA TAB -->
       <div class="admin-tabpanel" data-admin-panel="data" hidden>
         <div class="data-card" id="seedDataCard" hidden>
@@ -1744,6 +1838,8 @@ const firebaseApp = firebase.initializeApp(window.MOTIONVAULT_FIREBASE_CONFIG);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const PRESETS_COLLECTION = 'presets';
+const SETTINGS_COLLECTION = 'settings';
+const SETTINGS_DOC_ID = 'site';
 
 // Project Firebase ini khusus buat MotionVault (bukan gabungan dengan aplikasi
 // lain), tapi email admin tetap dikunci eksplisit di sini sebagai lapisan
@@ -1758,7 +1854,8 @@ const STORAGE_KEYS = {
   FAVORITES: 'motionvault_favorites_v1',
   THEME: 'motionvault_theme_v1',
   RATED_PRESETS: 'motionvault_rated_v1',
-  RECENTLY_VIEWED: 'motionvault_recent_v1'
+  RECENTLY_VIEWED: 'motionvault_recent_v1',
+  DISMISSED_ANNOUNCEMENT: 'motionvault_dismissed_announcement_v1'
 };
 
 const CATEGORIES = ['Alight Motion', 'CapCut', 'Premiere', 'Lainnya'];
@@ -1946,6 +2043,14 @@ const State = {
   favorites: [],       // array of preset ids (local to this device)
   recentlyViewed: [],  // array of preset ids, most recent first (local to this device)
   compareIds: [],      // up to 2 preset ids currently selected for comparison (session-only)
+  settings: {           // live-synced from Firestore settings/site (announcement + maintenance mode)
+    maintenanceMode: false,
+    maintenanceMessage: '',
+    announcementEnabled: false,
+    announcementMessage: '',
+    announcementType: 'info',
+    announcementId: ''
+  },
   isAdmin: false,
 
   currentView: 'browse',
@@ -2073,6 +2178,63 @@ function subscribeToPresets(){
     showToast('Gagal memuat preset dari Firestore. Cek config Firebase di index.html.', 'error');
   });
 }
+
+/* ============================================================
+   SITE SETTINGS (announcement banner + maintenance mode)
+   Single doc, live-synced, same pattern as presets but much smaller.
+============================================================ */
+function subscribeToSettings(){
+  db.collection(SETTINGS_COLLECTION).doc(SETTINGS_DOC_ID).onSnapshot(doc => {
+    const d = doc.exists ? doc.data() : {};
+    State.settings = {
+      maintenanceMode: !!d.maintenanceMode,
+      maintenanceMessage: d.maintenanceMessage || 'Situs sedang dalam perbaikan. Balik lagi sebentar lagi ya!',
+      announcementEnabled: !!d.announcementEnabled,
+      announcementMessage: d.announcementMessage || '',
+      announcementType: d.announcementType || 'info',
+      announcementId: d.announcementId || ''
+    };
+    applyMaintenanceState();
+    applyAnnouncementState();
+    if(!adminPanelOverlay.hidden && State.adminTab === 'settings') fillSettingsForm();
+  }, err => console.error('Settings snapshot error:', err));
+}
+
+/** Show/hide the full-screen maintenance overlay. Admins always see the real site. */
+function applyMaintenanceState(){
+  const show = State.settings.maintenanceMode && !State.isAdmin;
+  document.getElementById('maintenanceOverlay').hidden = !show;
+  if(show){
+    document.getElementById('maintenanceMessageText').textContent = State.settings.maintenanceMessage;
+  }
+}
+
+/** Show/hide the announcement banner, respecting per-announcement dismissal. */
+function applyAnnouncementState(){
+  const s = State.settings;
+  const banner = document.getElementById('announcementBanner');
+
+  if(!s.announcementEnabled || !s.announcementMessage.trim()){
+    banner.hidden = true;
+    return;
+  }
+  const dismissedId = Storage.get(STORAGE_KEYS.DISMISSED_ANNOUNCEMENT, '');
+  if(s.announcementId && dismissedId === s.announcementId){
+    banner.hidden = true;
+    return;
+  }
+
+  banner.hidden = false;
+  banner.className = 'announcement-banner announcement-banner--' + s.announcementType;
+  document.getElementById('announcementText').textContent = s.announcementMessage;
+}
+
+document.getElementById('announcementCloseBtn').addEventListener('click', () => {
+  Storage.set(STORAGE_KEYS.DISMISSED_ANNOUNCEMENT, State.settings.announcementId);
+  document.getElementById('announcementBanner').hidden = true;
+});
+
+document.getElementById('maintenanceAdminLink').addEventListener('click', handleAdminEntry);
 
 /* ============================================================
    UTILITIES
@@ -3553,6 +3715,7 @@ function switchAdminTab(tab){
   if(tab === 'form' && !State.adminEditingId) resetPresetForm();
   if(tab === 'manage') renderManageTagsCreators();
   if(tab === 'reports') loadAndRenderReports();
+  if(tab === 'settings') fillSettingsForm();
 }
 
 /* ============================================================
@@ -3846,6 +4009,65 @@ function renderManageTagsCreators(){
     });
   });
 }
+
+/* ============================================================
+   ADMIN — SETTINGS TAB (announcement banner + maintenance mode)
+============================================================ */
+function fillSettingsForm(){
+  const s = State.settings;
+  document.getElementById('settingAnnouncementEnabled').checked = s.announcementEnabled;
+  document.getElementById('settingAnnouncementMessage').value = s.announcementMessage;
+  document.getElementById('settingAnnouncementType').value = s.announcementType;
+  document.getElementById('settingMaintenanceEnabled').checked = s.maintenanceMode;
+  document.getElementById('settingMaintenanceMessage').value = s.maintenanceMessage;
+}
+
+function saveSettingsPatch(patch, successMsg){
+  db.collection(SETTINGS_COLLECTION).doc(SETTINGS_DOC_ID).set(patch, { merge: true })
+    .then(() => showToast(successMsg, 'success'))
+    .catch(err => { console.error(err); showToast('Gagal menyimpan pengaturan', 'error'); });
+}
+
+document.getElementById('saveAnnouncementBtn').addEventListener('click', () => {
+  const enabled = document.getElementById('settingAnnouncementEnabled').checked;
+  const message = document.getElementById('settingAnnouncementMessage').value.trim();
+  const type = document.getElementById('settingAnnouncementType').value;
+
+  if(enabled && !message){
+    showToast('Isi pesan announcement-nya dulu', 'error');
+    return;
+  }
+
+  saveSettingsPatch({
+    announcementEnabled: enabled,
+    announcementMessage: message,
+    announcementType: type,
+    announcementId: Date.now().toString() // fresh id so a changed message re-surfaces for visitors who dismissed an older one
+  }, 'Announcement disimpan');
+});
+
+document.getElementById('saveMaintenanceBtn').addEventListener('click', () => {
+  const enabled = document.getElementById('settingMaintenanceEnabled').checked;
+  const message = document.getElementById('settingMaintenanceMessage').value.trim();
+  const patch = {
+    maintenanceMode: enabled,
+    maintenanceMessage: message || 'Situs sedang dalam perbaikan. Balik lagi sebentar lagi ya!'
+  };
+
+  if(enabled && !State.settings.maintenanceMode){
+    // only gate the disruptive transition (off -> on) behind a confirm;
+    // turning it back off or editing the message can just save directly
+    askConfirm({
+      title: 'Aktifkan maintenance mode?',
+      body: 'Semua pengunjung (selain kamu) bakal lihat layar "Sedang Maintenance" mulai sekarang, sampai kamu matiin lagi dari sini.',
+      okLabel: 'Ya, Aktifkan',
+      danger: true,
+      onConfirm: () => saveSettingsPatch(patch, 'Maintenance mode aktif')
+    });
+  }else{
+    saveSettingsPatch(patch, enabled ? 'Pengaturan maintenance disimpan' : 'Maintenance mode nonaktif');
+  }
+});
 
 function renderAdminTable(){
   const list = getAdminFilteredPresets();
@@ -4912,9 +5134,11 @@ function init(){
     State.isAdmin = !!user && ADMIN_EMAILS.includes(user.email);
     const seedCard = document.getElementById('seedDataCard');
     if(seedCard) seedCard.hidden = !(State.isAdmin && State.presetsLoaded && State.presets.length === 0);
+    applyMaintenanceState(); // admin logging in/out should immediately lift/restore the maintenance screen
   });
 
   subscribeToPresets(); // wires up realtime Firestore listener + triggers handleDeepLink() once loaded
+  subscribeToSettings(); // announcement banner + maintenance mode, live
 }
 
 if(document.readyState === 'loading'){

@@ -50,5 +50,14 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null
                     && request.auth.token.email == 'nezzstore081@gmail.com';
     }
+
+    // Pengaturan situs (banner pengumuman + maintenance mode). Semua orang
+    // boleh BACA (biar banner/layar maintenance-nya kelihatan buat semua
+    // pengunjung), cuma admin yang boleh UBAH.
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                    && request.auth.token.email == 'nezzstore081@gmail.com';
+    }
   }
 }

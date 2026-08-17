@@ -115,6 +115,16 @@ Yang baru:
 - **Baru Dilihat** — shelf baru di atas "Rekomendasi buat kamu", isinya preset yang baru dibuka pengunjung ini (localStorage, maksimal 12 preset, terbaru duluan).
 - **Bandingkan Preset** — tiap card sekarang ada ikon compare (di sebelah ikon hati). Pilih 2 preset, muncul bar mengambang di bawah layar, tap "Bandingkan" buat lihat keduanya berdampingan (kategori, creator, effect, rasio, FPS, resolution, unduhan, tanggal ditambahkan).
 
+## 9. Update: Announcement Banner & Maintenance Mode
+
+⚠️ **Ini update pertama yang WAJIB update `firestore.rules` juga** — beda dari update-update sebelumnya. Ada collection baru (`settings`) buat nyimpen dua pengaturan ini, jadi rules-nya perlu tau collection itu boleh dibaca semua orang tapi cuma admin yang boleh ubah.
+
+**Cara update rules:** Firebase Console → Firestore Database → Rules → tempel ulang isi `firestore.rules` yang baru → Publish. Kalau langkah ini kelewat, banner/maintenance-nya nggak bakal muncul ke pengunjung (gagal secara aman — situsnya tetap jalan normal, cuma fitur ini yang nggak nyala), dan nyimpen dari tab Pengaturan bakal gagal dengan pesan error izin.
+
+Yang baru — tab **Pengaturan** di admin panel (antara Laporan & Data/Backup):
+- **Announcement Banner** — banner di paling atas situs, muncul ke semua pengunjung sampai mereka tutup sendiri (per-pesan — kalau kamu ganti pesannya, banner muncul lagi meskipun pesan lama udah pernah ditutup). Ada 3 tipe warna: Info/Peringatan/Sukses.
+- **Maintenance Mode** — kalau diaktifkan, semua pengunjung (kecuali kamu yang login admin) lihat layar "Sedang Maintenance" penuh, bukan situsnya. Ada tombol "Admin? Login di sini" di layar itu juga, jadi kamu tetap bisa masuk buat matiin lagi — nggak bakal kekunci sendiri.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
