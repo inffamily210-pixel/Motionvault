@@ -121,5 +121,38 @@ service cloud.firestore {
                     && request.resource.data.creatorName.size() > 0;
       allow delete: if request.auth != null && resource.data.followerId == request.auth.uid;
     }
+
+    // Pesan privat. Scope-nya SENGAJA dibatasi ke Pengunjung <-> Admin dulu
+    // (bukan bebas antar-pengguna) — creator di MotionVault belum tentu
+    // punya akun beneran (lihat catatan di /follows), jadi "kirim pesan ke
+    // creator manapun" belum bisa dijamin selalu ada penerimanya.
+    //
+    // 1 percakapan = 1 dokumen di /conversations, field "participants"
+    // berisi PERSIS 2 uid. Cuma 2 orang itu yang boleh baca/tulis apapun
+    // di percakapan itu (dicek pakai get() ke dokumen induknya dari dalam
+    // subcollection messages). Pesan yang udah terkirim nggak bisa diubah
+    // atau dihapus (nggak ada rule update/delete buat messages = otomatis
+    // ditolak keduanya).
+    match /conversations/{conversationId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.participants;
+      allow create: if request.auth != null
+                    && request.auth.uid in request.resource.data.participants
+                    && request.resource.data.participants.size() == 2;
+      // update cuma buat metadata preview (lastMessage/lastMessageAt) —
+      // daftar partisipannya sendiri nggak boleh berubah setelah dibuat.
+      allow update: if request.auth != null && request.auth.uid in resource.data.participants
+                    && request.resource.data.participants == resource.data.participants;
+
+      match /messages/{messageId} {
+        allow read: if request.auth != null
+                    && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow create: if request.auth != null
+                    && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants
+                    && request.resource.data.senderId == request.auth.uid
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 1000;
+      }
+    }
   }
 }

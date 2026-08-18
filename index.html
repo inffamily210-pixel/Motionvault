@@ -1009,6 +1009,17 @@ button{ font-family:inherit; }
 }
 .achievement-badge__icon{ font-size:14px; }
 .achievements-row .stats-empty{ font-size:12px; margin:0; }
+
+.message-thread{ display:flex; flex-direction:column; gap:8px; max-height:48vh; overflow-y:auto; padding:6px 2px 2px; }
+.message-bubble{ max-width:78%; padding:8px 12px; border-radius:14px; font-size:13px; line-height:1.4; word-break:break-word; }
+.message-bubble--mine{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
+.message-bubble--theirs{ align-self:flex-start; background:var(--surface); border:1px solid var(--surface-border); border-bottom-left-radius:4px; }
+.message-bubble__time{ font-size:9.5px; opacity:.65; margin-top:3px; display:block; }
+.message-thread__form{
+  display:flex; gap:8px; padding:12px 0 calc(14px + var(--safe-bottom)); margin-top:8px;
+  border-top:1px solid var(--line); position:sticky; bottom:0; background:var(--bg-elevated);
+}
+.message-thread__form .text-input{ flex:1; height:40px; }
 @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
 .toast__icon{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .toast--success .toast__icon{ background:rgba(61,220,151,.16); color:var(--success); }
@@ -1343,6 +1354,7 @@ button{ font-family:inherit; }
         <button type="button" class="btn btn--ghost" id="myProfileLogoutBtn">Keluar</button>
         <button type="button" class="btn btn--primary" id="myProfileSaveBtn">Simpan</button>
       </div>
+      <button type="button" class="btn btn--ghost" id="myProfileContactAdminBtn" style="width:100%; margin-top:10px;">💬 Hubungi Admin</button>
     </div>
   </div>
 </div>
@@ -1366,6 +1378,25 @@ button{ font-family:inherit; }
 
       <h3 class="stats-block__title" style="margin-top:6px;">Preset dari creator ini</h3>
       <div class="rec-row" id="creatorProfilePresetGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE THREAD MODAL ============ -->
+<div class="modal-overlay" id="messageThreadOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="messageThreadTitle">
+    <button class="modal__close" id="messageThreadClose" type="button" aria-label="Tutup">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal__body" style="padding-bottom:0;">
+      <div class="video-modal__headline" style="margin-bottom:2px;">
+        <h3 id="messageThreadTitle">Percakapan</h3>
+      </div>
+      <div class="message-thread" id="messageThreadList"></div>
+      <form class="message-thread__form" id="messageThreadForm">
+        <input type="text" id="messageThreadInput" class="text-input" placeholder="Tulis pesan…" maxlength="1000" autocomplete="off">
+        <button type="submit" class="btn btn--primary btn--sm">Kirim</button>
+      </form>
     </div>
   </div>
 </div>
@@ -1568,6 +1599,7 @@ button{ font-family:inherit; }
       <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Kategori/Tag/Creator</button>
       <button class="admin-tabs__btn" data-admin-tab="reports" type="button">Laporan <span class="count-pill" id="reportsCountPill" hidden>0</span></button>
       <button class="admin-tabs__btn" data-admin-tab="settings" type="button">Pengaturan</button>
+      <button class="admin-tabs__btn" data-admin-tab="messages" type="button">Pesan</button>
       <button class="admin-tabs__btn" data-admin-tab="data" type="button">Data &amp; Backup</button>
     </nav>
 
@@ -1828,6 +1860,14 @@ button{ font-family:inherit; }
         </div>
       </div>
 
+      <!-- MESSAGES TAB -->
+      <div class="admin-tabpanel" data-admin-panel="messages" hidden>
+        <div id="adminMessagesEmpty" class="admin-empty" hidden>
+          <p>Belum ada pesan masuk.</p>
+        </div>
+        <div class="manage-list" id="adminMessagesList"></div>
+      </div>
+
       <!-- DATA TAB -->
       <div class="admin-tabpanel" data-admin-panel="data" hidden>
         <div class="data-card" id="seedDataCard" hidden>
@@ -1951,6 +1991,7 @@ const SETTINGS_COLLECTION = 'settings';
 const SETTINGS_DOC_ID = 'site';
 const USERS_COLLECTION = 'users';
 const FOLLOWS_COLLECTION = 'follows';
+const CONVERSATIONS_COLLECTION = 'conversations';
 
 // Project Firebase ini khusus buat MotionVault (bukan gabungan dengan aplikasi
 // lain), tapi email admin tetap dikunci eksplisit di sini sebagai lapisan
@@ -2170,7 +2211,8 @@ const State = {
     announcementEnabled: false,
     announcementMessage: '',
     announcementType: 'info',
-    announcementId: ''
+    announcementId: '',
+    adminUid: ''         // published by the admin's own client on login — lets visitors' "Hubungi Admin" find them
   },
   currentUser: null,   // signed-in visitor's profile doc (from users/{uid}), null if logged out or admin
   isAdmin: false,
@@ -2314,7 +2356,8 @@ function subscribeToSettings(){
       announcementEnabled: !!d.announcementEnabled,
       announcementMessage: d.announcementMessage || '',
       announcementType: d.announcementType || 'info',
-      announcementId: d.announcementId || ''
+      announcementId: d.announcementId || '',
+      adminUid: d.adminUid || ''
     };
     applyMaintenanceState();
     applyAnnouncementState();
@@ -2688,6 +2731,156 @@ document.getElementById('creatorProfileFollowBtn').addEventListener('click', fun
 });
 
 /* ============================================================
+   MESSAGING (Pengunjung <-> Admin only for now — see firestore.rules
+   for why: creators aren't guaranteed to have real accounts yet, so
+   general user-to-user messaging is a later phase once creator
+   identity is sorted out.)
+============================================================ */
+function getConversationId(uidA, uidB){
+  return [uidA, uidB].sort().join('_');
+}
+
+const messageThreadOverlay = document.getElementById('messageThreadOverlay');
+let activeConversationId = null;
+let activeConversationUnsub = null;
+
+function myMessagingUid(){
+  return auth.currentUser ? auth.currentUser.uid : null;
+}
+
+function openConversation(otherUid, otherName){
+  const myUid = myMessagingUid();
+  if(!myUid){ signInWithGoogle(); return; }
+  if(!otherUid){ showToast('Admin belum pernah login, coba lagi nanti', 'error'); return; }
+  if(otherUid === myUid){ return; } // admin can't message themself
+
+  const convId = getConversationId(myUid, otherUid);
+  const myName = State.isAdmin ? 'Admin' : (State.currentUser ? State.currentUser.displayName : 'Pengguna');
+  const ref = db.collection(CONVERSATIONS_COLLECTION).doc(convId);
+
+  document.getElementById('messageThreadTitle').textContent = otherName;
+  document.getElementById('messageThreadList').innerHTML = `<p class="stats-empty">Memuat…</p>`;
+
+  ref.get().then(doc => {
+    if(doc.exists) return;
+    return ref.set({
+      participants: [myUid, otherUid],
+      participantNames: { [myUid]: myName, [otherUid]: otherName },
+      lastMessage: '',
+      lastMessageAt: Date.now(),
+      lastMessageBy: ''
+    });
+  }).then(() => {
+    activeConversationId = convId;
+    subscribeToActiveConversation(convId);
+    openOverlay(messageThreadOverlay);
+  }).catch(err => {
+    console.error('openConversation failed:', err);
+    showToast('Gagal membuka percakapan', 'error');
+  });
+}
+
+function subscribeToActiveConversation(convId){
+  if(activeConversationUnsub) activeConversationUnsub();
+  const myUid = myMessagingUid();
+
+  activeConversationUnsub = db.collection(CONVERSATIONS_COLLECTION).doc(convId).collection('messages')
+    .orderBy('createdAt', 'asc')
+    .limit(200)
+    .onSnapshot(snap => {
+      const listEl = document.getElementById('messageThreadList');
+      listEl.innerHTML = snap.empty
+        ? `<p class="stats-empty">Belum ada pesan. Mulai percakapan di bawah 👇</p>`
+        : snap.docs.map(doc => {
+            const m = doc.data();
+            const mine = m.senderId === myUid;
+            return `
+              <div class="message-bubble ${mine ? 'message-bubble--mine' : 'message-bubble--theirs'}">
+                ${escapeHtml(m.text)}
+                <span class="message-bubble__time">${formatDate(m.createdAt)}</span>
+              </div>
+            `;
+          }).join('');
+      listEl.scrollTop = listEl.scrollHeight;
+    }, err => console.error('message snapshot error:', err));
+}
+
+function closeMessageThread(){
+  closeOverlay(messageThreadOverlay);
+  if(activeConversationUnsub){ activeConversationUnsub(); activeConversationUnsub = null; }
+  activeConversationId = null;
+}
+
+document.getElementById('messageThreadClose').addEventListener('click', closeMessageThread);
+messageThreadOverlay.addEventListener('click', (e) => { if(e.target === messageThreadOverlay) closeMessageThread(); });
+
+document.getElementById('messageThreadForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('messageThreadInput');
+  const text = input.value.trim();
+  const myUid = myMessagingUid();
+  if(!text || !activeConversationId || !myUid) return;
+
+  input.value = '';
+  const convRef = db.collection(CONVERSATIONS_COLLECTION).doc(activeConversationId);
+  convRef.collection('messages').add({
+    senderId: myUid,
+    text: text,
+    createdAt: Date.now()
+  }).then(() => {
+    return convRef.update({ lastMessage: text.slice(0, 80), lastMessageAt: Date.now(), lastMessageBy: myUid });
+  }).catch(err => {
+    console.error('send message failed:', err);
+    showToast('Gagal mengirim pesan', 'error');
+  });
+});
+
+document.getElementById('myProfileContactAdminBtn').addEventListener('click', () => {
+  closeMyProfileModal();
+  openConversation(State.settings.adminUid, 'Admin MotionVault');
+});
+
+/** Admin's inbox — lists every conversation they're a participant in. */
+function renderAdminMessagesTab(){
+  const myUid = myMessagingUid();
+  if(!myUid) return;
+
+  db.collection(CONVERSATIONS_COLLECTION)
+    .where('participants', 'array-contains', myUid)
+    .orderBy('lastMessageAt', 'desc')
+    .limit(50)
+    .get()
+    .then(snap => {
+      const listEl = document.getElementById('adminMessagesList');
+      const emptyEl = document.getElementById('adminMessagesEmpty');
+      if(snap.empty){
+        emptyEl.hidden = false;
+        listEl.innerHTML = '';
+        return;
+      }
+      emptyEl.hidden = true;
+      listEl.innerHTML = snap.docs.map(doc => {
+        const c = doc.data();
+        const otherUid = (c.participants || []).find(p => p !== myUid) || '';
+        const otherName = (c.participantNames && c.participantNames[otherUid]) || 'Pengguna';
+        return `
+          <div class="manage-row" data-open-conv data-other-uid="${escapeHtml(otherUid)}" data-other-name="${escapeHtml(otherName)}" style="cursor:pointer;">
+            <span class="manage-row__name">${escapeHtml(otherName)}</span>
+            <span class="manage-row__count" style="max-width:55%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(c.lastMessage || '(belum ada pesan)')}</span>
+          </div>
+        `;
+      }).join('');
+      listEl.querySelectorAll('[data-open-conv]').forEach(row => {
+        row.addEventListener('click', () => openConversation(row.dataset.otherUid, row.dataset.otherName));
+      });
+    })
+    .catch(err => {
+      console.error('Gagal memuat pesan admin:', err);
+      showToast('Gagal memuat pesan — cek apakah index Firestore-nya sudah dibuat (lihat README)', 'error');
+    });
+}
+
+/* ============================================================
    UTILITIES
 ============================================================ */
 function escapeHtml(str){
@@ -2955,7 +3148,7 @@ function openOverlay(el){
 function closeOverlay(el){
   el.hidden = true;
   // only restore scroll if no other overlay is open
-  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay','myProfileOverlay','creatorProfileOverlay']
+  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay','myProfileOverlay','creatorProfileOverlay','messageThreadOverlay']
     .some(id => {
       const node = document.getElementById(id);
       return node && !node.hidden;
@@ -4180,6 +4373,7 @@ function switchAdminTab(tab){
   if(tab === 'manage') renderManageTagsCreators();
   if(tab === 'reports') loadAndRenderReports();
   if(tab === 'settings') fillSettingsForm();
+  if(tab === 'messages') renderAdminMessagesTab();
 }
 
 /* ============================================================
@@ -5680,6 +5874,11 @@ function init(){
     }else{
       State.currentUser = null;
       refreshVisitorAuthUI();
+    }
+
+    if(State.isAdmin && user){
+      // lets visitors' "Hubungi Admin" button find who to message, without a manual setup step
+      db.collection(SETTINGS_COLLECTION).doc(SETTINGS_DOC_ID).set({ adminUid: user.uid }, { merge: true }).catch(() => {});
     }
   });
 

@@ -167,6 +167,23 @@ Nggak perlu update rules — cuma query baca dari collection `users` yang udah a
 
 Section baru **"🏆 Leaderboard Pengguna"** di halaman Statistik (nav bar bawah), nampilin top 10 pengunjung berdasarkan total XP — foto profil, nama, level, dan XP-nya. Belum bisa diklik buat lihat detail (halaman profil publik buat orang lain itu bagian dari redesign nanti).
 
+## 14. Update: Pesan (Pengunjung ↔ Admin)
+
+⚠️ **Update `firestore.rules` lagi** (collection baru: `conversations`, plus subcollection `messages` di dalamnya).
+
+⚠️ **Ada 1 langkah manual TAMBAHAN yang wajib** — beda dari update-update sebelumnya yang cuma butuh tempel rules:
+
+1. Buka tab **Pesan** di admin panel sekali aja (boleh kosong, nggak masalah).
+2. Kalau muncul toast error "index Firestore belum dibuat" → buka **Console browser** (F12 → tab Console) → bakal ada error dari Firestore isinya link panjang ke `console.firebase.google.com/.../indexes?create_composite=...` → klik link itu → halaman Firebase Console kebuka otomatis dengan konfigurasi index yang benar → klik **Create Index** → tunggu beberapa menit sampai statusnya "Enabled".
+3. Ini sekali doang perlu dilakukan. Alasannya: query "semua percakapan yang aku ikutan, diurutin dari yang paling baru" itu gabungan filter + urutan di 2 field berbeda (`participants` + `lastMessageAt`), dan Firestore butuh index khusus buat kombinasi kayak gitu (index 1 field kayak yang lain-lain selama ini otomatis, kombinasi field butuh dibikin manual).
+
+**Kenapa scope-nya cuma Pengunjung ↔ Admin, bukan bebas antar-pengguna:** creator di MotionVault masih sekadar label teks di preset, belum tentu ada akun Google beneran di baliknya — jadi "kirim pesan ke creator manapun" belum bisa dijamin selalu nyampe ke seseorang. Pesan bebas antar-pengguna nyusul begitu ada sistem "klaim identitas creator".
+
+Cara pakai:
+- **Pengunjung**: buka Profil Saya → tombol "💬 Hubungi Admin" di paling bawah.
+- **Admin**: tab **Pesan** baru di admin panel, isinya daftar semua percakapan, diurutin dari yang paling baru dibalas. Klik buat buka & balas.
+- Pesan real-time (pakai `onSnapshot`, bukan perlu refresh manual), tapi belum ada notifikasi/badge "pesan belum dibaca" — itu nanti nyambung ke fitur Notifikasi yang masih di-antri.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
