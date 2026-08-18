@@ -564,6 +564,12 @@ button{ font-family:inherit; }
 .video-modal__body{ padding:20px 20px calc(20px + var(--safe-bottom)); display:flex; flex-direction:column; gap:12px; }
 .video-modal__headline{ display:flex; flex-direction:column; gap:8px; }
 .video-modal__headline h3{ font-size:19px; font-weight:700; line-height:1.3; }
+.video-modal__creator{
+  align-self:flex-start; background:none; border:none; padding:0; margin-top:-2px;
+  font-size:13px; color:var(--text-faint); cursor:pointer;
+}
+.video-modal__creator span{ color:var(--accent-2); font-weight:600; }
+.video-modal__creator:hover span{ text-decoration:underline; }
 .video-modal__desc{ font-size:13.5px; line-height:1.6; color:var(--text-dim); }
 
 .video-modal__tags{ display:flex; flex-wrap:wrap; gap:6px; }
@@ -897,6 +903,8 @@ button{ font-family:inherit; }
 .rank-item:last-child{ border-bottom:none; }
 .rank-item__num{ font-family:var(--font-mono); font-size:13px; color:var(--text-faint); width:18px; flex-shrink:0; }
 .rank-item__thumb{ width:32px; height:46px; border-radius:6px; object-fit:cover; background:var(--bg-elevated); flex-shrink:0; }
+.rank-item__thumb--round{ width:32px; height:32px; border-radius:50%; }
+.rank-item__thumb--fallback{ display:flex; align-items:center; justify-content:center; background:var(--accent-soft); color:var(--accent); font-size:13px; font-weight:800; }
 .rank-item__name{ flex:1; font-size:13.5px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .rank-item__stat{ font-family:var(--font-mono); font-size:12.5px; color:var(--accent-2); display:flex; align-items:center; gap:4px; flex-shrink:0; }
 
@@ -982,6 +990,25 @@ button{ font-family:inherit; }
 .profile-header__info{ min-width:0; }
 .profile-header__info h3{ font-size:16px; font-weight:800; }
 .profile-header__email{ font-size:12px; color:var(--text-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.creator-avatar-fallback{
+  width:56px; height:56px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; flex-shrink:0;
+}
+
+.xp-block{ margin-bottom:4px; }
+.xp-block__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.xp-block__level{ font-size:13px; font-weight:700; color:var(--accent); }
+.xp-block__num{ font-size:11.5px; color:var(--text-faint); font-family:var(--font-mono); }
+.xp-block__track{ height:8px; border-radius:99px; background:var(--bg-elevated); overflow:hidden; }
+.xp-block__fill{ height:100%; border-radius:99px; background:linear-gradient(90deg, var(--accent), var(--accent-2)); transition:width .4s ease; }
+
+.achievements-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.achievement-badge{
+  display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:99px;
+  background:var(--surface); border:1px solid var(--surface-border); font-size:11.5px; font-weight:600; color:var(--text-dim);
+}
+.achievement-badge__icon{ font-size:14px; }
+.achievements-row .stats-empty{ font-size:12px; margin:0; }
 @keyframes toastOut{ to{ opacity:0; transform:translateY(6px) scale(.96); } }
 .toast__icon{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .toast--success .toast__icon{ background:rgba(61,220,151,.16); color:var(--success); }
@@ -1221,6 +1248,11 @@ button{ font-family:inherit; }
           <h3 class="stats-block__title">Paling difavoritkan</h3>
           <div class="rank-list" id="topFavList"></div>
         </div>
+
+        <div class="stats-block">
+          <h3 class="stats-block__title">🏆 Leaderboard Pengguna</h3>
+          <div class="rank-list" id="userLeaderboardList"></div>
+        </div>
       </div>
     </section>
 
@@ -1288,6 +1320,16 @@ button{ font-family:inherit; }
         </div>
       </div>
 
+      <div class="xp-block">
+        <div class="xp-block__top">
+          <span class="xp-block__level" id="myProfileLevel">Level 1</span>
+          <span class="xp-block__num" id="myProfileXpText">0 XP</span>
+        </div>
+        <div class="xp-block__track"><div class="xp-block__fill" id="myProfileXpFill"></div></div>
+      </div>
+
+      <div class="achievements-row" id="myProfileAchievements"></div>
+
       <div class="field field--full">
         <label for="myProfileName">Nama tampilan</label>
         <input type="text" id="myProfileName" class="text-input" maxlength="40">
@@ -1305,6 +1347,29 @@ button{ font-family:inherit; }
   </div>
 </div>
 
+<!-- ============ CREATOR PROFILE MODAL ============ -->
+<div class="modal-overlay" id="creatorProfileOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="creatorProfileName">
+    <button class="modal__close" id="creatorProfileClose" type="button" aria-label="Tutup">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal__body">
+      <div class="profile-header">
+        <div class="creator-avatar-fallback" id="creatorProfileAvatar"></div>
+        <div class="profile-header__info">
+          <h3 id="creatorProfileName">Creator</h3>
+          <p class="profile-header__email" id="creatorProfileStats"></p>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--primary" id="creatorProfileFollowBtn" style="width:100%;">Ikuti</button>
+
+      <h3 class="stats-block__title" style="margin-top:6px;">Preset dari creator ini</h3>
+      <div class="rec-row" id="creatorProfilePresetGrid"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ VIDEO MODAL ============ -->
 <div class="modal-overlay" id="videoModalOverlay" hidden>
   <div class="modal video-modal" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
@@ -1318,6 +1383,9 @@ button{ font-family:inherit; }
       <div class="video-modal__headline">
         <span class="badge" id="videoModalCategory">Kategori</span>
         <h3 id="videoModalTitle">Nama preset</h3>
+        <button type="button" class="video-modal__creator" id="videoModalCreatorBtn" hidden>
+          by <span id="videoModalCreatorName"></span>
+        </button>
       </div>
       <p class="video-modal__desc" id="videoModalDesc"></p>
 
@@ -1497,7 +1565,7 @@ button{ font-family:inherit; }
       <button class="admin-tabs__btn is-active" data-admin-tab="dashboard" type="button">Dashboard</button>
       <button class="admin-tabs__btn" data-admin-tab="list" type="button">Semua Preset</button>
       <button class="admin-tabs__btn" data-admin-tab="form" type="button">Tambah Baru</button>
-      <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Tag &amp; Creator</button>
+      <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Kategori/Tag/Creator</button>
       <button class="admin-tabs__btn" data-admin-tab="reports" type="button">Laporan <span class="count-pill" id="reportsCountPill" hidden>0</span></button>
       <button class="admin-tabs__btn" data-admin-tab="settings" type="button">Pengaturan</button>
       <button class="admin-tabs__btn" data-admin-tab="data" type="button">Data &amp; Backup</button>
@@ -1691,6 +1759,12 @@ button{ font-family:inherit; }
       <!-- MANAGE TAGS & CREATORS TAB -->
       <div class="admin-tabpanel" data-admin-panel="manage" hidden>
         <div class="stats-block">
+          <h3 class="stats-block__title">Kategori <span class="hint" id="manageCategoryCount"></span></h3>
+          <p class="data-card__hint">Ganti nama kategori berlaku ke semua preset yang memakainya. Nggak ada tombol hapus — tiap preset wajib punya kategori, jadi kalau mau "pensiunkan" satu kategori, ganti namanya jadi kategori lain yang sudah ada.</p>
+          <div class="manage-list" id="manageCategoryList"></div>
+        </div>
+
+        <div class="stats-block">
           <h3 class="stats-block__title">Tag <span class="hint" id="manageTagCount"></span></h3>
           <p class="data-card__hint">Ganti nama tag akan langsung berlaku di semua preset yang memakainya. Hapus akan mencopot tag itu dari semua preset (preset-nya sendiri tidak terhapus).</p>
           <div class="manage-list" id="manageTagList"></div>
@@ -1876,6 +1950,7 @@ const PRESETS_COLLECTION = 'presets';
 const SETTINGS_COLLECTION = 'settings';
 const SETTINGS_DOC_ID = 'site';
 const USERS_COLLECTION = 'users';
+const FOLLOWS_COLLECTION = 'follows';
 
 // Project Firebase ini khusus buat MotionVault (bukan gabungan dengan aplikasi
 // lain), tapi email admin tetap dikunci eksplisit di sini sebagai lapisan
@@ -2313,11 +2388,17 @@ function ensureUserProfile(user){
       email: user.email || '',
       bio: '',
       joinedAt: Date.now(),
-      // gamification fields start at zero and are locked from self-edit
-      // (see firestore.rules) until there's a proper auto-award system
+      // level is DERIVED from xp on the client (see computeLevel()) — not
+      // stored/trusted as its own mutable value, so there's nothing to fake.
       level: 1,
       xp: 0,
-      achievements: [],
+      achievements: ['early_bird'], // everyone joining during this initial rollout gets it
+      // xp/achievements/downloadCount/checkInStreak/lastCheckInDate CAN be
+      // self-updated, but only through the narrow, bounded path in
+      // firestore.rules (small fixed deltas, known achievement ids only).
+      downloadCount: 0,
+      checkInStreak: 0,
+      lastCheckInDate: '',
       followerCount: 0,
       followingCount: 0
     });
@@ -2354,6 +2435,108 @@ document.getElementById('visitorAuthBtn').addEventListener('click', () => {
   else signInWithGoogle();
 });
 
+/* ============================================================
+   XP / LEVEL / ACHIEVEMENTS
+   "level" is always DERIVED from xp client-side (computeLevel) — it's
+   never stored/trusted as an independently-settable value, so there's
+   nothing there to fake. xp itself can only self-increase in small
+   bounded steps (see firestore.rules), same trust model as the existing
+   preset "downloads" counter. Achievement unlocks are similarly bounded
+   to a fixed known set of ids — see rules for the exact limits.
+============================================================ */
+const ACHIEVEMENTS = {
+  first_follow:   { name: 'Follower Pertama', icon: '🎯', desc: 'Follow creator pertama kamu' },
+  first_download: { name: 'Unduhan Pertama',  icon: '📥', desc: 'Download preset pertama kamu' },
+  downloader_5:   { name: 'Kolektor',         icon: '📦', desc: 'Download 5 preset' },
+  downloader_20:  { name: 'Kolektor Ulung',   icon: '🏆', desc: 'Download 20 preset' },
+  streak_3:       { name: 'Setia 3 Hari',     icon: '🔥', desc: 'Buka MotionVault 3 hari berturut-turut' },
+  streak_7:       { name: 'Setia Seminggu',   icon: '⚡', desc: 'Buka MotionVault 7 hari berturut-turut' },
+  early_bird:     { name: 'Early Bird',       icon: '🐣', desc: 'Salah satu pengguna awal MotionVault' }
+};
+
+function computeLevel(xp){
+  return Math.floor((xp || 0) / 100) + 1;
+}
+
+/** Award XP to the signed-in visitor. Fire-and-forget-ish; failures are logged, not surfaced (keeps actions like Follow/Download snappy). */
+function awardXp(amount, reasonForToast){
+  if(!State.currentUser) return Promise.resolve();
+  const oldXp = State.currentUser.xp;
+  const newXp = oldXp + amount; // optimistic local value, just for instant UI feedback
+  return db.collection(USERS_COLLECTION).doc(State.currentUser.id).update({
+    xp: firebase.firestore.FieldValue.increment(amount)
+  })
+    .then(() => {
+      const leveledUp = computeLevel(newXp) > computeLevel(oldXp);
+      State.currentUser.xp = newXp;
+      refreshVisitorAuthUI();
+      if(leveledUp){
+        showToast(`🎉 Naik ke Level ${computeLevel(newXp)}!`, 'success');
+      }else if(reasonForToast){
+        showToast(reasonForToast, 'success');
+      }
+    })
+    .catch(err => console.error('awardXp failed:', err));
+}
+
+function unlockAchievement(id){
+  if(!State.currentUser || State.currentUser.achievements.includes(id)) return Promise.resolve();
+  const def = ACHIEVEMENTS[id];
+  if(!def) return Promise.resolve();
+  const newAchievements = [...State.currentUser.achievements, id];
+  return db.collection(USERS_COLLECTION).doc(State.currentUser.id).update({ achievements: newAchievements })
+    .then(() => {
+      State.currentUser.achievements = newAchievements;
+      showToast(`${def.icon} Achievement baru: ${def.name}!`, 'success');
+    })
+    .catch(err => console.error('unlockAchievement failed:', err));
+}
+
+/** Track a download for XP + the downloader_5/downloader_20 achievements. Called from triggerDownload(). */
+function trackDownloadForCurrentUser(){
+  if(!State.currentUser) return;
+  const newCount = State.currentUser.downloadCount + 1;
+  db.collection(USERS_COLLECTION).doc(State.currentUser.id).update({
+    downloadCount: firebase.firestore.FieldValue.increment(1)
+  })
+    .then(() => {
+      State.currentUser.downloadCount = newCount;
+      if(newCount === 1) unlockAchievement('first_download');
+      if(newCount === 5) unlockAchievement('downloader_5');
+      if(newCount === 20) unlockAchievement('downloader_20');
+    })
+    .catch(err => console.error('trackDownloadForCurrentUser failed:', err));
+  awardXp(2);
+}
+
+/** Once-per-calendar-day check-in bonus + streak tracking. Called after a visitor profile loads. */
+function checkDailyCheckIn(){
+  const u = State.currentUser;
+  if(!u) return;
+  const today = new Date().toISOString().slice(0, 10);
+  if(u.lastCheckInDate === today) return;
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const newStreak = u.lastCheckInDate === yesterday ? (u.checkInStreak || 0) + 1 : 1;
+  const oldXp = u.xp;
+  const newXp = oldXp + 5; // optimistic local value, just for instant UI feedback
+
+  db.collection(USERS_COLLECTION).doc(u.id).update({
+    lastCheckInDate: today,
+    checkInStreak: newStreak,
+    xp: firebase.firestore.FieldValue.increment(5)
+  }).then(() => {
+    const leveledUp = computeLevel(newXp) > computeLevel(oldXp);
+    u.lastCheckInDate = today;
+    u.checkInStreak = newStreak;
+    u.xp = newXp;
+    refreshVisitorAuthUI();
+    showToast(leveledUp ? `🎉 Naik ke Level ${computeLevel(newXp)}!` : `✨ +5 XP — hari ke-${newStreak} berturut-turut!`, 'success');
+    if(newStreak === 3) unlockAchievement('streak_3');
+    if(newStreak === 7) unlockAchievement('streak_7');
+  }).catch(err => console.error('checkDailyCheckIn failed:', err));
+}
+
 /* ---- My Profile modal ---- */
 const myProfileOverlay = document.getElementById('myProfileOverlay');
 
@@ -2364,6 +2547,21 @@ function openMyProfileModal(){
   document.getElementById('myProfileEmail').textContent = u.email || '';
   document.getElementById('myProfileName').value = u.displayName || '';
   document.getElementById('myProfileBio').value = u.bio || '';
+
+  const level = computeLevel(u.xp);
+  const xpIntoLevel = u.xp % 100;
+  document.getElementById('myProfileLevel').textContent = `Level ${level}`;
+  document.getElementById('myProfileXpText').textContent = `${xpIntoLevel}/100 XP`;
+  document.getElementById('myProfileXpFill').style.width = xpIntoLevel + '%';
+
+  const badgesEl = document.getElementById('myProfileAchievements');
+  badgesEl.innerHTML = u.achievements.length
+    ? u.achievements.map(id => {
+        const def = ACHIEVEMENTS[id];
+        return def ? `<span class="achievement-badge"><span class="achievement-badge__icon">${def.icon}</span>${escapeHtml(def.name)}</span>` : '';
+      }).join('')
+    : `<p class="stats-empty">Belum ada achievement — coba follow creator atau download preset!</p>`;
+
   openOverlay(myProfileOverlay);
 }
 function closeMyProfileModal(){ closeOverlay(myProfileOverlay); }
@@ -2391,6 +2589,102 @@ document.getElementById('myProfileSaveBtn').addEventListener('click', () => {
 document.getElementById('myProfileLogoutBtn').addEventListener('click', () => {
   auth.signOut();
   closeMyProfileModal();
+});
+
+/* ============================================================
+   FOLLOW SYSTEM
+   Creators aren't real accounts (they're just a text credit on presets),
+   so a "follow" targets the creator NAME, not a uid. Requires a signed-in
+   visitor; clicking Follow while logged out triggers Google sign-in.
+============================================================ */
+function followCreator(creatorName){
+  return db.collection(FOLLOWS_COLLECTION).add({
+    followerId: State.currentUser.id,
+    creatorName: creatorName,
+    createdAt: Date.now()
+  });
+}
+
+function unfollowCreator(creatorName){
+  return db.collection(FOLLOWS_COLLECTION)
+    .where('followerId', '==', State.currentUser.id)
+    .where('creatorName', '==', creatorName)
+    .get()
+    .then(snap => Promise.all(snap.docs.map(d => d.ref.delete())));
+}
+
+function getFollowerCount(creatorName){
+  return db.collection(FOLLOWS_COLLECTION).where('creatorName', '==', creatorName).get().then(snap => snap.size);
+}
+
+function getIsFollowing(creatorName){
+  if(!State.currentUser) return Promise.resolve(false);
+  return db.collection(FOLLOWS_COLLECTION)
+    .where('followerId', '==', State.currentUser.id)
+    .where('creatorName', '==', creatorName)
+    .limit(1)
+    .get()
+    .then(snap => !snap.empty);
+}
+
+/* ---- Creator Profile modal ---- */
+const creatorProfileOverlay = document.getElementById('creatorProfileOverlay');
+
+function setFollowButtonState(creatorName, following){
+  const btn = document.getElementById('creatorProfileFollowBtn');
+  btn.textContent = following ? 'Mengikuti ✓' : 'Ikuti';
+  btn.classList.toggle('btn--ghost', following);
+  btn.classList.toggle('btn--primary', !following);
+  btn.dataset.creator = creatorName;
+  btn.dataset.following = following ? '1' : '0';
+}
+
+function openCreatorProfile(creatorName){
+  const presets = State.presets.filter(p => p.creator === creatorName);
+  const totalDownloads = presets.reduce((s, p) => s + (p.downloads || 0), 0);
+
+  document.getElementById('creatorProfileName').textContent = creatorName;
+  document.getElementById('creatorProfileAvatar').textContent = creatorName.charAt(0).toUpperCase();
+  document.getElementById('creatorProfileStats').textContent = `${presets.length} preset · ${formatNumber(totalDownloads)} unduhan`;
+  renderGridInto(document.getElementById('creatorProfilePresetGrid'), presets, null);
+  setFollowButtonState(creatorName, false); // optimistic default while the real check below resolves
+
+  getFollowerCount(creatorName).then(n => {
+    document.getElementById('creatorProfileStats').textContent =
+      `${presets.length} preset · ${formatNumber(totalDownloads)} unduhan · ${formatNumber(n)} pengikut`;
+  });
+  getIsFollowing(creatorName).then(following => setFollowButtonState(creatorName, following));
+
+  openOverlay(creatorProfileOverlay);
+}
+function closeCreatorProfile(){ closeOverlay(creatorProfileOverlay); }
+
+document.getElementById('creatorProfileClose').addEventListener('click', closeCreatorProfile);
+creatorProfileOverlay.addEventListener('click', (e) => { if(e.target === creatorProfileOverlay) closeCreatorProfile(); });
+
+document.getElementById('creatorProfileFollowBtn').addEventListener('click', function(){
+  if(!State.currentUser){ signInWithGoogle(); return; }
+
+  const creatorName = this.dataset.creator;
+  const following = this.dataset.following === '1';
+  this.disabled = true;
+
+  (following ? unfollowCreator(creatorName) : followCreator(creatorName))
+    .then(() => {
+      setFollowButtonState(creatorName, !following);
+      getFollowerCount(creatorName).then(n => {
+        const presets = State.presets.filter(p => p.creator === creatorName);
+        const totalDownloads = presets.reduce((s, p) => s + (p.downloads || 0), 0);
+        document.getElementById('creatorProfileStats').textContent =
+          `${presets.length} preset · ${formatNumber(totalDownloads)} unduhan · ${formatNumber(n)} pengikut`;
+      });
+      if(!following){
+        unlockAchievement('first_follow');
+        awardXp(3);
+      }
+    })
+    .catch(err => { console.error(err); showToast('Gagal memperbarui status follow', 'error'); })
+    .finally(() => { this.disabled = false; });
 });
 
 /* ============================================================
@@ -2661,7 +2955,7 @@ function openOverlay(el){
 function closeOverlay(el){
   el.hidden = true;
   // only restore scroll if no other overlay is open
-  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay','myProfileOverlay']
+  const anyOpen = ['videoModalOverlay','adminLoginOverlay','adminPanelOverlay','confirmOverlay','ytImportOverlay','smartSearchOverlay','compareOverlay','myProfileOverlay','creatorProfileOverlay']
     .some(id => {
       const node = document.getElementById(id);
       return node && !node.hidden;
@@ -3517,6 +3811,15 @@ function openVideoModal(id){
   videoModalTitle.textContent = preset.name;
   videoModalDesc.textContent = preset.description || 'Nggak ada deskripsi untuk preset ini.';
 
+  const creatorBtn = document.getElementById('videoModalCreatorBtn');
+  if(preset.creator){
+    creatorBtn.hidden = false;
+    document.getElementById('videoModalCreatorName').textContent = preset.creator;
+    creatorBtn.onclick = () => openCreatorProfile(preset.creator);
+  }else{
+    creatorBtn.hidden = true;
+  }
+
   videoModalTags.innerHTML = (preset.tags||[]).map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join('');
 
   videoModalDownloads.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg> ${formatNumber(preset.downloads)} unduhan`;
@@ -3561,6 +3864,8 @@ function triggerDownload(preset, link){
   db.collection(PRESETS_COLLECTION).doc(preset.id).update({
     downloads: firebase.firestore.FieldValue.increment(1)
   }).catch(err => console.warn('Gagal update hitungan unduhan di Firestore:', err));
+
+  trackDownloadForCurrentUser();
 
   const a = document.createElement('a');
   a.href = link.url;
@@ -4082,16 +4387,43 @@ function bulkClearCreator(creator){
 }
 
 function renderManageTagsCreators(){
+  const cats = getAllCategoryOptions();
   const tags = allTagsFromPresets();
   const creators = allCreatorsFromPresets();
-  const tagCounts = {}, creatorCounts = {};
+  const catCounts = {}, tagCounts = {}, creatorCounts = {};
   State.presets.forEach(p => {
+    if(p.category) catCounts[p.category] = (catCounts[p.category]||0) + 1;
     (p.tags||[]).forEach(t => tagCounts[t] = (tagCounts[t]||0) + 1);
     if(p.creator) creatorCounts[p.creator] = (creatorCounts[p.creator]||0) + 1;
   });
 
+  document.getElementById('manageCategoryCount').textContent = `(${cats.length})`;
   document.getElementById('manageTagCount').textContent = `(${tags.length})`;
   document.getElementById('manageCreatorCount').textContent = `(${creators.length})`;
+
+  const catListEl = document.getElementById('manageCategoryList');
+  catListEl.innerHTML = cats.map(c => `
+    <div class="manage-row">
+      <span class="manage-row__name">${escapeHtml(c)}</span>
+      <span class="manage-row__count">${catCounts[c]||0} preset</span>
+      <div class="manage-row__actions">
+        <button type="button" data-rename-category="${escapeHtml(c)}">Ganti nama</button>
+      </div>
+    </div>
+  `).join('');
+
+  catListEl.querySelectorAll('[data-rename-category]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const oldCat = btn.dataset.renameCategory;
+      const input = window.prompt(`Ganti nama kategori "${oldCat}" jadi:`, oldCat);
+      if(input === null) return;
+      const newCat = input.trim();
+      if(!newCat || newCat === oldCat) return;
+      bulkRenameCategory(oldCat, newCat)
+        .then(() => showToast('Kategori berhasil diganti nama', 'success'))
+        .catch(err => { console.error(err); showToast('Gagal mengganti nama kategori', 'error'); });
+    });
+  });
 
   const tagListEl = document.getElementById('manageTagList');
   tagListEl.innerHTML = tags.length ? tags.map(t => `
@@ -5260,6 +5592,41 @@ function renderStatsView(){
   document.getElementById('topFavList').innerHTML = topFav.length
     ? renderRankList(topFav.slice(0,5), () => '♥', '')
     : `<p class="stats-empty">Belum ada preset yang difavoritkan di perangkat ini.</p>`;
+
+  loadUserLeaderboard();
+}
+
+/** Top 10 visitors by XP. Separate async query (users aren't preloaded into State like presets are). */
+function loadUserLeaderboard(){
+  const el = document.getElementById('userLeaderboardList');
+  el.innerHTML = `<p class="stats-empty">Memuat…</p>`;
+
+  db.collection(USERS_COLLECTION).orderBy('xp', 'desc').limit(10).get()
+    .then(snap => {
+      if(snap.empty){
+        el.innerHTML = `<p class="stats-empty">Belum ada pengguna yang login.</p>`;
+        return;
+      }
+      el.innerHTML = snap.docs.map((doc, i) => {
+        const u = doc.data();
+        const level = computeLevel(u.xp || 0);
+        const initial = (u.displayName || '?').charAt(0).toUpperCase();
+        return `
+          <div class="rank-item">
+            <span class="rank-item__num">${i+1}</span>
+            ${u.photoURL
+              ? `<img class="rank-item__thumb rank-item__thumb--round" src="${escapeHtml(u.photoURL)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`
+              : `<div class="rank-item__thumb rank-item__thumb--round rank-item__thumb--fallback">${escapeHtml(initial)}</div>`}
+            <span class="rank-item__name">${escapeHtml(u.displayName || 'Pengguna')}</span>
+            <span class="rank-item__stat">Lv.${level} · ${formatNumber(u.xp || 0)} XP</span>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(err => {
+      console.error('Gagal memuat leaderboard:', err);
+      el.innerHTML = `<p class="stats-empty">Gagal memuat leaderboard.</p>`;
+    });
 }
 
 function renderRankList(list, valueFn, unitLabel){
@@ -5309,7 +5676,7 @@ function init(){
     applyMaintenanceState(); // admin logging in/out should immediately lift/restore the maintenance screen
 
     if(user && !State.isAdmin){
-      ensureUserProfile(user).then(() => loadCurrentUserProfile(user.uid));
+      ensureUserProfile(user).then(() => loadCurrentUserProfile(user.uid)).then(checkDailyCheckIn);
     }else{
       State.currentUser = null;
       refreshVisitorAuthUI();

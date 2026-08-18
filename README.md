@@ -138,7 +138,34 @@ Ini **fase pertama** dari sistem akun pengunjung — sengaja dipecah, karena ini
 - Klik lagi tombol yang sama (sekarang jadi foto profil mereka) buka modal **Profil Saya** — bisa ganti nama tampilan & bio, atau Keluar.
 - Field `level`, `xp`, `achievements`, `followerCount`, `followingCount` sudah ada di data (default 0/kosong) tapi **sengaja dikunci** dari pengunjung sendiri lewat rules — cuma admin yang bisa ubah buat sekarang. Ini jaga-jaga biar nggak ada yang curang set level sendiri lewat console browser, sebelum ada sistem auto-award yang lebih aman.
 
-**Belum ada** (giliran-giliran berikutnya): sistem Follow, auto-award XP/Achievement dari aktivitas, Leaderboard, Pesan antar pengguna, Notifikasi, dan redesign tampilan ke arah sidebar/multi-halaman.
+**Belum ada** (giliran-giliran berikutnya): auto-award XP/Achievement dari aktivitas, Leaderboard, Pesan antar pengguna, Notifikasi, dan redesign tampilan ke arah sidebar/multi-halaman.
+
+## 11. Update: Manage Kategori & Follow System
+
+Nggak perlu update rules buat Manage Kategori (masih di collection `presets` yang sama). **Follow System butuh update `firestore.rules` lagi** (collection baru: `follows`).
+
+- **Manage Kategori** — tab admin "Kategori/Tag/Creator" sekarang punya section Kategori juga: ganti nama kategori berlaku ke semua preset yang memakainya. Nggak ada tombol hapus (tiap preset wajib punya kategori) — kalau mau "pensiunkan" satu kategori, ganti namanya jadi kategori lain yang sudah ada.
+- **Follow System** — nama creator di halaman detail preset sekarang bisa diklik ("by [Nama]"), buka **Profil Creator**: daftar semua presetnya, total unduhan, jumlah pengikut, dan tombol Ikuti/Mengikuti. Klik Ikuti pas belum login otomatis munculin popup Google Sign-In dulu.
+  - Creator di MotionVault masih sekadar label teks di preset (bukan akun beneran), jadi yang di-follow itu **namanya**, bukan akun tertentu. Kalau nama creator diganti lewat Manage Kategori/Tag/Creator, follower lama yang nempel di nama sebelumnya jadi nggak ke-link lagi ke nama baru — belum ada migrasi otomatis buat kasus ini.
+
+## 12. Update: Level, XP & Achievement
+
+⚠️ **Update `firestore.rules` lagi** — bukan collection baru kali ini, tapi rule `users` berubah lumayan banyak (lihat di bawah).
+
+Cara dapet XP:
+- **Check-in harian** — +5 XP pas pertama kali buka situs tiap hari (otomatis, sekali per hari), makin sering berturut-turut makin gede streak-nya.
+- **Follow creator** — +3 XP tiap follow baru.
+- **Download preset** — +2 XP tiap kali download (kalau lagi login).
+
+**Level** dihitung otomatis dari total XP (`Level = XP ÷ 100, dibulatkan`) — bukan angka yang disimpan terpisah, jadi nggak ada yang perlu "disinkronkan". **Achievement** ada 7 macam (Follower Pertama, Unduhan Pertama, Kolektor, Kolektor Ulung, Setia 3 Hari, Setia Seminggu, Early Bird) — semua muncul di modal Profil Saya sebagai badge, lengkap sama progress bar XP ke level berikutnya.
+
+**Soal keamanan — jujur-jujuran:** supaya pengunjung tetap bisa dapet XP tanpa perlu server tambahan (Cloud Functions), field `xp` di rules dibikin bisa naik sendiri tapi **dibatasi maksimal +10 per sekali simpan**, dan achievement cuma boleh ditambahin satu-satu dari daftar ID yang dikenal — nggak bisa loncat ke angka atau achievement sembarangan. Ini **persis pola yang sama** kayak counter "downloads" di preset yang udah lebih dulu ada. Bukan anti-cheat sempurna — orang yang benar-benar niat scripting masih bisa nge-spam +10 berkali-kali dalam waktu singkat — tapi buat situs preset non-kompetitif kayak ini, ini trade-off yang wajar. Kalau suatu saat XP/level mau dijadiin sesuatu yang lebih "bertaruh" (leaderboard hadiah, dll), baru pantas upgrade ke Cloud Functions.
+
+## 13. Update: Leaderboard Pengguna
+
+Nggak perlu update rules — cuma query baca dari collection `users` yang udah ada.
+
+Section baru **"🏆 Leaderboard Pengguna"** di halaman Statistik (nav bar bawah), nampilin top 10 pengunjung berdasarkan total XP — foto profil, nama, level, dan XP-nya. Belum bisa diklik buat lihat detail (halaman profil publik buat orang lain itu bagian dari redesign nanti).
 
 ## Soal link download (Google Drive / Alight Creative, dll)
 
