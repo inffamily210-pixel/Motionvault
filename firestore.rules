@@ -154,5 +154,31 @@ service cloud.firestore {
                     && request.resource.data.text.size() <= 1000;
       }
     }
+
+    // Notifikasi ("pesan baru dari admin", "creator yang kamu follow baru
+    // upload preset", dst). Cuma PEMILIKNYA yang boleh baca/hapus/tandai-
+    // dibaca punya sendiri. Bikin notifikasi buat ORANG LAIN sengaja
+    // dibolehin siapa aja yang login (nggak cuma penerimanya) — soalnya
+    // notifikasi itu ditulis SAAT terjadi sesuatu buat orang lain (contoh:
+    // pas ngirim pesan, PENGIRIM yang nulis notifikasi buat PENERIMA).
+    // Konsekuensinya: secara teknis siapapun yang login bisa nge-spam
+    // notifikasi ke pengguna lain (nggak bisa dicegah tanpa Cloud
+    // Functions buat validasi "beneran ada kejadian nggak"), tapi ini
+    // cuma gangguan (nggak bocorin data privat), jadi trade-off yang
+    // sama kayak xp/downloads di atas.
+    match /notifications/{notifId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null
+                    && request.resource.data.userId is string
+                    && request.resource.data.userId.size() > 0
+                    && request.resource.data.type in ['message', 'new_preset']
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 200
+                    && request.resource.data.read == false;
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
   }
 }

@@ -184,6 +184,37 @@ Cara pakai:
 - **Admin**: tab **Pesan** baru di admin panel, isinya daftar semua percakapan, diurutin dari yang paling baru dibalas. Klik buat buka & balas.
 - Pesan real-time (pakai `onSnapshot`, bukan perlu refresh manual), tapi belum ada notifikasi/badge "pesan belum dibaca" — itu nanti nyambung ke fitur Notifikasi yang masih di-antri.
 
+## 15. Update: Notifikasi
+
+Nggak perlu update rules kalau kamu udah publish rules dari Update 14 (notifikasi udah termasuk di situ) — kalau belum, tempel ulang `firestore.rules` sekarang.
+
+Ikon lonceng baru di header (sebelah tombol Login Google), muncul begitu ada yang login (pengunjung atau admin). Badge merah nunjukin jumlah notifikasi belum dibaca, update live tanpa refresh. Klik lonceng buka daftar notifikasi, klik satu notifikasi otomatis nandain dibaca + lompat ke tempat yang relevan.
+
+2 pemicu notifikasi buat sekarang — keduanya manfaatin fitur yang udah dibangun sebelumnya, bukan bikin dari nol:
+- **Pesan baru** — pas ada yang kirim pesan (pengunjung → admin atau sebaliknya), penerimanya dapet notifikasi, klik langsung buka percakapannya.
+- **Creator yang di-follow upload preset baru** — pas admin nambah preset baru (bukan edit), semua yang nge-follow creator itu dapet notifikasi, klik langsung buka preset-nya.
+
+**Jujur-jujuran soal keamanan** (pola yang sama kayak XP): siapa aja yang login secara teknis bisa nulis notifikasi palsu ke pengguna lain lewat console browser — nggak ada cara validasi "beneran ada kejadian nggak" tanpa Cloud Functions. Tapi ini cuma gangguan (notifikasi nyasar), bukan kebocoran data — orang lain tetap nggak bisa baca notifikasi ATAU pesan milik orang lain.
+
+## 16. Update: Redesign — Sidebar (fase 1 dari redesign)
+
+Nggak perlu update rules — ini murni tampilan.
+
+**Yang beneran berubah:** di layar desktop (lebar ≥860px), sekarang ada sidebar kiri permanen menggantikan nav pill yang dulu ada di header (Jelajah/Favorit/Statistik). Isinya: Beranda, Kategori, Favorit, Statistik & Leaderboard, Notifikasi, Pesan (2 terakhir baru muncul kalau lagi login), dan Panel Admin/Profil Saya di bagian bawah.
+
+**Yang SENGAJA belum diubah:** tampilan mobile (di bawah 860px) — masih persis kayak sebelumnya (bottom nav 4 tombol), nggak disentuh sama sekali. Soalnya audiens MotionVault kemungkinan besar mobile (orang edit video di HP), jadi pengalaman yang udah jalan baik itu sengaja dijaga, bukan dipaksa ikutin desain sidebar yang aslinya buat layar lebar.
+
+## 17. Update: Redesign — Halaman Kategori & Creator (fase 2)
+
+Nggak perlu update rules — murni tampilan + query ke data yang udah ada.
+
+- **Halaman Kategori** — sidebar → Kategori sekarang beneran ke halaman sendiri (bukan cuma scroll), isinya kartu tiap kategori + jumlah presetnya. Klik satu → langsung ke Beranda dengan filter kategori itu aktif.
+- **Halaman Creator** — nav baru di sidebar. Direktori semua creator (kartu inisial + nama + jumlah preset), klik satu → **halaman profil creator penuh** (bukan modal lagi): avatar inisial besar, jumlah preset/unduhan/pengikut, tombol Ikuti, dan grid semua presetnya. Ada tombol "← Semua Creator" buat balik. Link "by [Nama]" di detail preset sekarang ke sini juga.
+- Halaman Creator bisa di-deep-link langsung: `motionvault.vercel.app/#creator-Rivann` (mengikuti pola yang sama kayak `#preset-ID` yang udah ada).
+- Modal Creator Profile yang lama (dari update Follow System) udah dihapus total, digantikan halaman ini — jadi cuma ada satu cara buat lihat profil creator sekarang, bukan dua yang tumpang tindih.
+
+**Progress redesign:** Kategori & Creator udah jadi halaman beneran. Yang masih di depan: halaman Trending & Challenge (dari gambar referensi), dan detail preset sebagai halaman penuh dengan before/after slider (masih modal buat sekarang — konversi ini lebih besar karena perlu mikirin ulang alur "klik card → lihat detail" di seluruh aplikasi).
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:
