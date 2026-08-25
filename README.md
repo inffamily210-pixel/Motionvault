@@ -202,7 +202,9 @@ Nggak perlu update rules — ini murni tampilan.
 
 **Yang beneran berubah:** di layar desktop (lebar ≥860px), sekarang ada sidebar kiri permanen menggantikan nav pill yang dulu ada di header (Jelajah/Favorit/Statistik). Isinya: Beranda, Kategori, Favorit, Statistik & Leaderboard, Notifikasi, Pesan (2 terakhir baru muncul kalau lagi login), dan Panel Admin/Profil Saya di bagian bawah.
 
-**Yang SENGAJA belum diubah:** tampilan mobile (di bawah 860px) — masih persis kayak sebelumnya (bottom nav 4 tombol), nggak disentuh sama sekali. Soalnya audiens MotionVault kemungkinan besar mobile (orang edit video di HP), jadi pengalaman yang udah jalan baik itu sengaja dijaga, bukan dipaksa ikutin desain sidebar yang aslinya buat layar lebar.
+**Yang SENGAJA belum diubah:** layout utama tetap bottom nav 4 tombol di HP (Jelajah/Favorit/Statistik/Admin) — itu masih ada dan masih jalan seperti biasa. Yang berubah cuma NAMBAH akses ke sidebar lewat hamburger, bukan gantiin bottom nav yang udah ada.
+
+⚠️ **Koreksi dari update sebelumnya:** sidebar tadinya cuma nyala di layar ≥860px doang (desktop), jadi kalau dicek dari HP nggak keliatan apa-apa yang berubah. Sekarang dibenerin — nav element yang sama itu jadi bisa dipakai dua cara: kolom permanen di desktop, ATAU drawer geser di HP (dibuka lewat ikon ☰ di pojok kiri atas header, di sebelah logo). Isinya persis sama kayak sidebar desktop: Beranda, Kategori, Creator, Favorit, Statistik, Notifikasi, Pesan, Panel Admin/Profil Saya.
 
 ## 17. Update: Redesign — Halaman Kategori & Creator (fase 2)
 
@@ -214,6 +216,16 @@ Nggak perlu update rules — murni tampilan + query ke data yang udah ada.
 - Modal Creator Profile yang lama (dari update Follow System) udah dihapus total, digantikan halaman ini — jadi cuma ada satu cara buat lihat profil creator sekarang, bukan dua yang tumpang tindih.
 
 **Progress redesign:** Kategori & Creator udah jadi halaman beneran. Yang masih di depan: halaman Trending & Challenge (dari gambar referensi), dan detail preset sebagai halaman penuh dengan before/after slider (masih modal buat sekarang — konversi ini lebih besar karena perlu mikirin ulang alur "klik card → lihat detail" di seluruh aplikasi).
+
+## 18. Update: Sidebar juga jadi drawer di HP (koreksi)
+
+Update 16 kemarin salah asumsi — sidebar cuma nyala di layar ≥860px, jadi dari HP nggak keliatan apa-apa. Sekarang dibenerin: nav element yang sama dipakai dua cara — kolom permanen di desktop, drawer geser di HP (ikon ☰ di pojok kiri atas header). Isinya sama persis. Bottom nav 4 tombol yang lama tetap ada, nggak digantikan — drawer ini tambahan.
+
+## 19. Update: Before/After Slider
+
+Nggak perlu update rules — field baru di preset yang sama (`beforeImageUrl`).
+
+Di form Tambah/Edit Preset ada field baru "URL gambar Sebelum" (opsional). Kalau diisi, detail preset nampilin slider interaktif di atas video player — geser buat bandingin foto/frame asli (Sebelum) vs. thumbnail preset (Sesudah). Preset yang nggak diisi field ini tetap tampil normal, slider-nya nggak muncul.
 
 ## Soal link download (Google Drive / Alight Creative, dll)
 
