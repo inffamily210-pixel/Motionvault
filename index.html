@@ -177,6 +177,13 @@ button{ font-family:inherit; }
 }
 .sidebar__nav{ display:flex; flex-direction:column; gap:2px; flex:1; margin-top:6px; }
 .sidebar__footer{ border-top:1px solid var(--line); padding-top:10px; margin-top:10px; }
+.sidebar__section-label{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); padding:14px 12px 6px; }
+.quick-collection-item{
+  display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; border-radius:8px;
+  background:none; border:none; color:var(--text-dim); font-size:12.5px; font-weight:600; cursor:pointer; width:100%; text-align:left;
+}
+.quick-collection-item:hover{ background:var(--surface-hover); color:var(--text); }
+.quick-collection-item__count{ font-size:11px; color:var(--text-faint); font-family:var(--font-mono); }
 .sidebar__link{
   display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
   background:none; border:none; color:var(--text-dim); font-size:13.5px; font-weight:600;
@@ -630,6 +637,16 @@ button{ font-family:inherit; }
   border:1px solid var(--surface-border); padding:5px 10px; border-radius:99px;
 }
 
+.video-modal__assets{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius); padding:12px 14px; }
+.video-modal__assets-title{ font-size:12px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px; }
+.asset-row{ display:flex; align-items:center; gap:10px; padding:7px 0; }
+.asset-row + .asset-row{ border-top:1px solid var(--line); }
+.asset-row__icon{ font-size:15px; flex-shrink:0; }
+.asset-row__name{ flex:1; font-size:12.5px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.asset-row__dl{
+  color:var(--accent); background:none; border:none; cursor:pointer; padding:4px; display:flex; flex-shrink:0;
+}
+
 .video-modal__meta{ display:flex; align-items:center; gap:16px; font-size:12px; color:var(--text-faint); font-family:var(--font-mono); padding:4px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .video-modal__meta span{ display:flex; align-items:center; gap:5px; padding:10px 0; }
 
@@ -646,6 +663,13 @@ button{ font-family:inherit; }
 }
 .rec-row::-webkit-scrollbar{ display:none; }
 .rec-row .preset-card{ flex:0 0 128px; width:128px; scroll-snap-align:start; }
+
+.trending-rank-badge{
+  position:absolute; top:10px; left:10px; z-index:5;
+  width:26px; height:26px; border-radius:50%; background:var(--warn); color:#1a1200;
+  display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
 @media (min-width:560px){ .rec-row .preset-card{ flex-basis:156px; width:156px; } }
 .rating-summary{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-dim); }
 .rating-summary__stars{ display:inline-flex; gap:1px; color:var(--warn); }
@@ -827,6 +851,8 @@ button{ font-family:inherit; }
 .download-link-row{ display:flex; gap:8px; align-items:center; }
 .download-link-row .dl-label{ flex:0 0 40%; }
 .download-link-row .dl-url{ flex:1; min-width:0; }
+.download-link-row .asset-name{ flex:1; min-width:0; }
+.download-link-row .asset-type{ flex:0 0 100px; }
 .dl-remove-btn{
   flex-shrink:0; width:38px; height:38px; border-radius:var(--radius-sm); border:1.5px solid var(--surface-border);
   background:var(--surface); color:var(--text-faint); font-size:18px; line-height:1; cursor:pointer;
@@ -1211,6 +1237,10 @@ button{ font-family:inherit; }
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
         Statistik &amp; Leaderboard
       </button>
+      <button class="sidebar__link" data-view="download-history" type="button">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg>
+        Riwayat Download
+      </button>
       <button class="sidebar__link" id="sidebarNotifLink" data-sidebar-action="notif" type="button" hidden>
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Notifikasi
@@ -1221,6 +1251,8 @@ button{ font-family:inherit; }
         Pesan
       </button>
     </div>
+
+    <div id="sidebarQuickCollections"></div>
 
     <div class="sidebar__footer">
       <button class="sidebar__link" id="sidebarSettingsLink" data-sidebar-action="settings" type="button">
@@ -1329,6 +1361,11 @@ button{ font-family:inherit; }
       </div>
 
       <div class="container">
+
+        <div class="stats-block" id="trendingSection" hidden>
+          <h3 class="stats-block__title">🔥 Trending Preset</h3>
+          <div class="rec-row" id="trendingGrid"></div>
+        </div>
 
         <div class="stats-block" id="recentlyViewedSection" hidden>
           <h3 class="stats-block__title">🕓 Baru Dilihat</h3>
@@ -1508,6 +1545,23 @@ button{ font-family:inherit; }
       </div>
     </section>
 
+    <!-- ---------- RIWAYAT DOWNLOAD VIEW ---------- -->
+    <section class="view" id="view-download-history" data-view-panel="download-history" hidden>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-head__title">Riwayat Download</h2>
+            <p class="section-head__sub">Preset yang pernah kamu download di perangkat ini.</p>
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm" id="clearDownloadHistoryBtn">Bersihkan</button>
+        </div>
+        <div class="preset-grid" id="downloadHistoryGrid"></div>
+        <div class="empty-state" id="downloadHistoryEmpty" hidden>
+          <p>Belum ada riwayat download di perangkat ini.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer">
@@ -1665,6 +1719,11 @@ button{ font-family:inherit; }
       <p class="video-modal__desc" id="videoModalDesc"></p>
 
       <div class="video-modal__tags" id="videoModalTags"></div>
+
+      <div class="video-modal__assets" id="videoModalAssetsWrap" hidden>
+        <h4 class="video-modal__assets-title">Assets yang dibutuhkan</h4>
+        <div id="videoModalAssetsList"></div>
+      </div>
 
       <div class="video-modal__meta">
         <span id="videoModalDownloads"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg> 0 unduhan</span>
@@ -2013,6 +2072,12 @@ button{ font-family:inherit; }
             </div>
 
             <div class="field field--full">
+              <label>Assets (Font/Audio) <span class="hint">(opsional — file yang dibutuhkan biar preset ini kerja)</span></label>
+              <div class="download-links-editor" id="assetsList"></div>
+              <button type="button" class="btn btn--ghost btn--sm" id="addAssetBtn">+ Tambah Asset</button>
+            </div>
+
+            <div class="field field--full">
               <label for="fieldThumbUrl">URL thumbnail kustom <span class="hint">(opsional — default pakai cover YouTube)</span></label>
               <input type="url" id="fieldThumbUrl" class="text-input" placeholder="https://…">
             </div>
@@ -2256,6 +2321,7 @@ const STORAGE_KEYS = {
   THEME: 'motionvault_theme_v1',
   RATED_PRESETS: 'motionvault_rated_v1',
   RECENTLY_VIEWED: 'motionvault_recent_v1',
+  DOWNLOAD_HISTORY: 'motionvault_download_history_v1',
   DISMISSED_ANNOUNCEMENT: 'motionvault_dismissed_announcement_v1'
 };
 
@@ -2453,6 +2519,7 @@ const State = {
   deepLinkHandled: false,
   favorites: [],       // array of preset ids (local to this device)
   recentlyViewed: [],  // array of preset ids, most recent first (local to this device)
+  downloadHistory: [], // array of preset ids, most recent first (local to this device)
   compareIds: [],      // up to 2 preset ids currently selected for comparison (session-only)
   settings: {           // live-synced from Firestore settings/site (announcement + maintenance mode)
     maintenanceMode: false,
@@ -2489,12 +2556,13 @@ const State = {
   pendingConfirmAction: null
 };
 
-// Favorites and Recently Viewed are kept in localStorage — intentionally
-// per-device, not accounts. Presets live in Firestore (see FIREBASE INIT
-// above) and admin identity lives in Firebase Authentication.
+// Favorites, Recently Viewed and Download History are kept in localStorage
+// — intentionally per-device, not accounts. Presets live in Firestore (see
+// FIREBASE INIT above) and admin identity lives in Firebase Authentication.
 function loadState(){
   State.favorites = Storage.get(STORAGE_KEYS.FAVORITES, []);
   State.recentlyViewed = Storage.get(STORAGE_KEYS.RECENTLY_VIEWED, []);
+  State.downloadHistory = Storage.get(STORAGE_KEYS.DOWNLOAD_HISTORY, []);
 }
 
 /* ============================================================
@@ -2525,10 +2593,18 @@ function persistFavorites(){ Storage.set(STORAGE_KEYS.FAVORITES, State.favorites
 
 function persistRecentlyViewed(){ Storage.set(STORAGE_KEYS.RECENTLY_VIEWED, State.recentlyViewed); }
 
+function persistDownloadHistory(){ Storage.set(STORAGE_KEYS.DOWNLOAD_HISTORY, State.downloadHistory); }
+
 /** Push a preset to the front of Recently Viewed, dedupe, cap length, and persist. */
 function recordRecentlyViewed(id){
   State.recentlyViewed = [id, ...State.recentlyViewed.filter(x => x !== id)].slice(0, RECENTLY_VIEWED_MAX);
   persistRecentlyViewed();
+}
+
+/** Push a preset to the front of Download History, dedupe (re-downloading bumps it back to the top), persist. No cap — it's a log, not a shelf. */
+function recordDownloadHistory(id){
+  State.downloadHistory = [id, ...State.downloadHistory.filter(x => x !== id)];
+  persistDownloadHistory();
 }
 
 function isNewPreset(preset){
@@ -2552,6 +2628,13 @@ function normalizePresetDoc(id, data){
     fps: data.fps ? String(data.fps) : '',
     resolution: data.resolution ? String(data.resolution) : '',
     beforeImageUrl: data.beforeImageUrl ? String(data.beforeImageUrl) : '',
+    assets: Array.isArray(data.assets)
+      ? data.assets.filter(a => a && a.url && a.name).map(a => ({
+          name: String(a.name),
+          type: ['font','audio','other'].includes(a.type) ? a.type : 'other',
+          url: String(a.url)
+        }))
+      : [],
     videoSource: ['youtube','tiktok','mp4'].includes(data.videoSource) ? data.videoSource : 'youtube',
     videoUrl: data.videoUrl ? String(data.videoUrl) : '',
     downloadLinks: rawLinks.filter(l => l && l.url).map(l => ({ label: String(l.label || 'Download'), url: String(l.url) })),
@@ -2570,9 +2653,13 @@ function onPresetsSnapshot(snapshot){
   if(seedCard) seedCard.hidden = !(State.isAdmin && State.presets.length === 0);
 
   updateFavCountBadges();
+  renderQuickCollections();
   if(State.currentView === 'browse') renderBrowseView();
   if(State.currentView === 'favorites') renderFavoritesView();
   if(State.currentView === 'stats') renderStatsView();
+  if(State.currentView === 'categories') renderCategoriesView();
+  if(State.currentView === 'creators') renderCreatorsDirectory();
+  if(State.currentView === 'download-history') renderDownloadHistoryView();
   if(!adminPanelOverlay.hidden){
     populateAdminCategoryFilter();
     renderAdminTable();
@@ -2962,6 +3049,28 @@ function renderCreatorsDirectory(){
     tile.addEventListener('click', () => showCreatorPage(tile.dataset.creator));
   });
 }
+
+/* ---- Riwayat Download view ---- */
+function renderDownloadHistoryView(){
+  const presets = State.downloadHistory.map(id => getPresetById(id)).filter(Boolean);
+  renderGridInto(document.getElementById('downloadHistoryGrid'), presets, document.getElementById('downloadHistoryEmpty'));
+}
+
+document.getElementById('clearDownloadHistoryBtn').addEventListener('click', () => {
+  if(State.downloadHistory.length === 0) return;
+  askConfirm({
+    title: 'Bersihkan riwayat download?',
+    body: 'Ini cuma hapus riwayat di perangkat ini — nggak ngurangin hitungan unduhan di presetnya.',
+    okLabel: 'Bersihkan',
+    danger: true,
+    onConfirm: () => {
+      State.downloadHistory = [];
+      persistDownloadHistory();
+      renderDownloadHistoryView();
+      showToast('Riwayat download dibersihkan', 'success');
+    }
+  });
+});
 
 /* ---- Creator detail page (replaces the old modal) ---- */
 function setCreatorPageFollowState(creatorName, following){
@@ -3734,6 +3843,54 @@ function renderSimilarPresets(preset){
 }
 
 /**
+ * "Trending Preset" — an honest approximation, not true velocity-based
+ * trending (that needs time-series download data this app doesn't
+ * track). Scores downloads normalized by age (classic "hotness" ranking,
+ * same idea Reddit/HN use) with a boost for anything under 30 days old,
+ * so newer presets gaining traction can surface without just re-showing
+ * the same all-time top-downloaded list forever.
+ */
+function getTrendingPresets(limit){
+  limit = limit || 6;
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 86400000;
+
+  return State.presets
+    .map(p => {
+      const ageDays = Math.max(1, (now - p.createdAt) / 86400000);
+      const recencyBoost = (now - p.createdAt) <= THIRTY_DAYS ? 1.5 : 1;
+      return { preset: p, score: (p.downloads / Math.sqrt(ageDays)) * recencyBoost };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(x => x.preset);
+}
+
+function renderTrendingSection(){
+  const section = document.getElementById('trendingSection');
+  const grid = document.getElementById('trendingGrid');
+
+  if(State.presets.length <= 4){
+    section.hidden = true;
+    return;
+  }
+
+  const trending = getTrendingPresets(6);
+  section.hidden = trending.length === 0;
+  if(trending.length === 0) return;
+
+  grid.innerHTML = '';
+  trending.forEach((p, i) => {
+    const card = buildPresetCard(p, i);
+    const badge = document.createElement('span');
+    badge.className = 'trending-rank-badge';
+    badge.textContent = String(i + 1);
+    card.appendChild(badge);
+    grid.appendChild(card);
+  });
+}
+
+/**
  * "Baru Dilihat" shelf — presets this device has opened recently, most
  * recent first. Purely local (localStorage), no minimum-catalog threshold
  * since it's only ever showing what this visitor actually looked at.
@@ -3967,6 +4124,7 @@ function renderBrowseView(){
   renderCategoryChips();
   renderTagFilterPanel();
   renderActiveFilters();
+  renderTrendingSection();
   renderRecentlyViewedSection();
   renderRecommendedSection();
 
@@ -4308,6 +4466,7 @@ function switchView(view){
   if(view === 'stats') renderStatsView();
   if(view === 'categories') renderCategoriesView();
   if(view === 'creators') renderCreatorsDirectory();
+  if(view === 'download-history') renderDownloadHistoryView();
 
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -4369,6 +4528,35 @@ function refreshSidebarForAuthState(){
   document.getElementById('sidebarNotifLink').hidden = !signedIn;
   document.getElementById('sidebarPesanLink').hidden = !signedIn;
   document.getElementById('sidebarSettingsLabel').textContent = State.isAdmin ? 'Panel Admin' : (State.currentUser ? 'Profil Saya' : 'Masuk');
+}
+
+/**
+ * "Koleksi Cepat" — quick-filter shortcuts to the 5 most-used tags, shown
+ * in the sidebar. Not user-created folders (that'd need its own data
+ * model); this reuses tag data that's already there, which gets most of
+ * the way to the same "jump straight to a themed set of presets" value.
+ */
+function renderQuickCollections(){
+  const counts = {};
+  State.presets.forEach(p => (p.tags||[]).forEach(t => counts[t] = (counts[t]||0) + 1));
+  const topTags = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 5);
+
+  const el = document.getElementById('sidebarQuickCollections');
+  el.innerHTML = topTags.length === 0 ? '' : `<div class="sidebar__section-label">Koleksi Cepat</div>` +
+    topTags.map(t => `
+      <button type="button" class="quick-collection-item" data-qc-tag="${escapeHtml(t)}">
+        <span>#${escapeHtml(t)}</span>
+        <span class="quick-collection-item__count">${counts[t]}</span>
+      </button>
+    `).join('');
+
+  el.querySelectorAll('[data-qc-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      State.filters.tags = [btn.dataset.qcTag];
+      switchView('browse');
+      closeSidebar();
+    });
+  });
 }
 
 document.getElementById('brandLogo').addEventListener('click', () => switchView('browse'));
@@ -4509,6 +4697,23 @@ function openVideoModal(id){
 
   videoModalTags.innerHTML = (preset.tags||[]).map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join('');
 
+  const assetsWrap = document.getElementById('videoModalAssetsWrap');
+  const ASSET_ICONS = { font: '🔤', audio: '🎵', other: '📎' };
+  if(preset.assets && preset.assets.length){
+    assetsWrap.hidden = false;
+    document.getElementById('videoModalAssetsList').innerHTML = preset.assets.map(a => `
+      <div class="asset-row">
+        <span class="asset-row__icon">${ASSET_ICONS[a.type] || '📎'}</span>
+        <span class="asset-row__name">${escapeHtml(a.name)}</span>
+        <a class="asset-row__dl" href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer" aria-label="Download ${escapeHtml(a.name)}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg>
+        </a>
+      </div>
+    `).join('');
+  }else{
+    assetsWrap.hidden = true;
+  }
+
   videoModalDownloads.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg> ${formatNumber(preset.downloads)} unduhan`;
   videoModalDate.textContent = timeAgo(preset.createdAt);
 
@@ -4583,6 +4788,7 @@ function triggerDownload(preset, link){
   }).catch(err => console.warn('Gagal update hitungan unduhan di Firestore:', err));
 
   trackDownloadForCurrentUser();
+  recordDownloadHistory(preset.id);
 
   const a = document.createElement('a');
   a.href = link.url;
@@ -5379,6 +5585,8 @@ const fieldVideoUrl = document.getElementById('fieldVideoUrl');
 const fieldVideoUrlLabel = document.getElementById('fieldVideoUrlLabel');
 const downloadLinksList = document.getElementById('downloadLinksList');
 const addDownloadLinkBtn = document.getElementById('addDownloadLinkBtn');
+const assetsList = document.getElementById('assetsList');
+const addAssetBtn = document.getElementById('addAssetBtn');
 const fieldThumbUrl = document.getElementById('fieldThumbUrl');
 const fieldBeforeImageUrl = document.getElementById('fieldBeforeImageUrl');
 const fieldFeatured = document.getElementById('fieldFeatured');
@@ -5412,6 +5620,38 @@ function renderDownloadLinkRows(links){
 
 addDownloadLinkBtn.addEventListener('click', () => addDownloadLinkRow());
 
+function addAssetRow(name, type, url){
+  const row = document.createElement('div');
+  row.className = 'download-link-row';
+  row.innerHTML = `
+    <input type="text" class="text-input text-input--sm asset-name" placeholder="Nama file (mis. Montserrat-Bold.otf)" value="${escapeHtml(name || '')}">
+    <select class="text-input text-input--sm asset-type">
+      <option value="font">Font</option>
+      <option value="audio">Audio</option>
+      <option value="other">Lainnya</option>
+    </select>
+    <input type="url" class="text-input text-input--sm asset-url" placeholder="URL download" value="${escapeHtml(url || '')}">
+    <button type="button" class="dl-remove-btn" aria-label="Hapus asset">×</button>
+  `;
+  row.querySelector('.asset-type').value = ['font','audio','other'].includes(type) ? type : 'font';
+  row.querySelector('.dl-remove-btn').addEventListener('click', () => {
+    row.remove();
+    if(assetsList.children.length === 0) addAssetRow();
+  });
+  assetsList.appendChild(row);
+}
+
+function renderAssetRows(assets){
+  assetsList.innerHTML = '';
+  if(assets && assets.length){
+    assets.forEach(a => addAssetRow(a.name, a.type, a.url));
+  }else{
+    addAssetRow();
+  }
+}
+
+addAssetBtn.addEventListener('click', () => addAssetRow());
+
 function inferLabelFromUrl(url){
   try{
     const host = new URL(url).hostname.replace(/^www\./, '');
@@ -5436,6 +5676,16 @@ function collectDownloadLinkRows(){
   }).filter(Boolean);
 }
 
+function collectAssetRows(){
+  return Array.from(assetsList.querySelectorAll('.download-link-row')).map(row => {
+    const url = row.querySelector('.asset-url').value.trim();
+    const name = row.querySelector('.asset-name').value.trim();
+    const type = row.querySelector('.asset-type').value;
+    if(!url || !name) return null;
+    return { name, type, url };
+  }).filter(Boolean);
+}
+
 function populateEffectDatalist(){
   document.getElementById('effectSuggestions').innerHTML =
     allEffectsFromPresets().map(e => `<option value="${escapeHtml(e)}"></option>`).join('');
@@ -5453,6 +5703,7 @@ function resetPresetForm(){
   clearFormErrors();
   setVideoSourceToggle('youtube');
   renderDownloadLinkRows(null);
+  renderAssetRows(null);
   videoUrlPreview.hidden = true;
   populateEffectDatalist();
   populateCategorySelect();
@@ -5573,6 +5824,7 @@ function startEditPreset(id){
   fieldResolution.value = preset.resolution || '';
   fieldVideoUrl.value = preset.videoUrl || '';
   renderDownloadLinkRows(preset.downloadLinks);
+  renderAssetRows(preset.assets);
   fieldThumbUrl.value = preset.thumbUrl || '';
   fieldBeforeImageUrl.value = preset.beforeImageUrl || '';
   fieldFeatured.checked = !!preset.featured;
@@ -5670,6 +5922,7 @@ presetForm.addEventListener('submit', async (e) => {
     downloadLinks: downloadLinks,
     thumbUrl: fieldThumbUrl.value.trim(),
     beforeImageUrl: fieldBeforeImageUrl.value.trim(),
+    assets: collectAssetRows(),
     featured: fieldFeatured.checked
   };
 
