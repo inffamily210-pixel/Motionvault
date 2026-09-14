@@ -180,5 +180,26 @@ service cloud.firestore {
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
+
+    // Komentar di preset. Publik boleh baca (nggak perlu login buat lihat).
+    // Nulis komentar butuh login, dan cuma boleh atas nama diri sendiri
+    // (userId harus cocok uid yang lagi login, cegah orang nyamar jadi
+    // orang lain). Hapus boleh sama admin (moderasi) ATAU pemilik
+    // komentarnya sendiri. Nggak ada allow update — komentar yang udah
+    // terkirim nggak bisa diedit, cuma bisa dihapus & ditulis ulang.
+    match /presetComments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.presetId is string
+                    && request.resource.data.presetId.size() > 0
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500;
+      allow delete: if request.auth != null && (
+        request.auth.token.email == 'nezzstore081@gmail.com'
+        || resource.data.userId == request.auth.uid
+      );
+    }
   }
 }
