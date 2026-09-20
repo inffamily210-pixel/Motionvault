@@ -1,5 +1,5 @@
 /**
- * GET /api/youtube-import?url=<channel link, @handle, or bare handle>
+ * GET /api/youtube-import?url=<channel link, @handle, or bare handle>&includeComments=1
  *
  * Resolves a YouTube channel reference and returns its most recent uploaded
  * videos (title, description, thumbnail, publish date) so the admin panel
@@ -20,9 +20,20 @@
  *
  * Does NOT accept single-video links (youtube.com/watch, youtu.be/...) —
  * those are handled entirely client-side already via extractYouTubeId().
+ *
+ * includeComments=1 (optional): also fetches each video's top comments —
+ * creators sometimes post the actual preset download link in a pinned
+ * comment instead of (or in addition to) the description. Off by default
+ * since it roughly doubles the API calls and request time; the client only
+ * sends it when the admin explicitly ticks "Sertakan komentar YouTube".
+ * Comment text is returned raw per video — link extraction/labeling still
+ * happens client-side via the same extractLinksFromText() already used on
+ * descriptions, so both sources get identical treatment.
  */
 
 const MAX_VIDEOS = 200; // safety cap so one import can't run away on huge channels
+const MAX_COMMENTS_PER_VIDEO = 20; // top comments only — that's where a pinned/high-relevance link would be
+const COMMENT_FETCH_CONCURRENCY = 8; // keep well under quota/rate limits while still being fast
 const API_BASE = 'https://www.googleapis.com/youtube/v3';
 
 module.exports = async (req, res) => {
@@ -39,6 +50,7 @@ module.exports = async (req, res) => {
     res.status(400).json({ error: 'Parameter url wajib diisi.' });
     return;
   }
+  const includeComments = req.query.includeComments === '1' || req.query.includeComments === 'true';
 
   try {
     const ref = parseChannelRef(input);
@@ -55,10 +67,17 @@ module.exports = async (req, res) => {
 
     const videos = await fetchChannelVideos(channel.uploadsPlaylistId, apiKey, MAX_VIDEOS);
 
+    if (includeComments) {
+      await mapWithConcurrency(videos, COMMENT_FETCH_CONCURRENCY, async (v) => {
+        v.comments = await fetchVideoComments(v.id, apiKey, MAX_COMMENTS_PER_VIDEO);
+      });
+    }
+
     res.status(200).json({
       channel: { id: channel.id, title: channel.title, thumbnail: channel.thumbnail },
       videos,
-      truncated: videos.length >= MAX_VIDEOS
+      truncated: videos.length >= MAX_VIDEOS,
+      commentsIncluded: includeComments
     });
   } catch (err) {
     console.error('youtube-import error:', err);
@@ -182,4 +201,38 @@ async function fetchChannelVideos(uploadsPlaylistId, apiKey, maxVideos) {
   // newest-first explicitly rather than relying on that.
   videos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
   return videos;
+}
+
+/**
+ * Top comments for one video, as plain text. Returns [] (not a throw) on
+ * any per-video problem — comments disabled, video deleted/private since
+ * the channel listing, region lock, etc. — so one bad video never sinks
+ * the whole channel import.
+ */
+async function fetchVideoComments(videoId, apiKey, maxComments) {
+  try {
+    const data = await ytFetch('commentThreads', {
+      part: 'snippet',
+      videoId,
+      maxResults: maxComments,
+      order: 'relevance', // pinned/highly-liked comments (often where a link lives) sort first
+      textFormat: 'plainText'
+    }, apiKey);
+
+    return (data.items || []).map(item => item.snippet.topLevelComment.snippet.textOriginal || '');
+  } catch (err) {
+    return [];
+  }
+}
+
+/** Run async fn(item) over items with at most `limit` in flight at once. No deps — just a small worker pool. */
+async function mapWithConcurrency(items, limit, fn) {
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      await fn(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
 }
