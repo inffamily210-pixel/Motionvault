@@ -259,6 +259,14 @@ Nggak perlu update rules — field baru di preset (`updatedAt`), murni data yang
 
 Section baru di beranda (sebelum kotak pencarian), nampilin 8 aktivitas preset terbaru — upload baru atau yang diperbarui (dibedain dari selisih `createdAt` vs `updatedAt`, kalau bedanya lebih dari 1 menit dianggap "diperbarui"). Klik satu baris langsung buka detail preset-nya. Sengaja cuma nampilin aktivitas PRESET (data publik) — bukan aktivitas per-pengguna (follow, XP, favorit) yang sifatnya privat.
 
+## 24. Update: Import YouTube sekarang bisa cek link di komentar juga
+
+File yang berubah kali ini **`api/youtube-import.js`** (bukan cuma `index.html`) — kalau deploy manual (bukan lewat GitHub auto-deploy), pastikan file ini ikut ke-upload ulang. Nggak perlu env variable baru, masih pakai `YOUTUBE_API_KEY` yang sama.
+
+Alasannya: beberapa creator naruh link download preset di kolom komentar (biasanya komentar yang di-pin) bukan di deskripsi video, jadi kalau cuma cek deskripsi, link itu kelewat pas bulk-import.
+
+Cara pakai: di modal Import Channel YouTube, sekarang ada checkbox **"Sertakan komentar YouTube"** (nggak dicentang secara default). Kalau dicentang, tiap video juga dicek 20 komentar teratasnya (diurutin dari yang paling relevan — biasanya situ tempat komentar yang di-pin nongol), link yang ketemu digabung sama link dari deskripsi terus diproses sama persis kayak sebelumnya (deteksi otomatis nama sumber, badge XML, dst). Prosesnya jadi agak lebih lama karena butuh request tambahan ke YouTube per video, makanya sengaja opsional, bukan otomatis selalu jalan.
+
 ## Soal link download (Google Drive / Alight Creative, dll)
 
 Waktu tambah/edit preset di panel admin, field **"Link download preset"** sekarang bisa diisi lebih dari satu:

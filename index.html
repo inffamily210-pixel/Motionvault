@@ -1269,6 +1269,10 @@ button{ font-family:inherit; }
         Favorit
         <span class="count-pill count-pill--dot" id="favCountPillSidebar" hidden></span>
       </button>
+      <button class="sidebar__link" id="sidebarCollectionsLink" data-view="my-collections" type="button" hidden>
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M12 11v4M10 13h4"/></svg>
+        Koleksi Saya
+      </button>
       <button class="sidebar__link" data-view="stats" type="button">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
         Statistik &amp; Leaderboard
@@ -1599,6 +1603,44 @@ button{ font-family:inherit; }
         <div class="preset-grid" id="downloadHistoryGrid"></div>
         <div class="empty-state" id="downloadHistoryEmpty" hidden>
           <p>Belum ada riwayat download di perangkat ini.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- KOLEKSI SAYA (list) VIEW ---------- -->
+    <section class="view" id="view-my-collections" data-view-panel="my-collections" hidden>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-head__title">Koleksi Saya</h2>
+            <p class="section-head__sub">Folder preset buatanmu sendiri — cuma kamu yang bisa lihat.</p>
+          </div>
+          <button type="button" class="btn btn--primary btn--sm" id="createCollectionBtn">+ Buat Baru</button>
+        </div>
+        <div class="category-grid" id="myCollectionsGrid"></div>
+        <div class="empty-state" id="myCollectionsEmpty" hidden>
+          <p>Belum ada koleksi. Buat satu buat mulai ngumpulin preset favoritmu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- KOLEKSI SAYA (detail) VIEW ---------- -->
+    <section class="view" id="view-collection-detail" data-view-panel="collection-detail" hidden>
+      <div class="container">
+        <button type="button" class="back-link" id="collectionDetailBackBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Semua Koleksi
+        </button>
+        <div class="section-head" style="padding-top:14px;">
+          <div>
+            <h2 class="section-head__title" id="collectionDetailName">Koleksi</h2>
+            <p class="section-head__sub" id="collectionDetailCount"></p>
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm" id="deleteCollectionBtn">Hapus Koleksi</button>
+        </div>
+        <div class="preset-grid" id="collectionDetailGrid"></div>
+        <div class="empty-state" id="collectionDetailEmpty" hidden>
+          <p>Koleksi ini masih kosong. Tambahin preset lewat tombol "📁 Koleksi" di halaman detail preset.</p>
         </div>
       </div>
     </section>
@@ -2325,6 +2367,10 @@ button{ font-family:inherit; }
       <form id="ytImportInputStep" class="yt-import-input-step">
         <p class="yt-import-modal__hint">Tempel link channel/akun YouTube-nya di sini (bukan link satu video).</p>
         <input type="text" id="ytImportUrlInput" class="text-input" placeholder="https://www.youtube.com/@namachannel" autocomplete="off" required>
+        <label class="checkbox-row">
+          <input type="checkbox" id="ytImportIncludeComments">
+          <span>Sertakan komentar YouTube <span class="hint">(cek juga link preset yang ditaruh di komentar, bukan cuma deskripsi — agak lebih lama)</span></span>
+        </label>
         <button type="submit" class="btn btn--primary btn--block">Cari Channel</button>
       </form>
       <p class="yt-import-modal__status" id="ytImportStatus" hidden>Menghubungkan ke YouTube…</p>
@@ -2382,6 +2428,7 @@ const USERS_COLLECTION = 'users';
 const FOLLOWS_COLLECTION = 'follows';
 const CONVERSATIONS_COLLECTION = 'conversations';
 const COMMENTS_COLLECTION = 'presetComments';
+const COLLECTIONS_COLLECTION = 'collections';
 
 // Project Firebase ini khusus buat MotionVault (bukan gabungan dengan aplikasi
 // lain), tapi email admin tetap dikunci eksplisit di sini sebagai lapisan
@@ -6480,22 +6527,33 @@ ytImportInputStep.addEventListener('submit', (e) => {
 
 async function startYtImportFetch(rawUrl){
   ytImportStatus.hidden = false;
-  ytImportStatus.textContent = 'Menghubungkan ke YouTube…';
+  const includeComments = document.getElementById('ytImportIncludeComments').checked;
+  ytImportStatus.textContent = includeComments
+    ? 'Menghubungkan ke YouTube… (lagi cek komentar juga, agak lebih lama)'
+    : 'Menghubungkan ke YouTube…';
 
   try{
-    const res = await fetch('/api/youtube-import?url=' + encodeURIComponent(rawUrl));
+    const url = '/api/youtube-import?url=' + encodeURIComponent(rawUrl) + (includeComments ? '&includeComments=1' : '');
+    const res = await fetch(url);
     const data = await res.json();
     if(!res.ok) throw new Error(data.error || 'Gagal mengambil data channel.');
 
     ytImportData.channel = data.channel;
     const existingUrls = new Set(State.presets.map(p => p.videoUrl).filter(Boolean));
-    ytImportData.videos = (data.videos || []).map(v => ({
-      ...v,
-      links: extractLinksFromText(v.description),
-      category: guessCategoryFromText((v.title || '') + ' ' + (v.description || '')),
-      tags: extractHashtagsAsTags(v.description),
-      alreadyImported: existingUrls.has(`https://www.youtube.com/watch?v=${v.id}`)
-    }));
+    ytImportData.videos = (data.videos || []).map(v => {
+      // Preset links sometimes live in a pinned/top comment instead of (or
+      // besides) the description — combine both before extracting, so the
+      // exact same link/XML detection in extractLinksFromText() covers
+      // whichever spot the creator actually used.
+      const combinedText = (v.description || '') + '\n' + (v.comments || []).join('\n');
+      return {
+        ...v,
+        links: extractLinksFromText(combinedText),
+        category: guessCategoryFromText((v.title || '') + ' ' + (v.description || '')),
+        tags: extractHashtagsAsTags(v.description),
+        alreadyImported: existingUrls.has(`https://www.youtube.com/watch?v=${v.id}`)
+      };
+    });
 
     ytImportStatus.hidden = true;
     ytImportChannelInfo.hidden = false;
