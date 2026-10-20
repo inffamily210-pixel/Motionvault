@@ -12,7 +12,7 @@
 (function(){
   try{
     var saved = localStorage.getItem('motionvault_theme_v1');
-    var theme = saved ? JSON.parse(saved) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var theme = saved ? JSON.parse(saved) : 'dark';
     if(theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
   }catch(e){}
 })();
@@ -20,43 +20,43 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  /* ===== Design tokens ===== */
-  --bg: #0D0E14;
-  --bg-elevated: #111319;
-  --surface: #161824;
-  --surface-hover: #1C1F2E;
-  --surface-border: #262A3B;
-  --line: #21232F;
+  /* ===== Design tokens — Neon Motion (ungu / pink) ===== */
+  --bg: #06050F;
+  --bg-elevated: #0B0A1C;
+  --surface: #100E26;
+  --surface-hover: #17143A;
+  --surface-border: #2B2569;
+  --line: #1C1842;
 
-  --accent: #7C5CFF;
-  --accent-soft: #7C5CFF22;
-  --accent-hover: #9177FF;
-  --accent-2: #00D9C0;
-  --accent-2-soft: #00D9C022;
+  --accent: #B03CFF;
+  --accent-soft: #B03CFF26;
+  --accent-hover: #C768FF;
+  --accent-2: #FF3DBE;
+  --accent-2-soft: #FF3DBE22;
 
-  --text: #F1F2F6;
-  --text-dim: #ABAFC4;
-  --text-faint: #6B6F85;
+  --text: #F5F3FF;
+  --text-dim: #B9B3DB;
+  --text-faint: #7A7499;
 
   --danger: #FF5C7A;
   --danger-soft: #FF5C7A1E;
   --success: #3DDC97;
   --warn: #FFB648;
 
-  --radius-sm: 8px;
-  --radius: 14px;
+  --radius-sm: 10px;
+  --radius: 16px;
   --radius-lg: 20px;
   --radius-pill: 999px;
 
   --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -8px rgba(0,0,0,.5);
   --shadow-pop: 0 4px 12px rgba(0,0,0,.45), 0 24px 48px -16px rgba(0,0,0,.6);
-  --shadow-accent: 0 8px 24px -8px rgba(124,92,255,.55);
+  --shadow-accent: 0 10px 30px -10px rgba(255,47,185,.6);
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
@@ -68,31 +68,31 @@
    attribute on <html> so every existing var()-based rule below just
    picks it up automatically, no component CSS needs to change. */
 [data-theme="light"]{
-  --bg: #F6F6FB;
+  --bg: #FBF8FF;
   --bg-elevated: #FFFFFF;
   --surface: #FFFFFF;
-  --surface-hover: #F0F0F8;
-  --surface-border: #E3E4EF;
-  --line: #E9E9F3;
+  --surface-hover: #F5EEFF;
+  --surface-border: #E4D8FA;
+  --line: #EEE6FB;
 
-  --accent: #6A47F0;
-  --accent-soft: #6A47F014;
-  --accent-hover: #5636D9;
-  --accent-2: #009684;
-  --accent-2-soft: #00968414;
+  --accent: #9B2FE8;
+  --accent-soft: #9B2FE814;
+  --accent-hover: #8420CF;
+  --accent-2: #E0189F;
+  --accent-2-soft: #E0189F14;
 
-  --text: #15161F;
-  --text-dim: #53566B;
-  --text-faint: #8B8FA3;
+  --text: #1A1130;
+  --text-dim: #5B5078;
+  --text-faint: #8F85AC;
 
   --danger: #E0304F;
   --danger-soft: #E0304F14;
   --success: #1B9C6C;
   --warn: #B96A00;
 
-  --shadow-card: 0 1px 2px rgba(20,21,31,.05), 0 8px 20px -8px rgba(20,21,31,.10);
-  --shadow-pop: 0 4px 12px rgba(20,21,31,.07), 0 24px 48px -16px rgba(20,21,31,.16);
-  --shadow-accent: 0 8px 24px -8px rgba(106,71,240,.35);
+  --shadow-card: 0 1px 2px rgba(40,20,80,.05), 0 8px 20px -8px rgba(40,20,80,.10);
+  --shadow-pop: 0 4px 12px rgba(40,20,80,.07), 0 24px 48px -16px rgba(40,20,80,.16);
+  --shadow-accent: 0 10px 26px -10px rgba(224,24,159,.45);
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -100,8 +100,6 @@ html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0;
   background:
-    radial-gradient(1100px 600px at 15% -10%, rgba(124,92,255,.14), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgba(0,217,192,.09), transparent 55%),
     var(--bg);
   color:var(--text);
   font-family:var(--font-body);
@@ -204,7 +202,7 @@ button{ font-family:inherit; }
 .topbar{
   position:sticky; top:0; z-index:40;
   height:var(--header-h);
-  background:rgba(13,14,20,.82);
+  background:var(--topbar-bg, rgba(8,7,20,.78));
   backdrop-filter:blur(14px) saturate(140%);
   -webkit-backdrop-filter:blur(14px) saturate(140%);
   border-bottom:1px solid var(--line);
@@ -214,7 +212,7 @@ button{ font-family:inherit; }
 .brand{ display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
 .brand__mark{
   width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(150deg, var(--accent), #5A3FE0);
+  background:var(--grad, var(--accent));
   color:#fff; box-shadow:var(--shadow-accent);
   flex-shrink:0;
 }
@@ -255,7 +253,7 @@ button{ font-family:inherit; }
 ============================================================ */
 .bottomnav{
   position:fixed; left:0; right:0; bottom:0; z-index:40;
-  display:flex; background:rgba(17,19,25,.92);
+  display:flex; background:var(--nav-bg, rgba(9,8,24,.92));
   backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
   border-top:1px solid var(--line);
   padding-bottom:var(--safe-bottom);
@@ -440,7 +438,7 @@ button{ font-family:inherit; }
 .preset-card__cat-badge{
   font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
   padding:4px 8px; border-radius:6px; background:rgba(10,11,16,.65); backdrop-filter:blur(4px);
-  color:var(--accent-2); border:1px solid rgba(0,217,192,.35); white-space:nowrap;
+  color:var(--accent-2); border:1px solid rgba(255,61,190,.40); white-space:nowrap;
 }
 .preset-card__featured-badge{
   font-size:9.5px; font-weight:700; padding:4px 7px; border-radius:6px;
@@ -508,7 +506,7 @@ button{ font-family:inherit; }
 .badge{
   display:inline-flex; align-items:center; font-family:var(--font-mono); font-size:11px; font-weight:600;
   letter-spacing:.03em; text-transform:uppercase; padding:5px 10px; border-radius:7px;
-  background:var(--accent-2-soft); color:var(--accent-2); border:1px solid rgba(0,217,192,.35);
+  background:var(--accent-2-soft); color:var(--accent-2); border:1px solid rgba(255,61,190,.40);
   width:fit-content;
 }
 
@@ -546,8 +544,8 @@ button{ font-family:inherit; }
 .btn--primary{ background:var(--accent); color:#fff; box-shadow:var(--shadow-accent); }
 .btn--primary:hover{ background:var(--accent-hover); }
 
-.btn--secondary{ background:var(--accent-2-soft); color:var(--accent-2); border:1px solid rgba(0,217,192,.35); }
-.btn--secondary:hover{ background:rgba(0,217,192,.3); }
+.btn--secondary{ background:var(--accent-2-soft); color:var(--accent-2); border:1px solid rgba(255,61,190,.40); }
+.btn--secondary:hover{ background:rgba(255,61,190,.28); }
 
 .btn--ghost{ background:var(--surface); color:var(--text-dim); border:1.5px solid var(--surface-border); }
 .btn--ghost:hover{ color:var(--text); border-color:var(--text-faint); }
@@ -1232,9 +1230,307 @@ button{ font-family:inherit; }
 ============================================================ */
 [hidden]{ display:none !important; }
 
+
+/* =====================================================================
+   REDESIGN v2 — "Neon Motion"  (ungu–pink, mengikuti mockup)
+   Ditaruh paling bawah supaya menimpa gaya lama tanpa mengubah JS.
+===================================================================== */
+:root{
+  --grad: linear-gradient(100deg,#FF2FB9 0%,#B93BFF 100%);
+  --grad-soft: linear-gradient(100deg,rgba(255,47,185,.20),rgba(139,61,255,.20));
+  --nav-bg: rgba(9,8,24,.94);
+  --topbar-bg: rgba(8,7,20,.78);
+}
+[data-theme="light"]{
+  --nav-bg: rgba(255,255,255,.95);
+  --topbar-bg: rgba(251,248,255,.85);
+  --grad-soft: linear-gradient(100deg,rgba(224,24,159,.12),rgba(155,47,232,.12));
+}
+body{
+  background:
+    radial-gradient(760px 520px at 100% -6%, rgba(255,47,185,.20), transparent 60%),
+    radial-gradient(900px 640px at 0% 0%, rgba(120,58,237,.28), transparent 62%),
+    var(--bg);
+  background-attachment:fixed;
+}
+[data-theme="light"] body{
+  background:
+    radial-gradient(760px 520px at 100% -6%, rgba(224,24,159,.10), transparent 60%),
+    radial-gradient(900px 640px at 0% 0%, rgba(155,47,232,.10), transparent 62%),
+    var(--bg);
+  background-attachment:fixed;
+}
+h1,h2,h3,h4{ letter-spacing:-.015em; }
+::-webkit-scrollbar-thumb:hover{ background:var(--accent-2); }
+:focus-visible{ outline-color:var(--accent-2); }
+
+/* ---------- Brand ---------- */
+.brand{ gap:9px; }
+.brand__mark{ background:none !important; box-shadow:none !important; width:34px; height:34px; border-radius:0; }
+.brand__mark svg{ width:34px; height:34px; filter:drop-shadow(0 4px 12px rgba(255,47,185,.55)); }
+.brand__stack{ display:flex; flex-direction:column; line-height:1; }
+.brand__text{ font-size:18px; font-weight:800; letter-spacing:-.02em; }
+.brand__text em{ color:inherit; }
+.brand__sub{ font-size:7.5px; letter-spacing:.2em; font-weight:700; color:var(--text-faint); margin-top:4px; white-space:nowrap; }
+@media (max-width:420px){ .topbar .brand__sub{ font-size:6.5px; letter-spacing:.14em; } }
+
+/* ---------- Top bar ---------- */
+.topbar{ border-bottom:1px solid transparent; box-shadow:0 1px 0 rgba(176,60,255,.12); }
+.icon-btn{ background:transparent; border-color:transparent; color:var(--text); position:relative; }
+.icon-btn:hover{ background:var(--surface-hover); border-color:var(--surface-border); color:var(--accent-2); }
+.hamburger-btn{ margin-right:-2px; }
+@media (min-width:860px){ .hamburger-btn{ display:none; } }
+@media (max-width:859px){
+  #adminOpenBtn{ display:none; }              /* panel admin tetap ada di menu samping */
+}
+.notif-badge{ background:var(--grad) !important; color:#fff !important; }
+
+/* ---------- Bottom nav ---------- */
+.bottomnav{
+  border-top:1px solid var(--surface-border);
+  box-shadow:0 -14px 44px -18px rgba(255,47,185,.30);
+}
+.bottomnav__btn{ gap:3px; padding:8px 2px 7px; font-size:10.5px; }
+.bottomnav__btn svg{
+  width:19px; height:19px; box-sizing:content-box; padding:6px; border-radius:12px;
+  transition:background .18s, color .18s, box-shadow .18s, transform .18s;
+}
+.bottomnav__btn.is-active{ color:var(--accent-2); }
+.bottomnav__btn.is-active svg{ background:var(--grad); color:#fff; box-shadow:0 8px 20px -8px rgba(255,47,185,.8); }
+.bottomnav__btn.is-active span{ font-weight:700; }
+
+/* ---------- Sidebar / drawer ---------- */
+.sidebar{
+  background:linear-gradient(180deg,var(--bg-elevated),var(--bg));
+  border-right:1px solid var(--surface-border);
+  padding:20px 14px 16px;
+}
+.sidebar__close{ position:absolute; top:18px; right:14px; align-self:auto; margin:0; color:var(--text-dim); }
+.sidebar__nav{ gap:3px; margin-top:4px; }
+.sidebar__link{ padding:12px 14px; border-radius:12px; font-size:14px; font-weight:600; color:var(--text); }
+.sidebar__link svg{ color:var(--text-dim); }
+.sidebar__link:hover{ background:var(--surface-hover); }
+.sidebar__link.is-active{
+  background:linear-gradient(90deg,rgba(255,47,185,.20),rgba(139,61,255,.14));
+  color:var(--text); box-shadow:inset 3px 0 0 var(--accent-2);
+}
+.sidebar__link.is-active svg{ color:var(--accent-2); }
+.sidebar__section-label{ color:var(--text-faint); }
+.quick-collection-item:hover{ color:var(--accent-2); }
+.sidebar__meta{ margin-top:10px; padding:0 6px; font-size:11px; color:var(--text-faint); line-height:1.7; }
+.sidebar__meta .heart{ color:var(--accent-2); }
+
+.upgrade-card{
+  margin-top:14px; padding:14px; border-radius:18px;
+  background:linear-gradient(160deg,rgba(255,47,185,.14),rgba(139,61,255,.10)), var(--surface);
+  border:1px solid rgba(255,61,190,.45);
+  box-shadow:0 12px 36px -18px rgba(255,47,185,.55);
+}
+.upgrade-card__head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.upgrade-card__icon{
+  width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  background:var(--grad-soft); border:1px solid rgba(255,61,190,.45); color:#FFC84D; flex-shrink:0;
+}
+.upgrade-card__title{ font-size:14px; font-weight:800; }
+.upgrade-card__text{ font-size:11.5px; line-height:1.5; color:var(--text-dim); margin-bottom:12px; }
+.upgrade-card .btn{ width:100%; height:42px; }
+
+/* ---------- Buttons ---------- */
+.btn{ border-radius:999px; font-weight:700; }
+.btn--sm{ border-radius:999px; }
+.btn--primary{ background:var(--grad); color:#fff; box-shadow:var(--shadow-accent); }
+.btn--primary:hover{ background:var(--grad); filter:brightness(1.1); }
+.btn--secondary{ background:var(--accent-2-soft); color:var(--accent-2); border:1px solid rgba(255,61,190,.40); }
+.btn--secondary:hover{ background:rgba(255,61,190,.28); }
+.btn--ghost, .btn--outline{ background:rgba(255,255,255,.03); color:var(--text); border:1.5px solid var(--surface-border); }
+[data-theme="light"] .btn--ghost, [data-theme="light"] .btn--outline{ background:#fff; }
+.btn--ghost:hover, .btn--outline:hover{ border-color:var(--accent-2); color:var(--text); }
+.btn--icon-only{ border-radius:14px; }
+.btn--icon-only:hover{ border-color:var(--accent-2); }
+
+/* ---------- Hero ---------- */
+.hero{ position:relative; padding:0; overflow:hidden; margin:0 0 4px; }
+.hero__art{
+  position:absolute; inset:0 0 auto 0; height:360px; pointer-events:none;
+  -webkit-mask-image:linear-gradient(to bottom,#000 52%,transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 52%,transparent 100%);
+}
+.hero__art svg{ width:100%; height:100%; display:block; }
+.hero__art::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to bottom,rgba(6,5,15,.10) 0%,rgba(6,5,15,.0) 40%,rgba(6,5,15,.55) 100%);
+}
+[data-theme="light"] .hero__art::after{ background:linear-gradient(to bottom,rgba(251,248,255,0) 0%,rgba(251,248,255,.0) 50%,rgba(251,248,255,.75) 100%); }
+.hero__inner{ position:relative; max-width:none; padding-top:196px; padding-bottom:20px; }
+@media (min-width:860px){
+  .hero__art{ height:100%; }
+  .hero__inner{ padding-top:96px; padding-bottom:34px; }
+  .hero__inner > *:not(.hero__art){ max-width:560px; }
+}
+.hero__badge{
+  display:inline-flex; align-items:center; gap:6px; padding:5px 11px 5px 9px; border-radius:9px;
+  background:rgba(10,8,30,.72); border:1px solid rgba(255,61,190,.55); backdrop-filter:blur(6px);
+  font-size:10.5px; font-weight:800; letter-spacing:.12em; color:#fff; margin-bottom:12px;
+}
+.hero__badge svg{ color:#FFC84D; }
+.hero__title{ font-size:clamp(34px,9vw,52px); line-height:1.04; font-weight:800; letter-spacing:-.025em; }
+.hero__title-accent{ background:linear-gradient(100deg,#FF2FB9 0%,#B93BFF 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.hero__sub{ margin-top:14px; font-size:14.5px; line-height:1.6; color:var(--text-dim); max-width:46ch; }
+.hero__cta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.hero__cta .btn{ height:46px; padding:0 22px; font-size:14px; }
+.hero__features{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:22px; }
+.hero__feature{ display:flex; align-items:center; gap:9px; }
+.hero__feature-icon{
+  width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:var(--grad-soft); border:1px solid rgba(255,61,190,.35); color:var(--accent-2); flex-shrink:0;
+}
+.hero__feature-text{ font-size:11.5px; line-height:1.3; color:var(--text-dim); font-weight:500; }
+.hero__stats{ margin-top:16px; gap:10px; }
+.hero__stat{ flex-direction:row; align-items:baseline; gap:5px; }
+.hero__stat-num{ font-family:var(--font-body); font-size:14px; font-weight:800; color:var(--accent-2); }
+.hero__stat-label{ margin-top:0; font-size:12px; }
+.hero__stat-div{ height:12px; }
+
+/* ---------- Section heads ---------- */
+.section-row{ display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px; gap:12px; }
+.section-row h3, .section-title{ font-size:17px; font-weight:800; }
+.section-title{ margin:26px 0 12px; }
+.link-btn{ background:none; border:none; color:var(--text-dim); font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+.link-btn:hover{ color:var(--accent-2); }
+.section-head__title{ font-size:26px; font-weight:800; }
+.stats-block__title{ font-size:16px; font-weight:800; }
+
+/* ---------- Category rows (Beranda + Library) ---------- */
+.popcat-list, #categoryDirectoryGrid{ display:flex; flex-direction:column; gap:10px; }
+.cat-row{
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left; color:inherit; font:inherit;
+  padding:9px 14px 9px 9px; border-radius:18px; cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01)), var(--surface);
+  border:1px solid var(--surface-border);
+  transition:border-color .15s, transform .15s, box-shadow .15s;
+}
+[data-theme="light"] .cat-row{ background:var(--surface); }
+.cat-row:hover{ border-color:var(--accent-2); transform:translateY(-1px); box-shadow:0 12px 30px -16px rgba(255,47,185,.5); }
+.cat-row__thumb{
+  width:56px; height:56px; border-radius:13px; overflow:hidden; flex-shrink:0; position:relative;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px;
+  border:1px solid rgba(255,255,255,.12);
+}
+.cat-row__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.cat-row__body{ flex:1; min-width:0; }
+.cat-row__name{ font-family:var(--font-display); font-size:14.5px; font-weight:700; color:var(--text); }
+.cat-row__count{ font-size:12px; color:var(--text-faint); margin-top:2px; }
+.cat-row__chev{ color:var(--text-dim); flex-shrink:0; }
+.cat-row:hover .cat-row__chev{ color:var(--accent-2); }
+
+/* ---------- Search / chips / filters ---------- */
+.search__input{ border-radius:16px; height:50px; background:var(--surface); border-color:var(--surface-border); }
+.search__input:focus{ border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(255,61,190,.18); background:var(--surface); }
+.chip{ background:transparent; border-color:var(--surface-border); color:var(--text-dim); }
+.chip:hover{ border-color:var(--accent-2); }
+.chip.is-active{ background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 8px 20px -10px rgba(255,47,185,.8); }
+.tagfilter__toggle, .select-sort{ border-radius:12px; }
+.tagfilter__toggle.is-active{ border-color:var(--accent-2); color:var(--accent-2); }
+.tagfilter__item.is-active{ background:var(--accent-2-soft); border-color:var(--accent-2); color:var(--accent-2); }
+.select-sort:focus{ border-color:var(--accent-2); }
+.active-filter-tag{ background:var(--accent-2-soft); color:var(--accent-2); }
+
+/* ---------- Preset cards ---------- */
+.preset-card{ border-radius:20px; background:var(--surface); border-color:var(--surface-border); }
+.preset-card:hover{ border-color:var(--accent-2); box-shadow:0 16px 40px -16px rgba(255,47,185,.55); }
+.preset-card:hover .preset-card__play{ background:var(--grad); border-color:transparent; }
+.preset-card__cat-badge{ color:#FFB6EE; border-color:rgba(255,61,190,.5); background:rgba(14,6,30,.7); }
+.preset-card__media-fallback{ background:linear-gradient(160deg,#241046,#12082A); }
+.badge{ background:var(--grad); color:#fff; border:none; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-weight:700; letter-spacing:.01em; text-transform:none; font-size:11.5px; }
+.rec-row .preset-card{ border-radius:16px; }
+
+/* ---------- Koleksi tabs ---------- */
+.pill-tabs{ display:flex; gap:10px; margin:2px 0 16px; }
+.pill-tab{
+  height:38px; padding:0 22px; border-radius:999px; border:1.5px solid var(--surface-border);
+  background:transparent; color:var(--text-dim); font-size:13px; font-weight:700; cursor:pointer; transition:all .15s;
+}
+.pill-tab:hover{ border-color:var(--accent-2); color:var(--text); }
+.pill-tab.is-active{ background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 8px 20px -10px rgba(255,47,185,.8); }
+
+/* ---------- Pricing ---------- */
+.billing-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:5px; border-radius:999px; background:var(--surface); border:1px solid var(--surface-border); margin:6px 0 16px; position:relative; }
+.billing-toggle button{ position:relative; height:42px; border-radius:999px; border:none; background:transparent; color:var(--text-dim); font-weight:700; font-size:14px; cursor:pointer; }
+.billing-toggle button.is-active{ background:var(--grad); color:#fff; box-shadow:0 8px 20px -10px rgba(255,47,185,.8); }
+.billing-toggle__save{ position:absolute; top:-9px; right:10px; font-size:9.5px; font-weight:800; padding:3px 7px; border-radius:7px; background:var(--grad); color:#fff; letter-spacing:.02em; }
+.plan-grid{ display:grid; gap:14px; grid-template-columns:1fr; }
+@media (min-width:860px){ .plan-grid{ grid-template-columns:repeat(3,1fr); align-items:stretch; } }
+.plan-card{ position:relative; padding:18px; border-radius:20px; background:var(--surface); border:1px solid var(--surface-border); display:flex; flex-direction:column; gap:12px; }
+.plan-card--featured{ border-color:transparent; background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--grad) border-box; border:1.5px solid transparent; box-shadow:0 18px 50px -24px rgba(255,47,185,.65); }
+.plan-card__head{ display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-size:19px; font-weight:800; }
+.plan-card__head svg{ color:#FFC84D; }
+.plan-card__tag{ margin-left:auto; font-size:10px; font-weight:800; padding:4px 10px; border-radius:8px; background:var(--grad); color:#fff; }
+.plan-card__price{ font-family:var(--font-display); font-size:30px; font-weight:800; line-height:1; }
+.plan-card__price small{ font-size:13px; font-weight:600; color:var(--text-faint); margin-left:3px; }
+.plan-card__note{ font-size:11.5px; color:var(--text-faint); margin-top:-6px; min-height:14px; }
+.plan-card ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.plan-card li{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--text-dim); }
+.plan-card li svg{ color:var(--accent-2); flex-shrink:0; }
+.plan-card .btn{ margin-top:auto; width:100%; }
+.pricing-foot{ margin:16px 2px 0; font-size:12px; color:var(--text-faint); text-align:center; line-height:1.6; }
+
+/* ---------- Profil ---------- */
+.profile-cover{
+  position:relative; height:150px; margin:0 -16px; overflow:hidden;
+  background:linear-gradient(180deg,#1A0B4A 0%,#6A1FB8 55%,#FF2FB9 120%);
+}
+@media (min-width:640px){ .profile-cover{ margin:0 -24px; } }
+.profile-cover svg{ width:100%; height:100%; display:block; }
+.profile-cover::after{ content:''; position:absolute; inset:0; background:linear-gradient(to bottom,transparent 40%,var(--bg) 100%); }
+.profile-main{ position:relative; text-align:center; margin-top:-52px; }
+.profile-avatar{
+  width:96px; height:96px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:38px; font-weight:800; color:#fff; overflow:hidden;
+  background:var(--grad); border:3px solid transparent;
+  box-shadow:0 0 0 3px var(--bg), 0 0 0 5px rgba(255,61,190,.7), 0 16px 40px -12px rgba(255,47,185,.7);
+}
+.profile-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+.profile-name{ margin-top:12px; font-size:20px; font-weight:800; display:inline-flex; align-items:center; gap:6px; justify-content:center; }
+.profile-name svg{ color:#5AA8FF; }
+.profile-role{ font-size:12.5px; color:var(--accent-2); font-weight:600; margin-top:2px; }
+.profile-stats{ display:grid; grid-template-columns:repeat(3,1fr); margin:18px 0; padding:12px 0; border-radius:18px; background:var(--surface); border:1px solid var(--surface-border); }
+.profile-stats > div{ text-align:center; padding:2px 6px; }
+.profile-stats > div + div{ border-left:1px solid var(--line); }
+.profile-stats b{ display:block; font-family:var(--font-display); font-size:20px; font-weight:800; }
+.profile-stats span{ font-size:11.5px; color:var(--text-faint); }
+.menu-list{ display:flex; flex-direction:column; gap:10px; }
+.menu-row{
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left; color:inherit; font:inherit;
+  padding:12px 14px; border-radius:16px; cursor:pointer; background:var(--surface); border:1px solid var(--surface-border);
+  transition:border-color .15s, transform .15s;
+}
+.menu-row:hover{ border-color:var(--accent-2); transform:translateY(-1px); }
+.menu-row__icon{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; background:var(--grad-soft); color:var(--accent-2); flex-shrink:0; }
+.menu-row__body{ flex:1; min-width:0; }
+.menu-row__title{ font-size:14px; font-weight:700; }
+.menu-row__sub{ font-size:11.5px; color:var(--text-faint); margin-top:1px; }
+.menu-row__chev{ color:var(--text-dim); }
+.profile-guest{ text-align:center; padding:6px 0 4px; }
+.profile-guest p{ font-size:13px; color:var(--text-dim); max-width:34ch; margin:6px auto 14px; line-height:1.55; }
+
+/* ---------- Modal / detail aset ---------- */
+.modal{ background:var(--bg-elevated); border-color:var(--surface-border); border-radius:26px 26px 0 0; box-shadow:0 -18px 70px -24px rgba(255,47,185,.40), var(--shadow-pop); }
+@media (min-width:640px){ .modal{ border-radius:26px; } }
+.modal__close{ background:rgba(8,6,22,.65) !important; backdrop-filter:blur(6px); }
+.video-modal__headline h3{ font-size:23px; font-weight:800; }
+.preset-tabs__btn.is-active{ color:var(--accent-2); border-bottom-color:var(--accent-2); }
+.video-modal__meta{ border-color:var(--line); }
+.video-modal__actions .btn--primary{ height:50px; font-size:15px; }
+
+/* ---------- Footer / misc ---------- */
+.footer{ border-top-color:var(--line); }
+.footer__admin-link:hover{ color:var(--accent-2); }
+.skeleton-card{ background:var(--surface); }
+.compare-bar{ border-color:var(--surface-border); }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="mvGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2FB9"/><stop offset="1" stop-color="#7B3BFF"/></linearGradient></defs></svg>
 <div id="app" class="app">
 
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -1245,10 +1541,8 @@ button{ font-family:inherit; }
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
     <div class="brand" id="sidebarBrand" tabindex="0" role="button" aria-label="Beranda MotionVault" style="padding:6px 10px 20px;">
-      <span class="brand__mark" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5Z" fill="currentColor"/></svg>
-      </span>
-      <span class="brand__text">Motion<em>Vault</em></span>
+      <span class="brand__mark" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 40 40" fill="none"><polygon points="5,33 5,8 12.5,8 20,20 27.5,8 35,8 35,33 27.5,33 27.5,20 22,28.5 18,28.5 12.5,20 12.5,33" fill="url(#mvGrad)"/></svg></span>
+      <span class="brand__stack"><span class="brand__text">Motion<em>Vault</em></span><span class="brand__sub">PREMIUM MOTION ASSETS</span></span>
     </div>
 
     <div class="sidebar__nav">
@@ -1294,11 +1588,21 @@ button{ font-family:inherit; }
 
     <div id="sidebarQuickCollections"></div>
 
+    <div class="upgrade-card">
+      <div class="upgrade-card__head">
+        <span class="upgrade-card__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg></span>
+        <span class="upgrade-card__title">Upgrade ke Premium</span>
+      </div>
+      <p class="upgrade-card__text">Akses semua aset tanpa batas, kualitas 4K, dan fitur eksklusif lainnya.</p>
+      <button type="button" class="btn btn--primary" data-view="pricing">Upgrade Sekarang <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+
     <div class="sidebar__footer">
       <button class="sidebar__link" id="sidebarSettingsLink" data-sidebar-action="settings" type="button">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
         <span id="sidebarSettingsLabel">Panel Admin</span>
       </button>
+      <div class="sidebar__meta">MotionVault v2.0.0<br>Made with <span class="heart">&#10084;</span> for creators</div>
     </div>
   </nav>
 
@@ -1320,10 +1624,8 @@ button{ font-family:inherit; }
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="brand" id="brandLogo" tabindex="0" role="button" aria-label="Beranda MotionVault">
-          <span class="brand__mark" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5Z" fill="currentColor"/></svg>
-          </span>
-          <span class="brand__text">Motion<em>Vault</em></span>
+          <span class="brand__mark" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 40 40" fill="none"><polygon points="5,33 5,8 12.5,8 20,20 27.5,8 35,8 35,33 27.5,33 27.5,20 22,28.5 18,28.5 12.5,20 12.5,33" fill="url(#mvGrad)"/></svg></span>
+          <span class="brand__stack"><span class="brand__text">Motion<em>Vault</em></span><span class="brand__sub">PREMIUM MOTION ASSETS</span></span>
         </div>
       </div>
 
@@ -1334,6 +1636,9 @@ button{ font-family:inherit; }
       </nav>
 
       <div class="topbar__actions">
+        <button class="icon-btn" id="topSearchBtn" type="button" aria-label="Cari preset" title="Cari preset">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
         <button class="icon-btn" id="themeToggleBtn" type="button" aria-label="Ganti tema gelap/terang" title="Ganti tema">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeToggleIconMoon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeToggleIconSun" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -1356,23 +1661,27 @@ button{ font-family:inherit; }
   <!-- ============ MOBILE BOTTOM NAV ============ -->
   <nav class="bottomnav" aria-label="Navigasi bawah">
     <button class="bottomnav__btn is-active" data-view="browse" type="button">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      <span>Jelajah</span>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+      <span>Beranda</span>
+    </button>
+    <button class="bottomnav__btn" data-view="categories" type="button">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M9 3v18M13 8h3M13 12h3"/></svg>
+      <span>Library</span>
+    </button>
+    <button class="bottomnav__btn" data-view="pricing" type="button">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 10.6 12 2H4v8l8.6 8.6a2 2 0 0 0 2.8 0l5.2-5.2a2 2 0 0 0 0-2.8Z"/><circle cx="8" cy="8" r="1.2"/></svg>
+      <span>Pricing</span>
     </button>
     <button class="bottomnav__btn" data-view="favorites" type="button">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-      <span>Favorit</span>
-      <span class="count-pill count-pill--dot" id="favCountPillMobile" hidden></span>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      <span>Koleksi</span>
     </button>
-    <button class="bottomnav__btn" data-view="stats" type="button">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
-      <span>Statistik</span>
-    </button>
-    <button class="bottomnav__btn" data-action="open-admin" type="button">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-      <span>Admin</span>
+    <button class="bottomnav__btn" data-view="profile" type="button">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      <span>Profil</span>
     </button>
   </nav>
+  <span id="favCountPillMobile" hidden></span>
 
   <!-- ============ MAIN ============ -->
   <main class="main" id="mainContent">
@@ -1381,20 +1690,46 @@ button{ font-family:inherit; }
     <section class="view" id="view-browse" data-view-panel="browse">
 
       <div class="hero">
+        <div class="hero__art" aria-hidden="true"><svg viewBox="0 0 400 360" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="hcSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14083D"/><stop offset=".5" stop-color="#5B1AA8"/><stop offset="1" stop-color="#FF2FB9"/></linearGradient>
+<radialGradient id="hcGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFB3EC" stop-opacity=".95"/><stop offset=".45" stop-color="#FF2FB9" stop-opacity=".35"/><stop offset="1" stop-color="#FF2FB9" stop-opacity="0"/></radialGradient>
+<pattern id="hcWin" width="9" height="11" patternUnits="userSpaceOnUse"><rect x="2.5" y="2.5" width="3" height="4.5" fill="#FFD6F5" opacity=".9"/></pattern>
+<pattern id="hcWinB" width="7" height="9" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="2.4" height="3.6" fill="#7DE9FF" opacity=".8"/></pattern>
+</defs><rect width="400" height="360" fill="url(#hcSky)"/><circle cx="181.0" cy="110.8" r="1.3" fill="#fff" opacity="0.50"/><circle cx="342.0" cy="37.6" r="1.3" fill="#fff" opacity="0.60"/><circle cx="317.2" cy="18.6" r="1.0" fill="#fff" opacity="0.33"/><circle cx="215.5" cy="176.3" r="0.6" fill="#fff" opacity="0.58"/><circle cx="158.5" cy="89.7" r="0.8" fill="#fff" opacity="0.59"/><circle cx="332.7" cy="12.5" r="0.6" fill="#fff" opacity="0.35"/><circle cx="96.8" cy="6.0" r="1.3" fill="#fff" opacity="0.43"/><circle cx="236.4" cy="38.7" r="0.8" fill="#fff" opacity="0.60"/><circle cx="199.9" cy="131.2" r="1.3" fill="#fff" opacity="0.61"/><circle cx="162.7" cy="109.2" r="0.6" fill="#fff" opacity="0.64"/><circle cx="126.1" cy="45.5" r="1.0" fill="#fff" opacity="0.27"/><circle cx="225.3" cy="21.4" r="0.6" fill="#fff" opacity="0.72"/><circle cx="154.6" cy="189.7" r="0.6" fill="#fff" opacity="0.37"/><circle cx="370.8" cy="10.4" r="1.3" fill="#fff" opacity="0.79"/><circle cx="159.0" cy="14.5" r="0.8" fill="#fff" opacity="0.68"/><circle cx="107.9" cy="17.3" r="1.0" fill="#fff" opacity="0.26"/><circle cx="164.0" cy="182.7" r="0.8" fill="#fff" opacity="0.39"/><circle cx="40.4" cy="11.9" r="1.3" fill="#fff" opacity="0.35"/><circle cx="223.7" cy="88.6" r="0.8" fill="#fff" opacity="0.79"/><circle cx="307.8" cy="83.0" r="1.3" fill="#fff" opacity="0.31"/><circle cx="168.3" cy="42.1" r="1.0" fill="#fff" opacity="0.73"/><circle cx="389.9" cy="117.4" r="0.6" fill="#fff" opacity="0.37"/><circle cx="157.7" cy="169.2" r="0.6" fill="#fff" opacity="0.27"/><circle cx="58.5" cy="87.4" r="0.6" fill="#fff" opacity="0.67"/><circle cx="131.6" cy="58.7" r="0.6" fill="#fff" opacity="0.29"/><circle cx="83.5" cy="126.0" r="0.6" fill="#fff" opacity="0.58"/><circle cx="148.7" cy="89.7" r="1.3" fill="#fff" opacity="0.71"/><circle cx="54.3" cy="76.4" r="0.8" fill="#fff" opacity="0.42"/><circle cx="91.4" cy="120.9" r="0.8" fill="#fff" opacity="0.34"/><circle cx="251.6" cy="109.7" r="1.3" fill="#fff" opacity="0.74"/><circle cx="241.4" cy="83.4" r="0.6" fill="#fff" opacity="0.31"/><circle cx="204.9" cy="50.5" r="1.3" fill="#fff" opacity="0.39"/><circle cx="329.5" cy="118.1" r="1.0" fill="#fff" opacity="0.54"/><circle cx="371.7" cy="193.5" r="0.8" fill="#fff" opacity="0.38"/><circle cx="223.7" cy="168.8" r="0.6" fill="#fff" opacity="0.40"/><circle cx="366.9" cy="40.4" r="0.6" fill="#fff" opacity="0.29"/><circle cx="164.6" cy="49.3" r="0.6" fill="#fff" opacity="0.35"/><circle cx="147.5" cy="113.3" r="0.8" fill="#fff" opacity="0.30"/><circle cx="55.4" cy="89.2" r="1.0" fill="#fff" opacity="0.61"/><circle cx="276.5" cy="115.7" r="0.8" fill="#fff" opacity="0.57"/><circle cx="369.4" cy="94.0" r="1.0" fill="#fff" opacity="0.64"/><circle cx="385.1" cy="4.2" r="0.6" fill="#fff" opacity="0.52"/><circle cx="292.2" cy="63.1" r="0.6" fill="#fff" opacity="0.29"/><circle cx="218.4" cy="145.9" r="0.8" fill="#fff" opacity="0.69"/><circle cx="366.0" cy="69.7" r="1.3" fill="#fff" opacity="0.75"/><circle cx="348.4" cy="82.6" r="0.6" fill="#fff" opacity="0.72"/><circle cx="288" cy="180" r="166" fill="url(#hcGlow)"/><circle cx="288" cy="158" r="41" fill="#FFC2F0" opacity=".85"/><g fill="#3A1480" opacity=".9"><rect x="-10" y="280" width="40" height="80"/><rect x="34" y="233" width="43" height="127"/><rect x="80" y="280" width="40" height="80"/><rect x="124" y="271" width="24" height="89"/><rect x="148" y="267" width="42" height="93"/><rect x="192" y="188" width="35" height="172"/><rect x="229" y="187" width="34" height="173"/><rect x="268" y="223" width="40" height="137"/><rect x="311" y="174" width="36" height="186"/><rect x="351" y="215" width="24" height="145"/><rect x="379" y="242" width="22" height="118"/><rect x="405" y="220" width="24" height="140"/></g><rect x="-14" y="282" width="33" height="78" fill="#1D0A52"/><rect x="-14" y="282" width="33" height="78" fill="url(#hcWin)" opacity=".55"/><rect x="28" y="295" width="34" height="65" fill="#1D0A52"/><rect x="28" y="295" width="34" height="65" fill="url(#hcWin)" opacity=".55"/><rect x="66" y="218" width="47" height="142" fill="#1D0A52"/><rect x="66" y="218" width="47" height="142" fill="url(#hcWin)" opacity=".55"/><rect x="88" y="200" width="2" height="18" fill="#1D0A52"/><circle cx="90" cy="199" r="1.8" fill="#FF3DBE"/><rect x="117" y="253" width="50" height="107" fill="#1D0A52"/><rect x="117" y="253" width="50" height="107" fill="url(#hcWin)" opacity=".55"/><rect x="176" y="266" width="41" height="94" fill="#1D0A52"/><rect x="176" y="266" width="41" height="94" fill="url(#hcWin)" opacity=".55"/><rect x="196" y="248" width="2" height="18" fill="#1D0A52"/><circle cx="196" cy="247" r="1.8" fill="#FF3DBE"/><rect x="223" y="215" width="32" height="145" fill="#1D0A52"/><rect x="223" y="215" width="32" height="145" fill="url(#hcWin)" opacity=".55"/><rect x="260" y="247" width="32" height="113" fill="#1D0A52"/><rect x="260" y="247" width="32" height="113" fill="url(#hcWin)" opacity=".55"/><rect x="275" y="229" width="2" height="18" fill="#1D0A52"/><circle cx="276" cy="228" r="1.8" fill="#FF3DBE"/><rect x="299" y="279" width="32" height="81" fill="#1D0A52"/><rect x="299" y="279" width="32" height="81" fill="url(#hcWin)" opacity=".55"/><rect x="314" y="261" width="2" height="18" fill="#1D0A52"/><circle cx="315" cy="260" r="1.8" fill="#FF3DBE"/><rect x="338" y="291" width="52" height="69" fill="#1D0A52"/><rect x="338" y="291" width="52" height="69" fill="url(#hcWin)" opacity=".55"/><rect x="396" y="275" width="52" height="85" fill="#1D0A52"/><rect x="396" y="275" width="52" height="85" fill="url(#hcWin)" opacity=".55"/><rect x="421" y="257" width="2" height="18" fill="#1D0A52"/><circle cx="422" cy="256" r="1.8" fill="#FF3DBE"/><rect x="-20" y="305" width="38" height="55" fill="#0D0526"/><rect x="-20" y="305" width="38" height="55" fill="url(#hcWinB)" opacity=".4"/><rect x="28" y="269" width="42" height="91" fill="#0D0526"/><rect x="28" y="269" width="42" height="91" fill="url(#hcWinB)" opacity=".4"/><rect x="84" y="275" width="40" height="85" fill="#0D0526"/><rect x="84" y="275" width="40" height="85" fill="url(#hcWinB)" opacity=".4"/><rect x="133" y="328" width="32" height="32" fill="#0D0526"/><rect x="133" y="328" width="32" height="32" fill="url(#hcWinB)" opacity=".4"/><rect x="173" y="327" width="57" height="33" fill="#0D0526"/><rect x="173" y="327" width="57" height="33" fill="url(#hcWinB)" opacity=".4"/><rect x="244" y="297" width="52" height="63" fill="#0D0526"/><rect x="244" y="297" width="52" height="63" fill="url(#hcWinB)" opacity=".4"/><rect x="309" y="293" width="41" height="67" fill="#0D0526"/><rect x="309" y="293" width="41" height="67" fill="url(#hcWinB)" opacity=".4"/><rect x="364" y="330" width="55" height="30" fill="#0D0526"/><rect x="364" y="330" width="55" height="30" fill="url(#hcWinB)" opacity=".4"/><path d="M0 281 L400 252" stroke="#FF3DBE" stroke-width="1.2" opacity=".55"/></svg></div>
         <div class="container hero__inner">
-          <p class="hero__eyebrow">TONTON DULU · BARU DOWNLOAD</p>
-          <h1 class="hero__title">Preset yang kamu lihat<br><span class="hero__title-accent">persis yang kamu dapat.</span></h1>
-          <p class="hero__sub">Tiap preset di sini wajib punya video demo. Nggak ada lagi buka file preset kosongan tanpa tau hasilnya kayak apa.</p>
+          <span class="hero__badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg> PREMIUM</span>
+          <h1 class="hero__title">Wujudkan Ide<br><span class="hero__title-accent">Jadi Motion</span></h1>
+          <p class="hero__sub">Koleksi aset motion, template, dan efek visual berkualitas tinggi untuk membuat karya kamu lebih hidup, profesional, dan memukau.</p>
+
+          <div class="hero__cta">
+            <button type="button" class="btn btn--primary" id="heroExploreBtn">Jelajahi Library <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <button type="button" class="btn btn--outline" data-view="pricing">Lihat Harga</button>
+          </div>
+
+          <div class="hero__features">
+            <div class="hero__feature">
+              <span class="hero__feature-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M8 15v-4l2 2 2-2v4M15 11v4h2.5"/></svg></span>
+              <span class="hero__feature-text">4K<br>Quality</span>
+            </div>
+            <div class="hero__feature">
+              <span class="hero__feature-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></span>
+              <span class="hero__feature-text">Update<br>Setiap Minggu</span>
+            </div>
+            <div class="hero__feature">
+              <span class="hero__feature-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg></span>
+              <span class="hero__feature-text">Mudah<br>Digunakan</span>
+            </div>
+          </div>
 
           <div class="hero__stats" id="heroStats" aria-hidden="true">
             <div class="hero__stat">
               <span class="hero__stat-num" id="heroStatPresets">0</span>
-              <span class="hero__stat-label">Preset</span>
+              <span class="hero__stat-label">preset</span>
             </div>
             <div class="hero__stat-div"></div>
             <div class="hero__stat">
               <span class="hero__stat-num" id="heroStatDownloads">0</span>
-              <span class="hero__stat-label">Download</span>
+              <span class="hero__stat-label">download</span>
             </div>
           </div>
         </div>
@@ -1402,7 +1737,13 @@ button{ font-family:inherit; }
 
       <div class="container">
 
-        <div class="stats-block" id="trendingSection" hidden>
+        <div class="section-row">
+          <h3>Kategori Populer</h3>
+          <button type="button" class="link-btn" data-view="categories">Lihat Semua <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="popcat-list" id="popularCategories"></div>
+
+        <div class="stats-block" id="trendingSection" hidden style="margin-top:26px;">
           <h3 class="stats-block__title">🔥 Trending Preset</h3>
           <div class="rec-row" id="trendingGrid"></div>
         </div>
@@ -1421,6 +1762,8 @@ button{ font-family:inherit; }
           <h3 class="stats-block__title">📢 Activity Feed</h3>
           <div id="activityFeedList"></div>
         </div>
+
+        <h3 class="section-title" id="allPresetsHeading">Semua Preset</h3>
 
         <!-- Search + Filters -->
         <div class="toolbar">
@@ -1486,9 +1829,13 @@ button{ font-family:inherit; }
       <div class="container">
         <div class="section-head">
           <div>
-            <h2 class="section-head__title">Preset favorit kamu</h2>
-            <p class="section-head__sub">Tersimpan di perangkat ini saja.</p>
+            <h2 class="section-head__title">Koleksi Saya</h2>
+            <p class="section-head__sub">Preset yang kamu simpan di perangkat ini.</p>
           </div>
+        </div>
+        <div class="pill-tabs" role="tablist" aria-label="Koleksi">
+          <button type="button" class="pill-tab is-active" data-view="favorites">Tersimpan</button>
+          <button type="button" class="pill-tab" data-view="download-history">Riwayat</button>
         </div>
         <div class="preset-grid" id="favoritesGrid"></div>
         <div class="empty-state" id="favEmptyState" hidden>
@@ -1541,8 +1888,8 @@ button{ font-family:inherit; }
       <div class="container">
         <div class="section-head">
           <div>
-            <h2 class="section-head__title">Kategori</h2>
-            <p class="section-head__sub">Jelajahi preset berdasarkan kategori.</p>
+            <h2 class="section-head__title">Library</h2>
+            <p class="section-head__sub">Jelajahi semua koleksi preset yang tersedia di MotionVault.</p>
           </div>
         </div>
         <div class="category-grid" id="categoryDirectoryGrid"></div>
@@ -1600,6 +1947,10 @@ button{ font-family:inherit; }
           </div>
           <button type="button" class="btn btn--ghost btn--sm" id="clearDownloadHistoryBtn">Bersihkan</button>
         </div>
+        <div class="pill-tabs" role="tablist" aria-label="Koleksi">
+          <button type="button" class="pill-tab" data-view="favorites">Tersimpan</button>
+          <button type="button" class="pill-tab is-active" data-view="download-history">Riwayat</button>
+        </div>
         <div class="preset-grid" id="downloadHistoryGrid"></div>
         <div class="empty-state" id="downloadHistoryEmpty" hidden>
           <p>Belum ada riwayat download di perangkat ini.</p>
@@ -1641,6 +1992,94 @@ button{ font-family:inherit; }
         <div class="preset-grid" id="collectionDetailGrid"></div>
         <div class="empty-state" id="collectionDetailEmpty" hidden>
           <p>Koleksi ini masih kosong. Tambahin preset lewat tombol "📁 Koleksi" di halaman detail preset.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PRICING VIEW ---------- -->
+    <section class="view" id="view-pricing" data-view-panel="pricing" hidden>
+      <div class="container">
+        <div class="section-head" style="padding-bottom:6px;">
+          <div>
+            <h2 class="section-head__title">Pricing</h2>
+            <p class="section-head__sub">Pilih paket yang sesuai dengan kebutuhan kreativitas kamu.</p>
+          </div>
+        </div>
+
+        <div class="billing-toggle" role="tablist" aria-label="Periode tagihan">
+          <button type="button" class="is-active" data-billing="monthly">Bulanan</button>
+          <button type="button" data-billing="yearly">Tahunan<span class="billing-toggle__save">Hemat 20%</span></button>
+        </div>
+
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-card__head">Free</div>
+            <div class="plan-card__price">Rp 0<small>/bulan</small></div>
+            <div class="plan-card__note"></div>
+            <ul><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Akses aset terbatas</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Download 720p</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>1 perangkat</li></ul>
+            <button type="button" class="btn btn--outline" data-plan="free">Mulai Gratis</button>
+          </div>
+
+          <div class="plan-card plan-card--featured">
+            <div class="plan-card__head"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg> Premium <span class="plan-card__tag">Populer</span></div>
+            <div class="plan-card__price"><span data-price="49000">Rp 49.000</span><small>/bulan</small></div>
+            <div class="plan-card__note" data-note="49000"></div>
+            <ul><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Akses semua aset</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Download hingga 4K</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Tanpa watermark</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>5 perangkat</li></ul>
+            <button type="button" class="btn btn--primary" data-plan="premium">Pilih Premium</button>
+          </div>
+
+          <div class="plan-card">
+            <div class="plan-card__head"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg> Ultimate</div>
+            <div class="plan-card__price"><span data-price="99000">Rp 99.000</span><small>/bulan</small></div>
+            <div class="plan-card__note" data-note="99000"></div>
+            <ul><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Semua fitur Premium</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Akses aset eksklusif</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Prioritas update</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>10 perangkat</li></ul>
+            <button type="button" class="btn btn--outline" data-plan="ultimate">Pilih Ultimate</button>
+          </div>
+        </div>
+        <p class="pricing-foot">Pembayaran paket berbayar belum diaktifkan di situs ini.</p>
+      </div>
+    </section>
+
+    <!-- ---------- PROFIL VIEW ---------- -->
+    <section class="view" id="view-profile" data-view-panel="profile" hidden>
+      <div class="container">
+        <div class="profile-cover" aria-hidden="true"><svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="pcSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14083D"/><stop offset=".5" stop-color="#5B1AA8"/><stop offset="1" stop-color="#FF2FB9"/></linearGradient>
+<radialGradient id="pcGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFB3EC" stop-opacity=".95"/><stop offset=".45" stop-color="#FF2FB9" stop-opacity=".35"/><stop offset="1" stop-color="#FF2FB9" stop-opacity="0"/></radialGradient>
+<pattern id="pcWin" width="9" height="11" patternUnits="userSpaceOnUse"><rect x="2.5" y="2.5" width="3" height="4.5" fill="#FFD6F5" opacity=".9"/></pattern>
+<pattern id="pcWinB" width="7" height="9" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="2.4" height="3.6" fill="#7DE9FF" opacity=".8"/></pattern>
+</defs><rect width="400" height="150" fill="url(#pcSky)"/><circle cx="219.2" cy="28.5" r="1.0" fill="#fff" opacity="0.30"/><circle cx="370.9" cy="32.4" r="0.6" fill="#fff" opacity="0.79"/><circle cx="41.5" cy="36.7" r="0.8" fill="#fff" opacity="0.69"/><circle cx="34.2" cy="41.1" r="1.3" fill="#fff" opacity="0.71"/><circle cx="79.7" cy="80.6" r="0.8" fill="#fff" opacity="0.49"/><circle cx="163.2" cy="65.4" r="0.8" fill="#fff" opacity="0.55"/><circle cx="169.0" cy="23.0" r="0.8" fill="#fff" opacity="0.70"/><circle cx="383.5" cy="39.0" r="0.8" fill="#fff" opacity="0.66"/><circle cx="302.7" cy="48.4" r="1.3" fill="#fff" opacity="0.47"/><circle cx="247.2" cy="64.1" r="0.6" fill="#fff" opacity="0.65"/><circle cx="355.9" cy="70.7" r="1.0" fill="#fff" opacity="0.33"/><circle cx="136.3" cy="5.7" r="1.3" fill="#fff" opacity="0.34"/><circle cx="250.1" cy="35.1" r="1.0" fill="#fff" opacity="0.76"/><circle cx="263.7" cy="26.5" r="0.8" fill="#fff" opacity="0.62"/><circle cx="6.1" cy="62.3" r="1.3" fill="#fff" opacity="0.76"/><circle cx="364.2" cy="11.2" r="0.8" fill="#fff" opacity="0.41"/><circle cx="3.8" cy="71.9" r="0.6" fill="#fff" opacity="0.65"/><circle cx="303.9" cy="25.4" r="0.6" fill="#fff" opacity="0.77"/><circle cx="207.3" cy="4.8" r="0.6" fill="#fff" opacity="0.53"/><circle cx="3.3" cy="14.4" r="1.3" fill="#fff" opacity="0.45"/><circle cx="26.3" cy="60.3" r="1.0" fill="#fff" opacity="0.52"/><circle cx="50.7" cy="9.3" r="0.8" fill="#fff" opacity="0.71"/><circle cx="259.1" cy="31.2" r="0.8" fill="#fff" opacity="0.36"/><circle cx="253.6" cy="72.3" r="0.8" fill="#fff" opacity="0.77"/><circle cx="90.8" cy="68.0" r="0.6" fill="#fff" opacity="0.59"/><circle cx="317.6" cy="47.3" r="1.0" fill="#fff" opacity="0.38"/><circle cx="165.9" cy="80.2" r="1.0" fill="#fff" opacity="0.48"/><circle cx="230.3" cy="13.5" r="1.3" fill="#fff" opacity="0.62"/><circle cx="173.9" cy="31.2" r="1.3" fill="#fff" opacity="0.68"/><circle cx="10.8" cy="26.8" r="0.8" fill="#fff" opacity="0.33"/><circle cx="137.8" cy="38.8" r="0.6" fill="#fff" opacity="0.43"/><circle cx="376.0" cy="75.1" r="1.3" fill="#fff" opacity="0.71"/><circle cx="235.4" cy="67.3" r="1.3" fill="#fff" opacity="0.35"/><circle cx="259.3" cy="53.8" r="0.8" fill="#fff" opacity="0.35"/><circle cx="381.0" cy="37.6" r="1.3" fill="#fff" opacity="0.63"/><circle cx="21.7" cy="76.6" r="0.8" fill="#fff" opacity="0.43"/><circle cx="46.8" cy="58.0" r="0.8" fill="#fff" opacity="0.64"/><circle cx="42.9" cy="20.7" r="1.0" fill="#fff" opacity="0.25"/><circle cx="147.9" cy="67.5" r="0.8" fill="#fff" opacity="0.49"/><circle cx="373.7" cy="20.6" r="1.0" fill="#fff" opacity="0.43"/><circle cx="184.6" cy="17.3" r="0.6" fill="#fff" opacity="0.65"/><circle cx="304.4" cy="80.9" r="0.6" fill="#fff" opacity="0.61"/><circle cx="29.2" cy="66.7" r="0.6" fill="#fff" opacity="0.67"/><circle cx="88.9" cy="10.6" r="1.0" fill="#fff" opacity="0.80"/><circle cx="330.9" cy="64.2" r="1.0" fill="#fff" opacity="0.65"/><circle cx="114.6" cy="8.8" r="1.0" fill="#fff" opacity="0.69"/><circle cx="288" cy="75" r="69" fill="url(#pcGlow)"/><circle cx="288" cy="66" r="17" fill="#FFC2F0" opacity=".85"/><g fill="#3A1480" opacity=".9"><rect x="-10" y="94" width="35" height="56"/><rect x="25" y="74" width="42" height="76"/><rect x="69" y="110" width="31" height="40"/><rect x="104" y="83" width="44" height="67"/><rect x="150" y="84" width="26" height="66"/><rect x="181" y="85" width="27" height="65"/><rect x="208" y="103" width="36" height="47"/><rect x="246" y="90" width="28" height="60"/><rect x="279" y="104" width="28" height="46"/><rect x="310" y="93" width="36" height="57"/><rect x="350" y="78" width="38" height="72"/><rect x="388" y="102" width="28" height="48"/></g><rect x="-14" y="101" width="48" height="49" fill="#1D0A52"/><rect x="-14" y="101" width="48" height="49" fill="url(#pcWin)" opacity=".55"/><rect x="9" y="83" width="2" height="18" fill="#1D0A52"/><circle cx="10" cy="82" r="1.8" fill="#FF3DBE"/><rect x="40" y="88" width="42" height="62" fill="#1D0A52"/><rect x="40" y="88" width="42" height="62" fill="url(#pcWin)" opacity=".55"/><rect x="60" y="70" width="2" height="18" fill="#1D0A52"/><circle cx="61" cy="69" r="1.8" fill="#FF3DBE"/><rect x="87" y="109" width="52" height="41" fill="#1D0A52"/><rect x="87" y="109" width="52" height="41" fill="url(#pcWin)" opacity=".55"/><rect x="144" y="110" width="33" height="40" fill="#1D0A52"/><rect x="144" y="110" width="33" height="40" fill="url(#pcWin)" opacity=".55"/><rect x="183" y="121" width="50" height="29" fill="#1D0A52"/><rect x="183" y="121" width="50" height="29" fill="url(#pcWin)" opacity=".55"/><rect x="241" y="114" width="50" height="36" fill="#1D0A52"/><rect x="241" y="114" width="50" height="36" fill="url(#pcWin)" opacity=".55"/><rect x="265" y="96" width="2" height="18" fill="#1D0A52"/><circle cx="266" cy="95" r="1.8" fill="#FF3DBE"/><rect x="298" y="104" width="38" height="46" fill="#1D0A52"/><rect x="298" y="104" width="38" height="46" fill="url(#pcWin)" opacity=".55"/><rect x="316" y="86" width="2" height="18" fill="#1D0A52"/><circle cx="317" cy="85" r="1.8" fill="#FF3DBE"/><rect x="339" y="121" width="47" height="29" fill="#1D0A52"/><rect x="339" y="121" width="47" height="29" fill="url(#pcWin)" opacity=".55"/><rect x="362" y="103" width="2" height="18" fill="#1D0A52"/><circle cx="362" cy="102" r="1.8" fill="#FF3DBE"/><rect x="392" y="113" width="31" height="37" fill="#1D0A52"/><rect x="392" y="113" width="31" height="37" fill="url(#pcWin)" opacity=".55"/><rect x="-20" y="134" width="58" height="16" fill="#0D0526"/><rect x="-20" y="134" width="58" height="16" fill="url(#pcWinB)" opacity=".4"/><rect x="50" y="133" width="44" height="17" fill="#0D0526"/><rect x="50" y="133" width="44" height="17" fill="url(#pcWinB)" opacity=".4"/><rect x="99" y="134" width="41" height="16" fill="#0D0526"/><rect x="99" y="134" width="41" height="16" fill="url(#pcWinB)" opacity=".4"/><rect x="144" y="122" width="31" height="28" fill="#0D0526"/><rect x="144" y="122" width="31" height="28" fill="url(#pcWinB)" opacity=".4"/><rect x="185" y="125" width="35" height="25" fill="#0D0526"/><rect x="185" y="125" width="35" height="25" fill="url(#pcWinB)" opacity=".4"/><rect x="224" y="122" width="32" height="28" fill="#0D0526"/><rect x="224" y="122" width="32" height="28" fill="url(#pcWinB)" opacity=".4"/><rect x="270" y="116" width="42" height="34" fill="#0D0526"/><rect x="270" y="116" width="42" height="34" fill="url(#pcWinB)" opacity=".4"/><rect x="322" y="132" width="54" height="18" fill="#0D0526"/><rect x="322" y="132" width="54" height="18" fill="url(#pcWinB)" opacity=".4"/><rect x="390" y="119" width="49" height="31" fill="#0D0526"/><rect x="390" y="119" width="49" height="31" fill="url(#pcWinB)" opacity=".4"/><path d="M0 117 L400 105" stroke="#FF3DBE" stroke-width="1.2" opacity=".55"/></svg></div>
+        <div class="profile-main">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+          <div class="profile-name"><span id="profileName">Tamu</span><span id="profileVerified" hidden><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2 3.1-.3 1.2 2.9 2.8 1.4-.6 3.1 1.6 2.7-2.1 2.3.1 3.1-3 .9-1.8 2.6-2.9-1.2-2.9 1.2-1.8-2.6-3-.9.1-3.1-2.1-2.3 1.6-2.7-.6-3.1 2.8-1.4 1.2-2.9 3.1.3L12 2Z"/><path d="m8.5 12.3 2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+          <div class="profile-role" id="profileRole">Belum masuk</div>
+        </div>
+
+        <div class="profile-guest" id="profileGuest">
+          <p>Masuk dengan Google untuk menyimpan profil, mengumpulkan XP, dan ikut berkomentar.</p>
+          <button type="button" class="btn btn--primary" id="profileSignInBtn">Masuk dengan Google</button>
+        </div>
+
+        <div class="profile-stats">
+          <div><b id="profileStatDownload">0</b><span>Download</span></div>
+          <div><b id="profileStatSaved">0</b><span>Tersimpan</span></div>
+          <div><b id="profileStatLevel">-</b><span>Level</span></div>
+        </div>
+
+        <div class="menu-list">
+          <button type="button" class="menu-row" data-profile-action="account"><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Informasi Akun</span><br><span class="menu-row__sub">Kelola data diri dan profil</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-view="download-history"><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Histori Download</span><br><span class="menu-row__sub">Lihat riwayat unduhan</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-view="favorites"><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Koleksi Saya</span><br><span class="menu-row__sub">Preset yang disimpan</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-view="stats"><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Statistik &amp; Leaderboard</span><br><span class="menu-row__sub">Peringkat dan pencapaian</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-profile-action="theme"><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Pengaturan</span><br><span class="menu-row__sub">Tema gelap / terang</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-profile-action="admin" id="profileAdminRow" hidden><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Panel Admin</span><br><span class="menu-row__sub">Kelola preset dan pengguna</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          <button type="button" class="menu-row" data-profile-action="logout" id="profileLogoutRow" hidden><span class="menu-row__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="menu-row__body"><span class="menu-row__title">Keluar</span><br><span class="menu-row__sub">Akhiri sesi di perangkat ini</span></span><span class="menu-row__chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></button>
+        </div>
+
+        <div class="upgrade-card" style="margin-top:18px;">
+          <div class="upgrade-card__head"><span class="upgrade-card__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg></span><span class="upgrade-card__title">Upgrade ke Premium</span></div>
+          <p class="upgrade-card__text">Akses semua aset tanpa batas, kualitas 4K, dan fitur eksklusif lainnya.</p>
+          <button type="button" class="btn btn--primary" data-view="pricing">Upgrade Sekarang</button>
         </div>
       </div>
     </section>
@@ -3141,17 +3580,13 @@ function renderCategoriesView(){
   const counts = {};
   State.presets.forEach(p => { counts[p.category] = (counts[p.category]||0) + 1; });
 
-  document.getElementById('categoryDirectoryGrid').innerHTML = cats.map(c => `
-    <div class="category-tile" data-cat="${escapeHtml(c)}">
-      <div class="category-tile__name">${escapeHtml(c)}</div>
-      <div class="category-tile__count">${counts[c]||0} preset</div>
-    </div>
-  `).join('');
+  document.getElementById('categoryDirectoryGrid').innerHTML = cats.map(c => categoryRowHtml(c, counts[c]||0)).join('');
 
   document.querySelectorAll('#categoryDirectoryGrid [data-cat]').forEach(tile => {
     tile.addEventListener('click', () => {
       State.filters.category = tile.dataset.cat;
       switchView('browse');
+      scrollToPresetGrid();
     });
   });
 }
@@ -4406,6 +4841,7 @@ function renderActiveFilters(){
 }
 
 function renderBrowseView(){
+  renderPopularCategories();
   renderCategoryChips();
   renderTagFilterPanel();
   renderActiveFilters();
@@ -4753,6 +5189,8 @@ function switchView(view){
   if(view === 'categories') renderCategoriesView();
   if(view === 'creators') renderCreatorsDirectory();
   if(view === 'download-history') renderDownloadHistoryView();
+  if(view === 'profile') renderProfileView();
+  if(view === 'pricing') renderPricingView();
 
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -5302,7 +5740,7 @@ function closeAdminLogin(){ closeOverlay(adminLoginOverlay); }
 
 document.getElementById('adminOpenBtn').addEventListener('click', handleAdminEntry);
 document.getElementById('adminOpenBtnFooter').addEventListener('click', handleAdminEntry);
-document.querySelector('[data-action="open-admin"]').addEventListener('click', handleAdminEntry);
+{ const openAdminTab = document.querySelector('[data-action="open-admin"]'); if(openAdminTab) openAdminTab.addEventListener('click', handleAdminEntry); }
 document.getElementById('adminLoginClose').addEventListener('click', closeAdminLogin);
 adminLoginOverlay.addEventListener('click', (e) => { if(e.target === adminLoginOverlay) closeAdminLogin(); });
 
@@ -7017,6 +7455,148 @@ function init(){
   subscribeToPresets(); // wires up realtime Firestore listener + triggers handleDeepLink() once loaded
   subscribeToSettings(); // announcement banner + maintenance mode, live
 }
+
+
+/* ============================================================
+   REDESIGN v2 — helpers (kategori berthumbnail, pricing, profil, tombol hero)
+============================================================ */
+const CAT_FALLBACK_GRADS = [
+  'linear-gradient(135deg,#FF2FB9,#6A1FB8)',
+  'linear-gradient(135deg,#7B3BFF,#1E7BFF)',
+  'linear-gradient(135deg,#FF8A3D,#FF2FB9)',
+  'linear-gradient(135deg,#19D3C5,#7B3BFF)',
+  'linear-gradient(135deg,#B93BFF,#FF3D7A)'
+];
+function categoryRowHtml(cat, count){
+  const sample = State.presets.find(p => p.category === cat && resolveThumb(p));
+  const thumb = sample ? resolveThumb(sample) : null;
+  let hash = 0;
+  for(let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) >>> 0;
+  const grad = CAT_FALLBACK_GRADS[hash % CAT_FALLBACK_GRADS.length];
+  const media = thumb
+    ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy">`
+    : escapeHtml(cat.charAt(0).toUpperCase());
+  return `
+    <button type="button" class="cat-row" data-cat="${escapeHtml(cat)}">
+      <span class="cat-row__thumb" style="background:${grad};">${media}</span>
+      <span class="cat-row__body">
+        <span class="cat-row__name">${escapeHtml(cat)}</span><br>
+        <span class="cat-row__count">${count} preset</span>
+      </span>
+      <svg class="cat-row__chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </button>`;
+}
+
+function scrollToPresetGrid(){
+  const el = document.getElementById('allPresetsHeading');
+  if(el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 30);
+}
+
+function renderPopularCategories(){
+  const wrap = document.getElementById('popularCategories');
+  if(!wrap) return;
+  const counts = {};
+  State.presets.forEach(p => { if(p.category) counts[p.category] = (counts[p.category]||0) + 1; });
+  const top = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 3);
+  wrap.innerHTML = top.length
+    ? top.map(c => categoryRowHtml(c, counts[c])).join('')
+    : '';
+  wrap.parentElement && wrap.previousElementSibling && (wrap.previousElementSibling.hidden = top.length === 0);
+  wrap.querySelectorAll('[data-cat]').forEach(row => {
+    row.addEventListener('click', () => {
+      State.filters.category = row.dataset.cat;
+      renderBrowseView();
+      scrollToPresetGrid();
+    });
+  });
+}
+
+document.getElementById('heroExploreBtn').addEventListener('click', scrollToPresetGrid);
+
+document.getElementById('topSearchBtn').addEventListener('click', () => {
+  if(State.currentView !== 'browse') switchView('browse');
+  const input = document.getElementById('searchInput');
+  setTimeout(() => {
+    input.scrollIntoView({ behavior:'smooth', block:'center' });
+    input.focus({ preventScroll:true });
+  }, 60);
+});
+
+/* ---- Pricing: tombol Bulanan/Tahunan (diskon 20%) ---- */
+let pricingBilling = 'monthly';
+function formatRupiah(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function renderPricingView(){
+  document.querySelectorAll('[data-billing]').forEach(b => b.classList.toggle('is-active', b.dataset.billing === pricingBilling));
+  document.querySelectorAll('[data-price]').forEach(el => {
+    const monthly = Number(el.dataset.price);
+    el.textContent = formatRupiah(pricingBilling === 'yearly' ? monthly * 0.8 : monthly);
+  });
+  document.querySelectorAll('[data-note]').forEach(el => {
+    const monthly = Number(el.dataset.note);
+    el.textContent = pricingBilling === 'yearly' ? `Ditagih ${formatRupiah(monthly * 12 * 0.8)} per tahun` : '';
+  });
+}
+document.querySelectorAll('[data-billing]').forEach(b => {
+  b.addEventListener('click', () => { pricingBilling = b.dataset.billing; renderPricingView(); });
+});
+document.querySelectorAll('[data-plan]').forEach(b => {
+  b.addEventListener('click', () => {
+    if(b.dataset.plan === 'free') switchView('browse');
+    else showToast('Pembayaran paket berbayar belum diaktifkan.', 'info');
+  });
+});
+
+/* ---- Profil ---- */
+function renderProfileView(){
+  const u = State.currentUser;
+  const signedIn = !!u || State.isAdmin;
+  const name = u ? (u.displayName || 'Pengguna MotionVault') : (State.isAdmin ? 'Admin' : 'Tamu');
+
+  const av = document.getElementById('profileAvatar');
+  if(u && u.photoURL){
+    av.innerHTML = `<img src="${escapeHtml(u.photoURL)}" alt="">`;
+  }else{
+    av.textContent = name.charAt(0).toUpperCase();
+  }
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileVerified').hidden = !State.isAdmin;
+  document.getElementById('profileRole').textContent = State.isAdmin ? 'Admin MotionVault' : (u ? 'Member' : 'Belum masuk');
+
+  document.getElementById('profileGuest').hidden = signedIn;
+  document.getElementById('profileStatDownload').textContent = formatNumber(State.downloadHistory.length);
+  document.getElementById('profileStatSaved').textContent = formatNumber(State.favorites.length);
+  document.getElementById('profileStatLevel').textContent = u ? computeLevel(u.xp) : '-';
+  document.getElementById('profileAdminRow').hidden = !State.isAdmin;
+  document.getElementById('profileLogoutRow').hidden = !u;
+}
+
+/* kartu upgrade di drawer juga harus menutup drawer */
+sidebarEl.querySelectorAll('.upgrade-card [data-view]').forEach(el => el.addEventListener('click', closeSidebar));
+
+/* halaman profil ikut segar saat status login berubah */
+const _refreshVisitorAuthUIOrig = refreshVisitorAuthUI;
+refreshVisitorAuthUI = function(){
+  _refreshVisitorAuthUIOrig.apply(this, arguments);
+  if(State.currentView === 'profile') renderProfileView();
+};
+
+document.getElementById('profileSignInBtn').addEventListener('click', signInWithGoogle);
+document.querySelectorAll('[data-profile-action]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const action = btn.dataset.profileAction;
+    if(action === 'account'){
+      if(State.isAdmin) handleAdminEntry();
+      else if(State.currentUser) openMyProfileModal();
+      else signInWithGoogle();
+    }else if(action === 'theme'){
+      document.getElementById('themeToggleBtn').click();
+    }else if(action === 'admin'){
+      handleAdminEntry();
+    }else if(action === 'logout'){
+      auth.signOut();
+    }
+  });
+});
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', init);
