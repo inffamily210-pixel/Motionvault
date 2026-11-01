@@ -2,7 +2,7 @@
 
 Website preset Alight Motion & CapCut dengan video demo. Data preset disimpan di **Firebase Firestore** (jadi kelihatan oleh semua pengunjung, bukan cuma di browser admin sendiri), dan login admin pakai **Firebase Authentication**.
 
-> **Catatan:** paket ini sudah diisi config Firebase dari project **motionvault-48b63** (project khusus, sudah kamu buat sendiri) dan aturan keamanannya sudah dikunci khusus untuk email **nezzstore081@gmail.com** sebagai admin. Kalau nanti ganti akun admin, ingat update di dua tempat: `firestore.rules` (di Firebase Console) dan `ADMIN_EMAILS` di dalam `index.html`.
+> **Catatan:** paket ini sudah diisi config Firebase dari project **ninzsteam** (project khusus, sudah kamu buat sendiri) dan aturan keamanannya sudah dikunci khusus untuk email **nezzstore081@gmail.com** sebagai admin. Kalau nanti ganti akun admin, ingat update di dua tempat: `firestore.rules` (di Firebase Console) dan `ADMIN_EMAILS` di dalam `index.html`.
 
 Isi paket ini:
 ```
@@ -16,11 +16,11 @@ README.md         → panduan ini
 
 ---
 
-## 1. Setup di Firebase Console (project motionvault-48b63)
+## 1. Setup di Firebase Console (project ninzsteam)
 
 Project-nya sudah ada, tinggal aktifkan 3 hal ini:
 
-1. Buka [console.firebase.google.com](https://console.firebase.google.com) → pilih project **motionvault-48b63**.
+1. Buka [console.firebase.google.com](https://console.firebase.google.com) → pilih project **ninzsteam**.
 2. **Build → Firestore Database** → kalau belum ada, klik **Create database** → pilih lokasi (mis. `asia-southeast2`) → mode **Production**.
 3. Buka tab **Rules** → hapus isinya → tempel isi file `firestore.rules` dari paket ini → **Publish**.
 4. **Build → Authentication → Get started** (kalau belum) → aktifkan provider **Email/Password**.
