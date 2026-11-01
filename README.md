@@ -308,3 +308,8 @@ Jenis player dikenali otomatis dari link: `.mp4/.webm` memakai pemutar video, `.
 Gunakan hanya video yang kamu punya hak atau izin untuk menayangkannya. Form admin meminta centang pernyataan itu sebelum menyimpan.
 
 **Video dari Google Drive:** unggah videonya ke Drive, klik kanan → Bagikan → ubah akses ke **"Siapa saja yang memiliki link"**, lalu tempel link share-nya di kolom episode. Aplikasi mengubahnya otomatis ke pemutar `/preview`. Catatan: Drive punya batas kuota unduhan/tayangan untuk file yang ramai ditonton, jadi cocok untuk skala kecil.
+
+
+## 7. AnimeUp (jadwal rilis anime)
+
+Menu **AnimeUp** menampilkan jadwal rilis anime per hari (Senin–Minggu) beserta detail lengkap (jam tayang WIB, skor, studio, genre, sinopsis, trailer) dalam jendela popup, tanpa pindah halaman. Datanya diambil langsung dari browser pengunjung lewat API publik **Jikan** (data MyAnimeList), jadi tidak perlu setup Firebase atau API key. Jikan punya batas request per detik, dan aplikasi akan menampilkan tombol "Coba lagi" jika server sedang ramai. Fitur ini hanya menampilkan metadata, tanpa video.

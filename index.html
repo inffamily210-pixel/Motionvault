@@ -244,6 +244,40 @@ body.is-watching .main, body.is-watching main{ padding-bottom:20px; }
 .anime-card__title{ font-size:13.5px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .anime-card__meta{ font-size:12px; color:var(--text-dim); }
 .anime-player{ margin-top:14px; width:100%; aspect-ratio:16/9; background:#000; border-radius:var(--radius); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+/* ---- AnimeUp ---- */
+.au-tabs{ display:flex; gap:8px; overflow-x:auto; padding:4px 0 10px; scrollbar-width:none; }
+.au-tabs::-webkit-scrollbar{ display:none; }
+.au-tab{ flex:0 0 auto; background:var(--surface); border:1px solid var(--surface-border); color:var(--text-dim); font-weight:700; font-size:13px; padding:8px 16px; border-radius:var(--radius-pill); cursor:pointer; }
+.au-tab.is-active{ background:var(--grad); color:#fff; border-color:transparent; }
+.au-card{ background:none; border:none; padding:0; text-align:left; color:var(--text); cursor:pointer; display:flex; flex-direction:column; gap:6px; }
+.au-card__poster{ position:relative; display:block; aspect-ratio:2/3; border-radius:var(--radius); overflow:hidden; background:var(--surface); border:1px solid var(--surface-border); transition:transform .18s, border-color .18s; }
+.au-card:hover .au-card__poster{ transform:translateY(-3px); border-color:var(--accent); }
+.au-card__poster img{ width:100%; height:100%; object-fit:cover; display:block; }
+.au-card__time{ position:absolute; left:8px; top:8px; background:var(--grad); color:#fff; font-size:11px; font-weight:800; padding:3px 8px; border-radius:var(--radius-pill); }
+.au-card__title{ font-size:13.5px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.au-card__meta{ font-size:12px; color:var(--text-dim); }
+.au-msg{ text-align:center; color:var(--text-dim); padding:18px 0; font-size:14px; }
+.au-modal{ position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.72); display:flex; align-items:flex-end; justify-content:center; }
+.au-modal[hidden]{ display:none; }
+@media (min-width:700px){ .au-modal{ align-items:center; } }
+.au-modal__card{ position:relative; width:100%; max-width:640px; max-height:90vh; overflow-y:auto; background:var(--bg-elev, #14122b); color:var(--text); border:1px solid var(--surface-border); border-radius:20px 20px 0 0; padding:20px 18px 28px; }
+@media (min-width:700px){ .au-modal__card{ border-radius:20px; } }
+.au-modal__close{ position:sticky; top:0; float:right; z-index:2; width:34px; height:34px; border-radius:50%; border:1px solid var(--surface-border); background:var(--surface); color:var(--text); cursor:pointer; }
+.au-modal__top{ display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+.au-modal__poster{ width:110px; border-radius:var(--radius-sm); aspect-ratio:2/3; object-fit:cover; flex-shrink:0; }
+.au-modal__title{ font-size:18px; font-weight:800; margin:0 0 2px; line-height:1.25; }
+.au-modal__sub{ color:var(--text-dim); font-size:12.5px; margin-bottom:6px; }
+.au-modal__score{ font-weight:800; color:#ffc94d; margin-bottom:8px; }
+.au-modal__score small{ color:var(--text-dim); font-weight:500; }
+.au-modal__chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.au-rows{ border-top:1px solid var(--surface-border); margin-top:6px; }
+.au-row{ display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid var(--surface-border); font-size:13px; }
+.au-row span{ color:var(--text-dim); flex-shrink:0; }
+.au-row b{ text-align:right; font-weight:600; }
+.au-modal__h{ margin:16px 0 6px; font-size:14px; }
+.au-modal__syn{ font-size:13.5px; line-height:1.6; color:var(--text-dim); margin:0 0 14px; white-space:pre-line; }
+#auTrailerBox iframe{ width:100%; aspect-ratio:16/9; border:0; border-radius:var(--radius); margin-top:6px; background:#000; }
+.au-credit{ font-size:11px; color:var(--text-dim); margin:14px 0 0; }
 .anime-player[hidden], .anime-now[hidden]{ display:none; }
 .anime-player iframe, .anime-player video{ width:100%; height:100%; border:0; background:#000; }
 .anime-player__empty{ color:#bbb; font-size:14px; padding:20px; text-align:center; }
@@ -1611,6 +1645,10 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg>
         Riwayat Download
       </button>
+      <button class="sidebar__link" data-view="animeup" type="button">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg>
+        AnimeUp
+      </button>
       <button class="sidebar__link" data-view="anime" type="button">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9.5 5 2.5-5 2.5v-5Z"/></svg>
         Anime
@@ -1674,6 +1712,7 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <button class="topnav__btn" data-view="favorites" type="button">Favorit <span class="count-pill" id="favCountPill">0</span></button>
         <button class="topnav__btn" data-view="stats" type="button">Statistik</button>
         <button class="topnav__btn" data-view="anime" type="button">Anime</button>
+        <button class="topnav__btn" data-view="animeup" type="button">AnimeUp</button>
       </nav>
 
       <div class="topbar__actions">
@@ -1968,6 +2007,29 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <div class="anime-eps" id="animeEps"></div>
       </div>
     </section>
+
+    <!-- ---------- ANIMEUP VIEW ---------- -->
+    <section class="view" id="view-animeup" data-view-panel="animeup" hidden>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-head__title">AnimeUp</h2>
+            <p class="section-head__sub" id="auDayTitle">Jadwal rilis anime</p>
+          </div>
+        </div>
+        <div class="au-tabs" id="auTabs"></div>
+        <p class="data-card__hint">Jam tayang dalam WIB. Ketuk anime untuk melihat detail lengkap.</p>
+        <div class="anime-grid" id="auGrid"></div>
+        <div class="au-msg" id="auMsg" hidden></div>
+        <div style="text-align:center; padding:6px 0 34px;"><button type="button" class="btn btn--ghost" id="auMoreBtn" hidden>Muat lebih banyak</button></div>
+      </div>
+    </section>
+    <div class="au-modal" id="auModal" hidden>
+      <div class="au-modal__card" role="dialog" aria-modal="true" aria-label="Detail anime">
+        <button type="button" class="au-modal__close" id="auModalClose" aria-label="Tutup">✕</button>
+        <div id="auModalBody"></div>
+      </div>
+    </div>
 
     <!-- ---------- CREATOR DIRECTORY VIEW ---------- -->
     <section class="view" id="view-creators" data-view-panel="creators" hidden>
@@ -5294,6 +5356,8 @@ function switchView(view){
   if(view === 'profile') renderProfileView();
   if(view === 'pricing') renderPricingView();
   if(view === 'anime') renderAnimeView();
+  if(view === 'animeup') renderAnimeUp();
+  if(view !== 'animeup') closeAuDetail();
   if(view !== 'anime-detail') stopAnimePlayer();
   document.body.classList.remove('is-watching');
 
@@ -7834,9 +7898,198 @@ function initAnimeUI(){
   });
 }
 
+/* ============================================================
+   ANIMEUP — jadwal rilis anime (data publik Jikan / MyAnimeList)
+   Hanya metadata (judul, jam tayang, sinopsis, poster, skor).
+   Tidak ada video; detail dibuka sebagai modal di dalam situs.
+============================================================ */
+const AU_API = 'https://api.jikan.moe/v4';
+const AU_DAYS = [['sunday','Min'],['monday','Sen'],['tuesday','Sel'],['wednesday','Rab'],['thursday','Kam'],['friday','Jum'],['saturday','Sab']];
+const AU_DAY_FULL = { sunday:'Minggu', monday:'Senin', tuesday:'Selasa', wednesday:'Rabu', thursday:'Kamis', friday:'Jumat', saturday:'Sabtu' };
+let auDay = null;
+let auCache = {};
+let auById = {};
+let auBusy = false;
+
+function auToWib(b){
+  if(!b || !b.time) return '';
+  const m = String(b.time).match(/^(\d{1,2}):(\d{2})$/);
+  if(!m) return '';
+  let mins = (+m[1]) * 60 + (+m[2]);
+  if((b.timezone || 'Asia/Tokyo') !== 'Asia/Tokyo') return b.time + ' ' + (b.timezone || '');
+  mins -= 120; // JST (UTC+9) -> WIB (UTC+7)
+  if(mins < 0) mins += 1440;
+  return String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0') + ' WIB';
+}
+function auSortKey(b){
+  if(!b || !b.time) return 9999;
+  const m = String(b.time).match(/^(\d{1,2}):(\d{2})$/);
+  return m ? (+m[1]) * 60 + (+m[2]) : 9999;
+}
+
+function renderAnimeUp(){
+  if(auDay === null) auDay = AU_DAYS[new Date().getDay()][0];
+  const tabs = document.getElementById('auTabs');
+  tabs.innerHTML = AU_DAYS.slice(1).concat([AU_DAYS[0]]).map(([k, label]) =>
+    `<button type="button" class="au-tab${k === auDay ? ' is-active' : ''}" data-au-day="${k}">${label}</button>`).join('');
+  document.getElementById('auDayTitle').textContent = 'Jadwal ' + AU_DAY_FULL[auDay];
+  const c = auCache[auDay];
+  if(!c){ auLoadMore(); return; }
+  drawAuGrid();
+}
+
+function drawAuGrid(){
+  const c = auCache[auDay] || { items: [], hasNext: false };
+  const grid = document.getElementById('auGrid');
+  const msg = document.getElementById('auMsg');
+  const more = document.getElementById('auMoreBtn');
+  grid.innerHTML = c.items.map(a => {
+    const img = animeSafeUrl(a.images && a.images.jpg && a.images.jpg.image_url);
+    const time = auToWib(a.broadcast);
+    const meta = [a.type, a.score ? '★ ' + a.score : ''].filter(Boolean).join(' • ');
+    return `<button type="button" class="au-card" data-au-id="${a.mal_id}">
+      <span class="au-card__poster">${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span class="anime-card__ph">🎬</span>'}
+        ${time ? `<span class="au-card__time">${escapeHtml(time)}</span>` : ''}
+      </span>
+      <span class="au-card__title">${escapeHtml(a.title_english || a.title || '')}</span>
+      <span class="au-card__meta">${escapeHtml(meta)}</span>
+    </button>`;
+  }).join('');
+  if(c.error){
+    msg.hidden = false;
+    msg.innerHTML = escapeHtml(c.error) + ' <button type="button" class="btn btn--ghost btn--sm" id="auRetryBtn">Coba lagi</button>';
+  }else if(auBusy){
+    msg.hidden = false; msg.textContent = 'Memuat jadwal…';
+  }else if(!c.items.length){
+    msg.hidden = false; msg.textContent = 'Belum ada jadwal untuk hari ini.';
+  }else{
+    msg.hidden = true;
+  }
+  more.hidden = !(c.hasNext && !auBusy && !c.error);
+}
+
+async function auLoadMore(){
+  if(auBusy) return;
+  const day = auDay;
+  let c = auCache[day];
+  if(!c){ c = auCache[day] = { items: [], page: 0, hasNext: true, error: '' }; }
+  if(!c.hasNext) return;
+  auBusy = true; c.error = '';
+  drawAuGrid();
+  try{
+    const res = await fetch(`${AU_API}/schedules?filter=${day}&sfw=true&limit=25&page=${c.page + 1}`);
+    if(res.status === 429) throw new Error('Server jadwal sedang ramai. Tunggu sebentar lalu coba lagi.');
+    if(!res.ok) throw new Error('Gagal memuat jadwal (kode ' + res.status + ').');
+    const json = await res.json();
+    const seen = new Set(c.items.map(x => x.mal_id));
+    (json.data || []).forEach(a => {
+      if(seen.has(a.mal_id)) return;
+      seen.add(a.mal_id);
+      c.items.push(a);
+      auById[a.mal_id] = a;
+    });
+    c.items.sort((x, y) => auSortKey(x.broadcast) - auSortKey(y.broadcast));
+    c.page += 1;
+    c.hasNext = !!(json.pagination && json.pagination.has_next_page);
+  }catch(err){
+    console.error('AnimeUp error:', err);
+    c.error = (err && err.message && !/Failed to fetch/i.test(err.message)) ? err.message : 'Tidak bisa terhubung ke server jadwal. Periksa koneksi internetmu.';
+  }finally{
+    auBusy = false;
+    if(day === auDay && State.currentView === 'animeup') drawAuGrid();
+  }
+}
+
+function auRow(label, value){
+  return value ? `<div class="au-row"><span>${escapeHtml(label)}</span><b>${escapeHtml(String(value))}</b></div>` : '';
+}
+
+function openAuDetail(id){
+  const a = auById[id];
+  if(!a) return;
+  const img = animeSafeUrl(a.images && a.images.jpg && (a.images.jpg.large_image_url || a.images.jpg.image_url));
+  const chips = [].concat(a.genres || [], a.themes || []).map(g => `<span class="chip">${escapeHtml(g.name)}</span>`).join('');
+  const studios = (a.studios || []).map(s => s.name).join(', ');
+  const time = auToWib(a.broadcast);
+  const trailer = a.trailer && typeof a.trailer.embed_url === 'string' && /^https:\/\/www\.youtube\.com\/embed\//.test(a.trailer.embed_url) ? a.trailer.embed_url : '';
+  document.getElementById('auModalBody').innerHTML = `
+    <div class="au-modal__top">
+      ${img ? `<img class="au-modal__poster" src="${escapeHtml(img)}" alt="" referrerpolicy="no-referrer">` : ''}
+      <div>
+        <h3 class="au-modal__title">${escapeHtml(a.title_english || a.title || '')}</h3>
+        ${a.title_japanese ? `<div class="au-modal__sub">${escapeHtml(a.title_japanese)}</div>` : ''}
+        ${a.score ? `<div class="au-modal__score">★ ${escapeHtml(String(a.score))}${a.scored_by ? ` <small>(${Number(a.scored_by).toLocaleString('id-ID')} penilai)</small>` : ''}</div>` : ''}
+        <div class="au-modal__chips">${chips}</div>
+      </div>
+    </div>
+    <div class="au-rows">
+      ${auRow('Jam tayang', time ? (AU_DAY_FULL[auDay] || '') + ' • ' + time : '')}
+      ${auRow('Jadwal asli', a.broadcast && a.broadcast.string)}
+      ${auRow('Tipe', a.type)}
+      ${auRow('Status', a.status)}
+      ${auRow('Episode', a.episodes)}
+      ${auRow('Durasi', a.duration)}
+      ${auRow('Tayang', a.aired && a.aired.string)}
+      ${auRow('Musim', [a.season, a.year].filter(Boolean).join(' '))}
+      ${auRow('Studio', studios)}
+      ${auRow('Sumber', a.source)}
+      ${auRow('Rating usia', a.rating)}
+      ${auRow('Peringkat', a.rank ? '#' + a.rank : '')}
+      ${auRow('Popularitas', a.popularity ? '#' + a.popularity : '')}
+    </div>
+    <h4 class="au-modal__h">Sinopsis</h4>
+    <p class="au-modal__syn">${escapeHtml(a.synopsis || 'Belum ada sinopsis.')}</p>
+    ${trailer ? `<button type="button" class="btn btn--primary" id="auTrailerBtn" data-src="${escapeHtml(trailer)}">▶ Tonton Trailer</button><div id="auTrailerBox"></div>` : ''}
+    <p class="au-credit">Data: MyAnimeList via Jikan.</p>`;
+  const modal = document.getElementById('auModal');
+  modal.hidden = false;
+  modal.querySelector('.au-modal__card').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closeAuDetail(){
+  const modal = document.getElementById('auModal');
+  if(modal.hidden) return;
+  modal.hidden = true;
+  document.getElementById('auModalBody').innerHTML = ''; // hentikan trailer
+  document.body.style.overflow = '';
+}
+
+function initAnimeUp(){
+  document.getElementById('auTabs').addEventListener('click', e => {
+    const b = e.target.closest('[data-au-day]');
+    if(!b || b.dataset.auDay === auDay) return;
+    auDay = b.dataset.auDay;
+    renderAnimeUp();
+  });
+  document.getElementById('auGrid').addEventListener('click', e => {
+    const c = e.target.closest('[data-au-id]');
+    if(c) openAuDetail(c.dataset.auId);
+  });
+  document.getElementById('auMoreBtn').addEventListener('click', auLoadMore);
+  document.getElementById('auMsg').addEventListener('click', e => {
+    if(e.target.closest('#auRetryBtn')){ const c = auCache[auDay]; if(c) c.error = ''; auLoadMore(); }
+  });
+  const modal = document.getElementById('auModal');
+  modal.addEventListener('click', e => {
+    if(e.target === modal || e.target.closest('#auModalClose')) closeAuDetail();
+    const t = e.target.closest('#auTrailerBtn');
+    if(t){
+      const f = document.createElement('iframe');
+      f.src = t.dataset.src;
+      f.allowFullscreen = true;
+      f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+      document.getElementById('auTrailerBox').replaceChildren(f);
+      t.hidden = true;
+    }
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAuDetail(); });
+}
+
 function init(){
   loadState();
   initAnimeUI();
+  initAnimeUp();
   subscribeToAnime();
   applyThemeIcon();
 
