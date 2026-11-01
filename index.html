@@ -7541,6 +7541,12 @@ let animeEditingId = null;
 let animeHls = null;
 let hlsLoadPromise = null;
 
+function animeTitle(a){
+  // Rapikan judul yang tidak sengaja terisi dua kali ("AbcAbc" -> "Abc")
+  const t = String((a && a.title) || '').trim();
+  const m = t.match(/^(.{3,}?)\s*\1$/);
+  return m ? m[1].trim() : t;
+}
 function animeSafeUrl(u){
   u = String(u || '').trim();
   return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : '';
@@ -7618,7 +7624,7 @@ function renderAnimeView(){
       <span class="anime-card__poster">${poster ? `<img src="${escapeHtml(poster)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span class="anime-card__ph">🎬</span>'}
         <span class="anime-card__badge">${epCount} Eps</span>
       </span>
-      <span class="anime-card__title">${escapeHtml(a.title)}</span>
+      <span class="anime-card__title">${escapeHtml(animeTitle(a))}</span>
       <span class="anime-card__meta">${escapeHtml([a.year, a.status].filter(Boolean).join(' • '))}</span>
     </button>`;
   }).join('');
@@ -7645,7 +7651,7 @@ function renderAnimeDetail(a){
   document.getElementById('animeInfo').innerHTML = `
     ${poster ? `<img class="anime-info__poster" src="${escapeHtml(poster)}" alt="" referrerpolicy="no-referrer">` : ''}
     <div class="anime-info__body">
-      <h2 class="anime-info__title">${escapeHtml(a.title)}</h2>
+      <h2 class="anime-info__title">${escapeHtml(animeTitle(a))}</h2>
       <div class="anime-info__meta">${escapeHtml([a.year, a.status].filter(Boolean).join(' • '))}</div>
       <div class="anime-info__genres">${(a.genres || []).map(g => `<span class="chip">${escapeHtml(g)}</span>`).join('')}</div>
       <p class="anime-info__syn">${escapeHtml(a.synopsis || '')}</p>
@@ -7683,6 +7689,8 @@ function playAnimeEpisode(index){
   document.getElementById('animePlayer').hidden = false;
   document.getElementById('animeNow').hidden = false;
   document.body.classList.add('is-watching');
+  const startBtn = document.getElementById('animeStartBtn');
+  if(startBtn) startBtn.style.display = 'none';
   const url = animeSafeUrl(ep.url);
   const box = document.getElementById('animePlayer');
   stopAnimePlayer();
@@ -7716,7 +7724,7 @@ function playAnimeEpisode(index){
   }
 
   document.querySelectorAll('#animeEps .anime-ep').forEach((b, i) => b.classList.toggle('is-active', i === index));
-  document.getElementById('animeNowTitle').textContent = `${a.title} — Ep ${ep.num}${ep.title ? ': ' + ep.title : ''}`;
+  document.getElementById('animeNowTitle').textContent = `${animeTitle(a)} — Ep ${ep.num}${ep.title ? ': ' + ep.title : ''}`;
   document.getElementById('animePlayer').scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.getElementById('animePrevBtn').disabled = index <= 0;
   document.getElementById('animeNextBtn').disabled = index >= a.episodes.length - 1;
@@ -7738,7 +7746,7 @@ function renderAdminAnimeList(){
   if(!animeList.length){ box.innerHTML = '<p class="data-card__hint">Belum ada anime.</p>'; return; }
   box.innerHTML = animeList.map(a => `
     <div class="anime-admin-row">
-      <div class="anime-admin-row__t"><b>${escapeHtml(a.title)}</b><small>${(a.episodes || []).length} episode</small></div>
+      <div class="anime-admin-row__t"><b>${escapeHtml(animeTitle(a))}</b><small>${(a.episodes || []).length} episode</small></div>
       <button type="button" class="btn btn--ghost btn--sm" data-anime-edit="${escapeHtml(a.id)}">Edit</button>
       <button type="button" class="btn btn--ghost btn--sm" data-anime-del="${escapeHtml(a.id)}">Hapus</button>
     </div>`).join('');
