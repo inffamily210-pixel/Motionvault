@@ -214,5 +214,12 @@ service cloud.firestore {
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 60;
     }
+    // Fitur Anime: semua orang boleh nonton (baca), cuma admin yang boleh
+    // tambah/ubah/hapus anime dan episodenya.
+    match /anime/{animeId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null
+                    && request.auth.token.email == 'nezzstore081@gmail.com';
+    }
   }
 }

@@ -229,6 +229,39 @@ button{ font-family:inherit; }
   display:flex; align-items:center; gap:6px;
 }
 .topnav__btn:hover{ color:var(--text); }
+/* ---- Anime streaming ---- */
+.anime-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding-bottom:30px; }
+@media (min-width:560px){ .anime-grid{ grid-template-columns:repeat(3,1fr); gap:16px; } }
+@media (min-width:860px){ .anime-grid{ grid-template-columns:repeat(5,1fr); } }
+.anime-card{ background:none; border:none; padding:0; text-align:left; color:var(--text); cursor:pointer; display:flex; flex-direction:column; gap:6px; }
+.anime-card__poster{ position:relative; display:block; aspect-ratio:2/3; border-radius:var(--radius); overflow:hidden; background:var(--surface); border:1px solid var(--surface-border); transition:transform .18s, border-color .18s; }
+.anime-card:hover .anime-card__poster{ transform:translateY(-3px); border-color:var(--accent); }
+.anime-card__poster img{ width:100%; height:100%; object-fit:cover; display:block; }
+.anime-card__ph{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-size:34px; }
+.anime-card__badge{ position:absolute; left:8px; bottom:8px; background:rgba(0,0,0,.7); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:var(--radius-pill); }
+.anime-card__title{ font-size:13.5px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.anime-card__meta{ font-size:12px; color:var(--text-dim); }
+.anime-player{ margin-top:14px; width:100%; aspect-ratio:16/9; background:#000; border-radius:var(--radius); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.anime-player iframe, .anime-player video{ width:100%; height:100%; border:0; background:#000; }
+.anime-player__empty{ color:#bbb; font-size:14px; padding:20px; text-align:center; }
+.anime-now{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:12px 0; }
+.anime-now__title{ font-weight:700; font-size:14.5px; flex:1 1 200px; }
+.anime-now__btns{ display:flex; gap:8px; }
+.anime-now__btns .btn:disabled{ opacity:.4; cursor:not-allowed; }
+.anime-info{ display:flex; gap:16px; align-items:flex-start; margin-top:8px; }
+.anime-info__poster{ width:110px; border-radius:var(--radius-sm); flex-shrink:0; aspect-ratio:2/3; object-fit:cover; }
+.anime-info__title{ font-size:18px; font-weight:800; margin:0 0 4px; }
+.anime-info__meta{ color:var(--text-dim); font-size:13px; margin-bottom:8px; }
+.anime-info__genres{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.anime-info__syn{ font-size:13.5px; line-height:1.55; color:var(--text-dim); margin:0; }
+.anime-eps{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; padding-bottom:40px; }
+.anime-ep{ display:flex; align-items:center; gap:8px; text-align:left; background:var(--surface); border:1px solid var(--surface-border); color:var(--text); border-radius:var(--radius-sm); padding:10px 12px; cursor:pointer; font-size:12.5px; }
+.anime-ep b{ color:var(--accent); min-width:22px; }
+.anime-ep span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.anime-ep.is-active{ background:var(--accent-soft); border-color:var(--accent); }
+.anime-admin-row{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--surface-border); }
+.anime-admin-row__t{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.anime-admin-row__t small{ color:var(--text-dim); }
 .topnav__btn.is-active{ background:var(--accent); color:#fff; }
 
 .topbar__actions{ display:flex; align-items:center; gap:8px; }
@@ -1575,6 +1608,10 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg>
         Riwayat Download
       </button>
+      <button class="sidebar__link" data-view="anime" type="button">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9.5 5 2.5-5 2.5v-5Z"/></svg>
+        Anime
+      </button>
       <button class="sidebar__link" id="sidebarNotifLink" data-sidebar-action="notif" type="button" hidden>
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Notifikasi
@@ -1633,6 +1670,7 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <button class="topnav__btn is-active" data-view="browse" type="button">Jelajah</button>
         <button class="topnav__btn" data-view="favorites" type="button">Favorit <span class="count-pill" id="favCountPill">0</span></button>
         <button class="topnav__btn" data-view="stats" type="button">Statistik</button>
+        <button class="topnav__btn" data-view="anime" type="button">Anime</button>
       </nav>
 
       <div class="topbar__actions">
@@ -1893,6 +1931,38 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
           </div>
         </div>
         <div class="category-grid" id="categoryDirectoryGrid"></div>
+      </div>
+    </section>
+
+    <!-- ---------- ANIME VIEWS ---------- -->
+    <section class="view" id="view-anime" data-view-panel="anime" hidden>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-head__title">Anime</h2>
+            <p class="section-head__sub">Tonton langsung di MotionVault.</p>
+          </div>
+          <input type="search" id="animeSearchInput" class="text-input" placeholder="Cari judul atau genre…" style="max-width:260px;">
+        </div>
+        <div class="anime-grid" id="animeGrid"></div>
+        <div class="admin-empty" id="animeEmpty" hidden><p></p></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-anime-detail" data-view-panel="anime-detail" hidden>
+      <div class="container">
+        <button class="btn btn--ghost btn--sm" id="animeBackBtn" type="button" style="margin-top:18px;">← Semua anime</button>
+        <div class="anime-player" id="animePlayer"></div>
+        <div class="anime-now">
+          <div class="anime-now__title" id="animeNowTitle"></div>
+          <div class="anime-now__btns">
+            <button class="btn btn--ghost btn--sm" id="animePrevBtn" type="button">‹ Prev</button>
+            <button class="btn btn--primary btn--sm" id="animeNextBtn" type="button">Next ›</button>
+          </div>
+        </div>
+        <div class="anime-info" id="animeInfo"></div>
+        <h3 class="section-title">Episode</h3>
+        <div class="anime-eps" id="animeEps"></div>
       </div>
     </section>
 
@@ -2446,6 +2516,7 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
       <button class="admin-tabs__btn" data-admin-tab="form" type="button">Tambah Baru</button>
       <button class="admin-tabs__btn" data-admin-tab="manage" type="button">Kategori/Tag/Creator</button>
       <button class="admin-tabs__btn" data-admin-tab="reports" type="button">Laporan <span class="count-pill" id="reportsCountPill" hidden>0</span></button>
+      <button class="admin-tabs__btn" data-admin-tab="anime" type="button">Anime</button>
       <button class="admin-tabs__btn" data-admin-tab="settings" type="button">Pengaturan</button>
       <button class="admin-tabs__btn" data-admin-tab="messages" type="button">Pesan</button>
       <button class="admin-tabs__btn" data-admin-tab="data" type="button">Data &amp; Backup</button>
@@ -2685,6 +2756,33 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
           <p>Belum ada laporan link rusak. 🎉</p>
         </div>
         <div id="reportsList" class="reports-list"></div>
+      </div>
+
+      <!-- ANIME TAB -->
+      <div class="admin-tabpanel" data-admin-panel="anime" hidden>
+        <div class="stats-block">
+          <h3 class="stats-block__title" id="animeFormTitle">🎬 Tambah Anime</h3>
+          <p class="data-card__hint">Isi hanya video yang kamu punya hak/izin untuk menayangkannya. Link episode harus https://.</p>
+          <div class="field field--full"><label for="animeFTitle">Judul</label><input id="animeFTitle" class="text-input" maxlength="150"></div>
+          <div class="field field--full"><label for="animeFPoster">URL poster (https)</label><input id="animeFPoster" class="text-input" placeholder="https://…/poster.jpg"></div>
+          <div class="field"><label for="animeFYear">Tahun</label><input id="animeFYear" class="text-input" maxlength="10" placeholder="2024"></div>
+          <div class="field"><label for="animeFStatus">Status</label>
+            <select id="animeFStatus" class="text-input"><option>Ongoing</option><option>Tamat</option></select></div>
+          <div class="field field--full"><label for="animeFGenres">Genre (pisah koma)</label><input id="animeFGenres" class="text-input" placeholder="Aksi, Fantasi"></div>
+          <div class="field field--full"><label for="animeFSynopsis">Sinopsis</label><textarea id="animeFSynopsis" class="text-input textarea" rows="3" maxlength="2000"></textarea></div>
+          <div class="field field--full"><label for="animeFEpisodes">Episode — satu per baris: <code>nomor | judul | link</code></label>
+            <textarea id="animeFEpisodes" class="text-input textarea" rows="6" placeholder="1 | Awal Perjalanan | https://contoh.com/ep1.mp4&#10;2 | Pertemuan | https://contoh.com/embed/ep2"></textarea>
+            <p class="data-card__hint">Format otomatis dikenali: <b>.mp4/.webm</b> → video, <b>.m3u8</b> → HLS, selain itu → iframe embed.</p></div>
+          <label class="checkbox-row"><input type="checkbox" id="animeFRights"><span>Saya punya hak/izin untuk menayangkan video ini</span></label>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="btn btn--primary" id="animeSaveBtn">Simpan</button>
+            <button type="button" class="btn btn--ghost" id="animeCancelEditBtn" hidden>Batal edit</button>
+          </div>
+        </div>
+        <div class="stats-block">
+          <h3 class="stats-block__title">Daftar Anime</h3>
+          <div id="adminAnimeList"></div>
+        </div>
       </div>
 
       <!-- SETTINGS TAB -->
@@ -5191,6 +5289,8 @@ function switchView(view){
   if(view === 'download-history') renderDownloadHistoryView();
   if(view === 'profile') renderProfileView();
   if(view === 'pricing') renderPricingView();
+  if(view === 'anime') renderAnimeView();
+  if(view !== 'anime-detail') stopAnimePlayer();
 
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -5834,6 +5934,7 @@ function switchAdminTab(tab){
   if(tab === 'reports') loadAndRenderReports();
   if(tab === 'settings') fillSettingsForm();
   if(tab === 'messages') renderAdminMessagesTab();
+  if(tab === 'anime') renderAdminAnimeList();
 }
 
 /* ============================================================
@@ -7418,8 +7519,297 @@ function handleDeepLink(){
   }
 }
 
+/* ============================================================
+   ANIME STREAMING (koleksi Firestore "anime")
+   Dokumen: { title, poster, synopsis, genres[], year, status,
+              episodes:[{num,title,url,type}], createdAt }
+   type: 'embed' (iframe) | 'mp4' (video) | 'hls' (.m3u8)
+   Video HANYA dari sumber yang admin berhak tayangkan.
+============================================================ */
+const ANIME_COLLECTION = 'anime';
+const HLS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js';
+let animeList = [];
+let animeLoaded = false;
+let animeCurrentId = null;
+let animeCurrentEp = 0;
+let animeEditingId = null;
+let animeHls = null;
+let hlsLoadPromise = null;
+
+function animeSafeUrl(u){
+  u = String(u || '').trim();
+  return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : '';
+}
+function animeDetectType(url){
+  if(/\.m3u8(\?|#|$)/i.test(url)) return 'hls';
+  if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) return 'mp4';
+  return 'embed';
+}
+function parseAnimeEpisodes(text){
+  const eps = [];
+  const bad = [];
+  String(text || '').split('\n').forEach((raw, i) => {
+    const line = raw.trim();
+    if(!line) return;
+    const parts = line.split('|').map(p => p.trim());
+    let num, title, url;
+    if(parts.length >= 3){ num = parts[0]; title = parts[1]; url = parts[2]; }
+    else if(parts.length === 2){ title = parts[0]; url = parts[1]; }
+    else { url = parts[0]; }
+    url = animeSafeUrl(url);
+    if(!url){ bad.push(i + 1); return; }
+    const n = eps.length + 1;
+    eps.push({
+      num: (num && num.length <= 12) ? num : String(n),
+      title: (title || ('Episode ' + n)).slice(0, 120),
+      url,
+      type: animeDetectType(url)
+    });
+  });
+  return { eps, bad };
+}
+function animeEpisodesToText(eps){
+  return (eps || []).map(e => `${e.num} | ${e.title} | ${e.url}`).join('\n');
+}
+
+function subscribeToAnime(){
+  db.collection(ANIME_COLLECTION).orderBy('createdAt', 'desc').onSnapshot(snap => {
+    animeList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    animeLoaded = true;
+    if(State.currentView === 'anime') renderAnimeView();
+    if(State.currentView === 'anime-detail' && animeCurrentId && !animeList.find(a => a.id === animeCurrentId)) switchView('anime');
+    if(State.adminTab === 'anime') renderAdminAnimeList();
+  }, err => {
+    console.error('Anime snapshot error:', err);
+    animeLoaded = true;
+    if(State.currentView === 'anime') renderAnimeView();
+  });
+}
+
+/* ---------- List view ---------- */
+function renderAnimeView(){
+  const grid = document.getElementById('animeGrid');
+  const empty = document.getElementById('animeEmpty');
+  if(!grid) return;
+  const q = (document.getElementById('animeSearchInput').value || '').trim().toLowerCase();
+  if(!animeLoaded){
+    grid.innerHTML = '';
+    empty.hidden = false;
+    empty.querySelector('p').textContent = 'Memuat anime…';
+    return;
+  }
+  const items = animeList.filter(a => !q || (a.title || '').toLowerCase().includes(q) || (a.genres || []).some(g => String(g).toLowerCase().includes(q)));
+  grid.innerHTML = items.map(a => {
+    const poster = animeSafeUrl(a.poster);
+    const epCount = (a.episodes || []).length;
+    return `<button type="button" class="anime-card" data-anime-id="${escapeHtml(a.id)}">
+      <span class="anime-card__poster">${poster ? `<img src="${escapeHtml(poster)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span class="anime-card__ph">🎬</span>'}
+        <span class="anime-card__badge">${epCount} Eps</span>
+      </span>
+      <span class="anime-card__title">${escapeHtml(a.title)}</span>
+      <span class="anime-card__meta">${escapeHtml([a.year, a.status].filter(Boolean).join(' • '))}</span>
+    </button>`;
+  }).join('');
+  empty.hidden = items.length > 0;
+  empty.querySelector('p').textContent = q ? 'Anime tidak ditemukan.' : 'Belum ada anime. Admin bisa menambahkannya lewat Panel Admin → tab Anime.';
+}
+
+/* ---------- Detail + player ---------- */
+function openAnime(id){
+  const a = animeList.find(x => x.id === id);
+  if(!a) return;
+  animeCurrentId = id;
+  animeCurrentEp = 0;
+  switchView('anime-detail');
+  renderAnimeDetail(a);
+  if((a.episodes || []).length) playAnimeEpisode(0);
+  else document.getElementById('animePlayer').innerHTML = '<div class="anime-player__empty">Belum ada episode.</div>';
+}
+
+function renderAnimeDetail(a){
+  const poster = animeSafeUrl(a.poster);
+  document.getElementById('animeInfo').innerHTML = `
+    ${poster ? `<img class="anime-info__poster" src="${escapeHtml(poster)}" alt="" referrerpolicy="no-referrer">` : ''}
+    <div class="anime-info__body">
+      <h2 class="anime-info__title">${escapeHtml(a.title)}</h2>
+      <div class="anime-info__meta">${escapeHtml([a.year, a.status].filter(Boolean).join(' • '))}</div>
+      <div class="anime-info__genres">${(a.genres || []).map(g => `<span class="chip">${escapeHtml(g)}</span>`).join('')}</div>
+      <p class="anime-info__syn">${escapeHtml(a.synopsis || '')}</p>
+    </div>`;
+  document.getElementById('animeEps').innerHTML = (a.episodes || []).map((e, i) =>
+    `<button type="button" class="anime-ep" data-ep="${i}"><b>${escapeHtml(e.num)}</b><span>${escapeHtml(e.title)}</span></button>`
+  ).join('');
+}
+
+function stopAnimePlayer(){
+  if(animeHls){ try{ animeHls.destroy(); }catch(_){} animeHls = null; }
+  const box = document.getElementById('animePlayer');
+  if(box) box.innerHTML = '';
+}
+
+function loadHlsLib(){
+  if(window.Hls) return Promise.resolve();
+  if(hlsLoadPromise) return hlsLoadPromise;
+  hlsLoadPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = HLS_SRC;
+    s.onload = resolve;
+    s.onerror = () => { hlsLoadPromise = null; reject(new Error('hls.js gagal dimuat')); };
+    document.head.appendChild(s);
+  });
+  return hlsLoadPromise;
+}
+
+function playAnimeEpisode(index){
+  const a = animeList.find(x => x.id === animeCurrentId);
+  if(!a || !a.episodes || !a.episodes[index]) return;
+  animeCurrentEp = index;
+  const ep = a.episodes[index];
+  const url = animeSafeUrl(ep.url);
+  const box = document.getElementById('animePlayer');
+  stopAnimePlayer();
+
+  if(!url){
+    box.innerHTML = '<div class="anime-player__empty">Link episode tidak valid.</div>';
+  }else if(ep.type === 'embed'){
+    const f = document.createElement('iframe');
+    f.src = url;
+    f.allowFullscreen = true;
+    f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+    f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
+    f.setAttribute('referrerpolicy', 'no-referrer');
+    box.appendChild(f);
+  }else{
+    const v = document.createElement('video');
+    v.controls = true;
+    v.playsInline = true;
+    v.preload = 'metadata';
+    box.appendChild(v);
+    if(ep.type === 'hls' && !v.canPlayType('application/vnd.apple.mpegurl')){
+      loadHlsLib().then(() => {
+        if(!window.Hls || !window.Hls.isSupported()){ box.innerHTML = '<div class="anime-player__empty">Browser tidak mendukung format HLS.</div>'; return; }
+        animeHls = new window.Hls();
+        animeHls.loadSource(url);
+        animeHls.attachMedia(v);
+      }).catch(() => { box.innerHTML = '<div class="anime-player__empty">Gagal memuat pemutar HLS.</div>'; });
+    }else{
+      v.src = url;
+    }
+  }
+
+  document.querySelectorAll('#animeEps .anime-ep').forEach((b, i) => b.classList.toggle('is-active', i === index));
+  document.getElementById('animeNowTitle').textContent = `${a.title} — Ep ${ep.num}${ep.title ? ': ' + ep.title : ''}`;
+  document.getElementById('animePrevBtn').disabled = index <= 0;
+  document.getElementById('animeNextBtn').disabled = index >= a.episodes.length - 1;
+}
+
+/* ---------- Admin tab ---------- */
+function resetAnimeForm(){
+  animeEditingId = null;
+  ['animeFTitle','animeFPoster','animeFYear','animeFGenres','animeFSynopsis','animeFEpisodes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('animeFStatus').value = 'Ongoing';
+  document.getElementById('animeFRights').checked = false;
+  document.getElementById('animeFormTitle').textContent = '🎬 Tambah Anime';
+  document.getElementById('animeCancelEditBtn').hidden = true;
+}
+
+function renderAdminAnimeList(){
+  const box = document.getElementById('adminAnimeList');
+  if(!box) return;
+  if(!animeList.length){ box.innerHTML = '<p class="data-card__hint">Belum ada anime.</p>'; return; }
+  box.innerHTML = animeList.map(a => `
+    <div class="anime-admin-row">
+      <div class="anime-admin-row__t"><b>${escapeHtml(a.title)}</b><small>${(a.episodes || []).length} episode</small></div>
+      <button type="button" class="btn btn--ghost btn--sm" data-anime-edit="${escapeHtml(a.id)}">Edit</button>
+      <button type="button" class="btn btn--ghost btn--sm" data-anime-del="${escapeHtml(a.id)}">Hapus</button>
+    </div>`).join('');
+}
+
+async function saveAnimeForm(){
+  if(!State.isAdmin){ showToast('Khusus admin.', 'error'); return; }
+  const title = document.getElementById('animeFTitle').value.trim();
+  if(!title){ showToast('Judul wajib diisi.', 'error'); return; }
+  if(!document.getElementById('animeFRights').checked){
+    showToast('Centang pernyataan hak tayang dulu.', 'error'); return;
+  }
+  const posterRaw = document.getElementById('animeFPoster').value.trim();
+  if(posterRaw && !animeSafeUrl(posterRaw)){ showToast('URL poster harus diawali https://', 'error'); return; }
+  const { eps, bad } = parseAnimeEpisodes(document.getElementById('animeFEpisodes').value);
+  if(bad.length){ showToast('Link episode tidak valid di baris: ' + bad.join(', ') + ' (harus https://)', 'error'); return; }
+  if(eps.length > 500){ showToast('Maksimal 500 episode per anime.', 'error'); return; }
+
+  const data = {
+    title: title.slice(0, 150),
+    poster: posterRaw,
+    year: document.getElementById('animeFYear').value.trim().slice(0, 10),
+    status: document.getElementById('animeFStatus').value,
+    genres: document.getElementById('animeFGenres').value.split(',').map(g => g.trim()).filter(Boolean).slice(0, 12),
+    synopsis: document.getElementById('animeFSynopsis').value.trim().slice(0, 2000),
+    episodes: eps,
+    updatedAt: Date.now()
+  };
+  try{
+    if(animeEditingId){
+      await db.collection(ANIME_COLLECTION).doc(animeEditingId).set(data, { merge: true });
+    }else{
+      await db.collection(ANIME_COLLECTION).add({ ...data, createdAt: Date.now() });
+    }
+    showToast('Anime tersimpan ✅', 'success');
+    resetAnimeForm();
+  }catch(err){
+    console.error(err);
+    showToast('Gagal menyimpan. Pastikan firestore.rules terbaru sudah di-Publish.', 'error');
+  }
+}
+
+function initAnimeUI(){
+  document.getElementById('animeSearchInput').addEventListener('input', renderAnimeView);
+  document.getElementById('animeGrid').addEventListener('click', e => {
+    const card = e.target.closest('[data-anime-id]');
+    if(card) openAnime(card.dataset.animeId);
+  });
+  document.getElementById('animeBackBtn').addEventListener('click', () => switchView('anime'));
+  document.getElementById('animeEps').addEventListener('click', e => {
+    const b = e.target.closest('[data-ep]');
+    if(b) playAnimeEpisode(Number(b.dataset.ep));
+  });
+  document.getElementById('animePrevBtn').addEventListener('click', () => playAnimeEpisode(animeCurrentEp - 1));
+  document.getElementById('animeNextBtn').addEventListener('click', () => playAnimeEpisode(animeCurrentEp + 1));
+
+  document.getElementById('animeSaveBtn').addEventListener('click', saveAnimeForm);
+  document.getElementById('animeCancelEditBtn').addEventListener('click', resetAnimeForm);
+  document.getElementById('adminAnimeList').addEventListener('click', async e => {
+    const ed = e.target.closest('[data-anime-edit]');
+    const del = e.target.closest('[data-anime-del]');
+    if(ed){
+      const a = animeList.find(x => x.id === ed.dataset.animeEdit);
+      if(!a) return;
+      animeEditingId = a.id;
+      document.getElementById('animeFTitle').value = a.title || '';
+      document.getElementById('animeFPoster').value = a.poster || '';
+      document.getElementById('animeFYear').value = a.year || '';
+      document.getElementById('animeFStatus').value = a.status || 'Ongoing';
+      document.getElementById('animeFGenres').value = (a.genres || []).join(', ');
+      document.getElementById('animeFSynopsis').value = a.synopsis || '';
+      document.getElementById('animeFEpisodes').value = animeEpisodesToText(a.episodes);
+      document.getElementById('animeFRights').checked = false;
+      document.getElementById('animeFormTitle').textContent = '✏️ Edit Anime';
+      document.getElementById('animeCancelEditBtn').hidden = false;
+      document.getElementById('animeFTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }else if(del){
+      if(!State.isAdmin || !confirm('Hapus anime ini beserta semua episodenya?')) return;
+      try{
+        await db.collection(ANIME_COLLECTION).doc(del.dataset.animeDel).delete();
+        showToast('Anime dihapus.', 'success');
+      }catch(err){ console.error(err); showToast('Gagal menghapus.', 'error'); }
+    }
+  });
+}
+
 function init(){
   loadState();
+  initAnimeUI();
+  subscribeToAnime();
   applyThemeIcon();
 
   if(!storageOk){

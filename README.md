@@ -285,3 +285,24 @@ Kalau lupa password admin, ganti lewat Firebase Console → Authentication → U
 
 Di panel admin → tab **Data** → **"Ekspor ke JSON"** buat download semua data preset kapan saja. File ini juga bisa dipakai buat **impor** lagi (menimpa seluruh data) — misalnya kalau mau pindah ke project Firebase lain.
 
+
+
+---
+
+## 6. Fitur Anime (streaming di dalam MotionVault)
+
+Menu **Anime** muncul di sidebar dan topbar. Datanya disimpan di koleksi Firestore `anime`.
+
+**Wajib:** `firestore.rules` berubah (ada aturan baru untuk `anime`). Salin isi file yang baru ke **Firebase Console → Firestore Database → Rules → Publish**.
+
+Cara menambah anime: login admin → Panel Admin → tab **Anime**. Isi judul, poster, genre, sinopsis, lalu episode satu per baris dengan format `nomor | judul | link`, misalnya:
+
+```
+1 | Awal Perjalanan | https://contoh.com/ep1.mp4
+2 | Pertemuan | https://contoh.com/embed/ep2
+3 | Final | https://contoh.com/stream/ep3.m3u8
+```
+
+Jenis player dikenali otomatis dari link: `.mp4/.webm` memakai pemutar video, `.m3u8` memakai HLS (hls.js dimuat dari cdnjs saat dibutuhkan), dan selain itu dibuka sebagai iframe embed. Semua link harus `https://`.
+
+Gunakan hanya video yang kamu punya hak atau izin untuk menayangkannya. Form admin meminta centang pernyataan itu sebelum menyimpan.
