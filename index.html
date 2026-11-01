@@ -230,6 +230,8 @@ button{ font-family:inherit; }
 }
 .topnav__btn:hover{ color:var(--text); }
 /* ---- Anime streaming ---- */
+body.is-watching .bottomnav{ display:none; }
+body.is-watching .main, body.is-watching main{ padding-bottom:20px; }
 .anime-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding-bottom:30px; }
 @media (min-width:560px){ .anime-grid{ grid-template-columns:repeat(3,1fr); gap:16px; } }
 @media (min-width:860px){ .anime-grid{ grid-template-columns:repeat(5,1fr); } }
@@ -242,6 +244,7 @@ button{ font-family:inherit; }
 .anime-card__title{ font-size:13.5px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .anime-card__meta{ font-size:12px; color:var(--text-dim); }
 .anime-player{ margin-top:14px; width:100%; aspect-ratio:16/9; background:#000; border-radius:var(--radius); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.anime-player[hidden], .anime-now[hidden]{ display:none; }
 .anime-player iframe, .anime-player video{ width:100%; height:100%; border:0; background:#000; }
 .anime-player__empty{ color:#bbb; font-size:14px; padding:20px; text-align:center; }
 .anime-now{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:12px 0; }
@@ -1952,8 +1955,8 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
     <section class="view" id="view-anime-detail" data-view-panel="anime-detail" hidden>
       <div class="container">
         <button class="btn btn--ghost btn--sm" id="animeBackBtn" type="button" style="margin-top:18px;">← Semua anime</button>
-        <div class="anime-player" id="animePlayer"></div>
-        <div class="anime-now">
+        <div class="anime-player" id="animePlayer" hidden></div>
+        <div class="anime-now" id="animeNow" hidden>
           <div class="anime-now__title" id="animeNowTitle"></div>
           <div class="anime-now__btns">
             <button class="btn btn--ghost btn--sm" id="animePrevBtn" type="button">‹ Prev</button>
@@ -5292,6 +5295,7 @@ function switchView(view){
   if(view === 'pricing') renderPricingView();
   if(view === 'anime') renderAnimeView();
   if(view !== 'anime-detail') stopAnimePlayer();
+  document.body.classList.remove('is-watching');
 
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -7629,9 +7633,11 @@ function openAnime(id){
   animeCurrentId = id;
   animeCurrentEp = 0;
   switchView('anime-detail');
+  stopAnimePlayer();
+  document.getElementById('animePlayer').hidden = true;
+  document.getElementById('animeNow').hidden = true;
   renderAnimeDetail(a);
-  if((a.episodes || []).length) playAnimeEpisode(0);
-  else document.getElementById('animePlayer').innerHTML = '<div class="anime-player__empty">Belum ada episode.</div>';
+  window.scrollTo({ top: 0 });
 }
 
 function renderAnimeDetail(a){
@@ -7643,6 +7649,7 @@ function renderAnimeDetail(a){
       <div class="anime-info__meta">${escapeHtml([a.year, a.status].filter(Boolean).join(' • '))}</div>
       <div class="anime-info__genres">${(a.genres || []).map(g => `<span class="chip">${escapeHtml(g)}</span>`).join('')}</div>
       <p class="anime-info__syn">${escapeHtml(a.synopsis || '')}</p>
+      ${(a.episodes || []).length ? '<button type="button" class="btn btn--primary" id="animeStartBtn" style="margin-top:12px;">▶ Mulai Nonton Ep ' + escapeHtml(a.episodes[0].num) + '</button>' : '<p class="data-card__hint">Belum ada episode.</p>'}
     </div>`;
   document.getElementById('animeEps').innerHTML = (a.episodes || []).map((e, i) =>
     `<button type="button" class="anime-ep" data-ep="${i}"><b>${escapeHtml(e.num)}</b><span>${escapeHtml(e.title)}</span></button>`
@@ -7673,6 +7680,9 @@ function playAnimeEpisode(index){
   if(!a || !a.episodes || !a.episodes[index]) return;
   animeCurrentEp = index;
   const ep = a.episodes[index];
+  document.getElementById('animePlayer').hidden = false;
+  document.getElementById('animeNow').hidden = false;
+  document.body.classList.add('is-watching');
   const url = animeSafeUrl(ep.url);
   const box = document.getElementById('animePlayer');
   stopAnimePlayer();
@@ -7707,6 +7717,7 @@ function playAnimeEpisode(index){
 
   document.querySelectorAll('#animeEps .anime-ep').forEach((b, i) => b.classList.toggle('is-active', i === index));
   document.getElementById('animeNowTitle').textContent = `${a.title} — Ep ${ep.num}${ep.title ? ': ' + ep.title : ''}`;
+  document.getElementById('animePlayer').scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.getElementById('animePrevBtn').disabled = index <= 0;
   document.getElementById('animeNextBtn').disabled = index >= a.episodes.length - 1;
 }
@@ -7777,6 +7788,7 @@ function initAnimeUI(){
     if(card) openAnime(card.dataset.animeId);
   });
   document.getElementById('animeBackBtn').addEventListener('click', () => switchView('anime'));
+  document.getElementById('animeInfo').addEventListener('click', e => { if(e.target.closest('#animeStartBtn')) playAnimeEpisode(0); });
   document.getElementById('animeEps').addEventListener('click', e => {
     const b = e.target.closest('[data-ep]');
     if(b) playAnimeEpisode(Number(b.dataset.ep));
