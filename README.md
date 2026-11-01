@@ -306,3 +306,5 @@ Cara menambah anime: login admin → Panel Admin → tab **Anime**. Isi judul, p
 Jenis player dikenali otomatis dari link: `.mp4/.webm` memakai pemutar video, `.m3u8` memakai HLS (hls.js dimuat dari cdnjs saat dibutuhkan), dan selain itu dibuka sebagai iframe embed. Semua link harus `https://`.
 
 Gunakan hanya video yang kamu punya hak atau izin untuk menayangkannya. Form admin meminta centang pernyataan itu sebelum menyimpan.
+
+**Video dari Google Drive:** unggah videonya ke Drive, klik kanan → Bagikan → ubah akses ke **"Siapa saja yang memiliki link"**, lalu tempel link share-nya di kolom episode. Aplikasi mengubahnya otomatis ke pemutar `/preview`. Catatan: Drive punya batas kuota unduhan/tayangan untuk file yang ramai ditonton, jadi cocok untuk skala kecil.

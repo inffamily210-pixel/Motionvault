@@ -7541,6 +7541,12 @@ function animeSafeUrl(u){
   u = String(u || '').trim();
   return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : '';
 }
+function animeNormalizeUrl(url){
+  // Link Google Drive (…/file/d/ID/view, ?usp=sharing, open?id=ID) -> pemutar /preview
+  let m = url.match(/^https:\/\/drive\.google\.com\/file\/d\/([\w-]+)/i) ||
+          url.match(/^https:\/\/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/i);
+  return m ? 'https://drive.google.com/file/d/' + m[1] + '/preview' : url;
+}
 function animeDetectType(url){
   if(/\.m3u8(\?|#|$)/i.test(url)) return 'hls';
   if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) return 'mp4';
@@ -7559,6 +7565,7 @@ function parseAnimeEpisodes(text){
     else { url = parts[0]; }
     url = animeSafeUrl(url);
     if(!url){ bad.push(i + 1); return; }
+    url = animeNormalizeUrl(url);
     const n = eps.length + 1;
     eps.push({
       num: (num && num.length <= 12) ? num : String(n),
