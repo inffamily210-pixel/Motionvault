@@ -1,0 +1,1 @@
+import {getProducer} from '@/lib/api';import CatalogPage from '@/components/CatalogPage';export default async function Page({params,searchParams}){return <CatalogPage title={'Studio: '+params.producer} data={await getProducer(params.producer,searchParams?.page||1)}/>}
