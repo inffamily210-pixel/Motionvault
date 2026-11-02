@@ -309,9 +309,14 @@ Gunakan hanya video yang kamu punya hak atau izin untuk menayangkannya. Form adm
 
 **Video dari Google Drive:** unggah videonya ke Drive, klik kanan → Bagikan → ubah akses ke **"Siapa saja yang memiliki link"**, lalu tempel link share-nya di kolom episode. Aplikasi mengubahnya otomatis ke pemutar `/preview`. Catatan: Drive punya batas kuota unduhan/tayangan untuk file yang ramai ditonton, jadi cocok untuk skala kecil.
 
+## 5. Integrasi katalog Anime Nanimelaina
 
-## 7. AnimeUp (jadwal rilis anime)
+Menu **Anime** pada MotionVault kini dapat mengambil katalog dari Nanimelaina API melalui Vercel Function `api/nanimelaina.js`.
 
-Menu **AnimeUp** menampilkan jadwal rilis anime per hari (Senin–Minggu) beserta detail lengkap (jam tayang WIB, skor, studio, genre, sinopsis, trailer) dalam jendela popup, tanpa pindah halaman. Datanya diambil langsung dari browser pengunjung lewat API publik **AniList** (utama, jadwal per episode dalam WIB), dengan **Jikan** (MyAnimeList) sebagai cadangan, jadi tidak perlu setup Firebase atau API key. Hasil disimpan di browser selama 20 menit supaya cepat dan hemat request. Fitur ini hanya menampilkan metadata, tanpa video.
+- Katalog terbaru dan trending, pencarian, jadwal, genre, serta daftar A–Z menggunakan API Nanimelaina.
+- Detail anime dan daftar episode dimuat saat salah satu judul dipilih.
+- Tampilan tetap memakai komponen, warna, dan layout Anime MotionVault yang sudah ada.
+- Data anime manual di Firestore dan formulir admin lama tetap tersedia; katalog API tidak menimpa koleksi Firestore.
+- Proxy hanya meneruskan endpoint baca yang diizinkan dan memberi cache singkat agar permintaan tidak berlebihan.
 
-**Gambar pratinjau episode:** link yang berakhiran `.png`, `.jpg`, `.jpeg`, `.webp`, atau `.gif` ditampilkan sebagai gambar di area player (cocok untuk episode yang belum rilis). Ganti dengan link video saat episodenya sudah siap.
+Tidak perlu menambahkan environment variable baru untuk integrasi ini. Setelah ZIP di-deploy ulang ke Vercel, buka menu **Anime** untuk memuat katalog. Ketersediaan data dan pemutaran mengikuti kondisi layanan API pihak ketiga.
