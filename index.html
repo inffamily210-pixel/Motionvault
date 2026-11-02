@@ -297,7 +297,19 @@ body.is-watching .main, body.is-watching main{ padding-bottom:20px; }
 .anime-ep b{ color:var(--accent); min-width:22px; }
 .anime-ep span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .anime-ep.is-active{ background:var(--accent-soft); border-color:var(--accent); }
-.anime-admin-row{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--surface-border); }
+.anime-admin-item{ border-bottom:1px solid var(--surface-border); padding:10px 0; }
+.anime-admin-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.anime-admin-row__thumb{ width:52px; height:74px; border-radius:var(--radius-sm); overflow:hidden; background:var(--surface); border:1px solid var(--surface-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:22px; }
+.anime-admin-row__thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.anime-admin-row__btns{ display:flex; gap:6px; width:100%; }
+.anime-quick{ margin-top:10px; padding:12px; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--surface-border); }
+.anime-quick[hidden]{ display:none; }
+.anime-quick__row{ display:flex; gap:8px; margin-bottom:8px; }
+.anime-quick__num{ width:84px; flex:0 0 84px; text-align:center; }
+.anime-quick__link{ flex:1; min-width:0; }
+.anime-quick__bulk{ margin:6px 0 8px; }
+.anime-quick__bulk summary{ cursor:pointer; font-size:12.5px; color:var(--text-dim); padding:4px 0; }
+.anime-quick__bulk textarea{ margin-top:6px; }
 .anime-admin-row__t{ flex:1; display:flex; flex-direction:column; min-width:0; }
 .anime-admin-row__t small{ color:var(--text-dim); }
 .topnav__btn.is-active{ background:var(--accent); color:#fff; }
@@ -2829,7 +2841,8 @@ h1,h2,h3,h4{ letter-spacing:-.015em; }
         <div class="stats-block">
           <h3 class="stats-block__title" id="animeFormTitle">🎬 Tambah Anime</h3>
           <p class="data-card__hint">Isi hanya video yang kamu punya hak/izin untuk menayangkannya. Link episode harus https://.</p>
-          <div class="field field--full"><label for="animeFTitle">Judul</label><input id="animeFTitle" class="text-input" maxlength="150"></div>
+          <div class="field field--full"><label for="animeFTitle">Judul</label><input id="animeFTitle" class="text-input" maxlength="150">
+            <button type="button" class="btn btn--ghost btn--sm" id="animeAutofillBtn" style="margin-top:8px;">🔍 Isi poster &amp; info otomatis</button></div>
           <div class="field field--full"><label for="animeFPoster">URL poster (https)</label><input id="animeFPoster" class="text-input" placeholder="https://…/poster.jpg"></div>
           <div class="field"><label for="animeFYear">Tahun</label><input id="animeFYear" class="text-input" maxlength="10" placeholder="2024"></div>
           <div class="field"><label for="animeFStatus">Status</label>
@@ -7628,12 +7641,21 @@ function animeDetectType(url){
   if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) return 'mp4';
   return 'embed';
 }
-function parseAnimeEpisodes(text){
+function parseAnimeEpisodes(text, startAt){
+  startAt = Number(startAt) || 0;
   const eps = [];
   const bad = [];
   String(text || '').split('\n').forEach((raw, i) => {
     const line = raw.trim();
     if(!line) return;
+    // Baris label seperti "episode 3" / "ep 3" / "3" setelah sebuah link -> pasang sebagai nomor link itu
+    const lm = line.match(/^(?:episode|eps?)\s*\.?\s*(\d{1,4})$/i) || line.match(/^(\d{1,4})$/);
+    if(lm && !line.includes('|') && eps.length){
+      const last = eps[eps.length - 1];
+      last.num = lm[1];
+      if(last._auto) last.title = 'Episode ' + lm[1];
+      return;
+    }
     const parts = line.split('|').map(p => p.trim());
     let num, title, url;
     if(parts.length >= 3){ num = parts[0]; title = parts[1]; url = parts[2]; }
@@ -7642,16 +7664,38 @@ function parseAnimeEpisodes(text){
     url = animeSafeUrl(url);
     if(!url){ bad.push(i + 1); return; }
     url = animeNormalizeUrl(url);
-    const n = eps.length + 1;
+    const n = startAt + eps.length + 1;
+    const finalNum = (num && num.length <= 12) ? num : String(n);
     eps.push({
-      num: (num && num.length <= 12) ? num : String(n),
-      title: (title || ('Episode ' + n)).slice(0, 120),
+      num: finalNum,
+      title: (title || ('Episode ' + finalNum)).slice(0, 120),
       url,
-      type: animeDetectType(url)
+      type: animeDetectType(url),
+      _auto: !title
     });
   });
+  eps.forEach(e => { delete e._auto; });
   return { eps, bad };
 }
+function animeLastNum(eps){
+  return (eps || []).reduce((mx, e) => { const n = parseFloat(e.num); return isFinite(n) && n > mx ? n : mx; }, 0);
+}
+function animeMergeEpisodes(oldEps, newEps){
+  const out = (oldEps || []).map(e => Object.assign({}, e));
+  newEps.forEach(ne => {
+    const i = out.findIndex(e => String(e.num) === String(ne.num));
+    if(i >= 0) out[i] = ne; else out.push(ne);
+  });
+  return out
+    .map((e, idx) => ({ e, idx }))
+    .sort((a, b) => {
+      const x = parseFloat(a.e.num), y = parseFloat(b.e.num);
+      if(isFinite(x) && isFinite(y) && x !== y) return x - y;
+      return a.idx - b.idx;
+    })
+    .map(o => o.e);
+}
+
 function animeEpisodesToText(eps){
   return (eps || []).map(e => `${e.num} | ${e.title} | ${e.url}`).join('\n');
 }
@@ -7814,16 +7858,114 @@ function resetAnimeForm(){
   document.getElementById('animeCancelEditBtn').hidden = true;
 }
 
+let animeQuickOpenId = null;
 function renderAdminAnimeList(){
   const box = document.getElementById('adminAnimeList');
   if(!box) return;
   if(!animeList.length){ box.innerHTML = '<p class="data-card__hint">Belum ada anime.</p>'; return; }
-  box.innerHTML = animeList.map(a => `
-    <div class="anime-admin-row">
-      <div class="anime-admin-row__t"><b>${escapeHtml(animeTitle(a))}</b><small>${(a.episodes || []).length} episode</small></div>
-      <button type="button" class="btn btn--ghost btn--sm" data-anime-edit="${escapeHtml(a.id)}">Edit</button>
-      <button type="button" class="btn btn--ghost btn--sm" data-anime-del="${escapeHtml(a.id)}">Hapus</button>
-    </div>`).join('');
+  box.innerHTML = animeList.map(a => {
+    const poster = animeSafeUrl(a.poster);
+    const eps = a.episodes || [];
+    const last = animeLastNum(eps);
+    const open = animeQuickOpenId === a.id;
+    return `<div class="anime-admin-item">
+      <div class="anime-admin-row">
+        <div class="anime-admin-row__thumb">${poster ? `<img src="${escapeHtml(poster)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span>🎬</span>'}</div>
+        <div class="anime-admin-row__t"><b>${escapeHtml(animeTitle(a))}</b><small>${eps.length} episode${last ? ' • terakhir: Ep ' + last : ''}</small>${poster ? '' : '<small style="color:#ff8fa3;">Belum ada poster</small>'}</div>
+        <div class="anime-admin-row__btns">
+          <button type="button" class="btn btn--ghost btn--sm" data-anime-edit="${escapeHtml(a.id)}">Edit</button>
+          <button type="button" class="btn btn--primary btn--sm" data-anime-add="${escapeHtml(a.id)}">+ Episode</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-anime-del="${escapeHtml(a.id)}">Hapus</button>
+        </div>
+      </div>
+      <div class="anime-quick" data-quick-for="${escapeHtml(a.id)}" ${open ? '' : 'hidden'}>
+        <p class="data-card__hint">Ditambahkan ke episode yang sudah ada (tidak menimpa). Isi nomor dan link saja.</p>
+        <div class="anime-quick__row">
+          <input type="number" min="0" inputmode="numeric" class="text-input anime-quick__num" value="${last + 1}" aria-label="Nomor episode">
+          <input type="url" inputmode="url" class="text-input anime-quick__link" placeholder="Tempel link episode (https://…)" aria-label="Link episode">
+        </div>
+        <details class="anime-quick__bulk">
+          <summary>Tambah banyak sekaligus</summary>
+          <textarea class="text-input textarea" rows="4" placeholder="Satu link per baris (nomor lanjut otomatis), atau link lalu baris 'episode 14'"></textarea>
+        </details>
+        <label class="checkbox-row"><input type="checkbox"><span>Saya punya hak/izin untuk menayangkan video ini</span></label>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button type="button" class="btn btn--primary btn--sm" data-quick-save="${escapeHtml(a.id)}">Tambahkan</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-quick-cancel="1">Batal</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function animeQuickWrap(id){
+  return Array.from(document.querySelectorAll('#adminAnimeList [data-quick-for]')).find(w => w.dataset.quickFor === id);
+}
+async function saveQuickEpisodes(id){
+  if(!State.isAdmin){ showToast('Khusus admin.', 'error'); return; }
+  const a = animeList.find(x => x.id === id);
+  const wrap = animeQuickWrap(id);
+  if(!a || !wrap) return;
+  if(!wrap.querySelector('input[type=checkbox]').checked){ showToast('Centang pernyataan hak tayang dulu.', 'error'); return; }
+  const last = animeLastNum(a.episodes);
+  let eps = [];
+  let startBulk = last;
+
+  const link = wrap.querySelector('.anime-quick__link').value.trim();
+  if(link){
+    const u = animeSafeUrl(link);
+    if(!u){ showToast('Link harus diawali https://', 'error'); return; }
+    const url = animeNormalizeUrl(u);
+    const num = (wrap.querySelector('.anime-quick__num').value.trim() || String(last + 1)).slice(0, 12);
+    eps.push({ num, title: 'Episode ' + num, url, type: animeDetectType(url) });
+    const n = parseFloat(num);
+    if(isFinite(n) && n > startBulk) startBulk = n;
+  }
+  const bulk = wrap.querySelector('.anime-quick__bulk textarea').value.trim();
+  if(bulk){
+    const r = parseAnimeEpisodes(bulk, startBulk);
+    if(r.bad.length){ showToast('Baris tidak valid: ' + r.bad.join(', ') + ' (link harus https://)', 'error'); return; }
+    eps = eps.concat(r.eps);
+  }
+  if(!eps.length){ showToast('Isi link episode dulu.', 'error'); return; }
+
+  const merged = animeMergeEpisodes(a.episodes, eps);
+  if(merged.length > 500){ showToast('Maksimal 500 episode per anime.', 'error'); return; }
+  try{
+    await db.collection(ANIME_COLLECTION).doc(id).update({ episodes: merged, updatedAt: Date.now() });
+    animeQuickOpenId = null;
+    showToast(eps.length + ' episode ditambahkan ✅', 'success');
+  }catch(err){
+    console.error(err);
+    showToast('Gagal menyimpan episode.', 'error');
+  }
+}
+
+async function animeAutofill(){
+  const title = document.getElementById('animeFTitle').value.trim();
+  if(!title){ showToast('Isi judul dulu.', 'error'); return; }
+  const btn = document.getElementById('animeAutofillBtn');
+  btn.disabled = true; btn.textContent = 'Mencari…';
+  try{
+    const q = `query($s:String){ Page(perPage:1){ media(search:$s,type:ANIME,sort:SEARCH_MATCH){ title{romaji english} coverImage{large extraLarge} genres description(asHtml:false) seasonYear status } } }`;
+    const res = await fetch('https://graphql.anilist.co', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify({ query: q, variables: { s: title } }) });
+    if(!res.ok) throw new Error('AniList ' + res.status);
+    const json = await res.json();
+    const m = json.data && json.data.Page && json.data.Page.media && json.data.Page.media[0];
+    if(!m){ showToast('Tidak ditemukan di AniList.', 'error'); return; }
+    const setIfEmpty = (id, v) => { const el = document.getElementById(id); if(el && !el.value.trim() && v) el.value = v; };
+    setIfEmpty('animeFPoster', animeSafeUrl(m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)));
+    setIfEmpty('animeFGenres', (m.genres || []).join(', '));
+    setIfEmpty('animeFYear', m.seasonYear ? String(m.seasonYear) : '');
+    setIfEmpty('animeFSynopsis', String(m.description || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').trim().slice(0, 1500));
+    document.getElementById('animeFStatus').value = m.status === 'FINISHED' ? 'Tamat' : 'Ongoing';
+    showToast('Terisi dari: ' + ((m.title && (m.title.english || m.title.romaji)) || title) + '. Periksa dulu sebelum menyimpan.', 'success');
+  }catch(err){
+    console.error(err);
+    showToast('Gagal mengambil data. Coba lagi.', 'error');
+  }finally{
+    btn.disabled = false; btn.textContent = '🔍 Isi poster & info otomatis';
+  }
 }
 
 async function saveAnimeForm(){
@@ -7880,6 +8022,24 @@ function initAnimeUI(){
 
   document.getElementById('animeSaveBtn').addEventListener('click', saveAnimeForm);
   document.getElementById('animeCancelEditBtn').addEventListener('click', resetAnimeForm);
+  document.getElementById('animeAutofillBtn').addEventListener('click', animeAutofill);
+  document.getElementById('adminAnimeList').addEventListener('click', e => {
+    const add = e.target.closest('[data-anime-add]');
+    const sv = e.target.closest('[data-quick-save]');
+    const cn = e.target.closest('[data-quick-cancel]');
+    if(add){
+      const id = add.dataset.animeAdd;
+      animeQuickOpenId = animeQuickOpenId === id ? null : id;
+      document.querySelectorAll('#adminAnimeList [data-quick-for]').forEach(w => { w.hidden = w.dataset.quickFor !== animeQuickOpenId; });
+      const w = animeQuickWrap(id);
+      if(w && !w.hidden) w.querySelector('.anime-quick__link').focus();
+    }else if(sv){
+      saveQuickEpisodes(sv.dataset.quickSave);
+    }else if(cn){
+      animeQuickOpenId = null;
+      document.querySelectorAll('#adminAnimeList [data-quick-for]').forEach(w => { w.hidden = true; });
+    }
+  });
   document.getElementById('adminAnimeList').addEventListener('click', async e => {
     const ed = e.target.closest('[data-anime-edit]');
     const del = e.target.closest('[data-anime-del]');
