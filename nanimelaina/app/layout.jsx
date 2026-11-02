@@ -1,0 +1,3 @@
+import './globals.css';
+export const metadata={title:'Nanimelaina Anime',description:'Anime streaming catalog powered by Nanimelaina API'};
+export default function RootLayout({children}){return <html lang="id"><body><header className="border-b border-cyan-900 p-4"><nav className="max-w-7xl mx-auto flex flex-wrap gap-4"><a href="/">Nanimelaina</a><a href="/trending">Trending</a><a href="/popular">Popular</a><a href="/schedule">Jadwal</a><a href="/genres">Genre</a><a href="/search">Cari Anime</a></nav></header><main className="min-h-screen p-4 md:p-8">{children}</main><footer className="p-6 text-center text-xs text-gray-500">Data disediakan oleh Nanimelaina API.</footer></body></html>}

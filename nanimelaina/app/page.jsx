@@ -1,0 +1,3 @@
+import {getHomeFeed,getTopTen} from '@/lib/api';
+import AnimeGrid from '@/components/AnimeGrid';
+export default async function Home(){const [home,top]=await Promise.all([getHomeFeed(),getTopTen()]);const list=home?.data||home?.results||home?.anime||[];const topList=top?.data||top?.results||[];return <main className="max-w-7xl mx-auto space-y-10"><section><h1 className="text-3xl font-bold text-cyan-300 mb-5">Nanimelaina Anime</h1><p className="text-gray-400 mb-5">Jelajahi anime terbaru dari Nanimelaina API.</p><AnimeGrid animeList={list}/></section><section><h2 className="text-2xl font-bold mb-5">Top 10 Anime</h2><AnimeGrid animeList={topList}/></section></main>}

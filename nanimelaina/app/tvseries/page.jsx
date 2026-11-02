@@ -1,0 +1,1 @@
+import {getTvSeries} from '@/lib/api';import CatalogPage from '@/components/CatalogPage';export default async function Page({searchParams}){return <CatalogPage title="TV Series" data={await getTvSeries(searchParams?.page||1)}/>}

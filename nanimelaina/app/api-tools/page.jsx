@@ -1,0 +1,1 @@
+import {getSubtitleStats,getSubtitleFilterRules} from '@/lib/api';export default async function Page(){const [stats,rules]=await Promise.all([getSubtitleStats(),getSubtitleFilterRules()]);return <section><h1 className="text-2xl mb-4">API Tools & Status</h1><pre className="whitespace-pre-wrap">{JSON.stringify({stats,rules},null,2)}</pre></section>}

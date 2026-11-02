@@ -1,0 +1,1 @@
+import AnimeGrid from './AnimeGrid';export default function CatalogPage({title,data}){const list=Array.isArray(data)?data:data?.data||data?.results||data?.anime||data?.items||[];return <section className="max-w-7xl mx-auto space-y-6"><h1 className="text-2xl font-bold text-cyan-300">{title}</h1><AnimeGrid animeList={list}/></section>}

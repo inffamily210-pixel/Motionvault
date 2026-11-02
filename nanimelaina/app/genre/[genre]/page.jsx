@@ -1,0 +1,1 @@
+import {getGenre} from '@/lib/api';import CatalogPage from '@/components/CatalogPage';export default async function Page({params,searchParams}){return <CatalogPage title={'Genre: '+params.genre} data={await getGenre(params.genre,searchParams?.page||1)}/>}

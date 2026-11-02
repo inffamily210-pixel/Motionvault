@@ -1,0 +1,1 @@
+import {getSchedule} from '@/lib/api';import AnimeGrid from '@/components/AnimeGrid';export default async function Page(){const d=await getSchedule('today');return <section><h1 className="text-2xl mb-5">Jadwal Rilis Hari Ini</h1><AnimeGrid animeList={d?.data||d?.schedule||[]}/></section>}

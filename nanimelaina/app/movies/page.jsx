@@ -1,0 +1,1 @@
+import {getMovies} from '@/lib/api';import CatalogPage from '@/components/CatalogPage';export default async function Page({searchParams}){return <CatalogPage title="Movies" data={await getMovies(searchParams?.page||1)}/>}
