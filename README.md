@@ -312,4 +312,6 @@ Gunakan hanya video yang kamu punya hak atau izin untuk menayangkannya. Form adm
 
 ## 7. AnimeUp (jadwal rilis anime)
 
-Menu **AnimeUp** menampilkan jadwal rilis anime per hari (Senin–Minggu) beserta detail lengkap (jam tayang WIB, skor, studio, genre, sinopsis, trailer) dalam jendela popup, tanpa pindah halaman. Datanya diambil langsung dari browser pengunjung lewat API publik **Jikan** (data MyAnimeList), jadi tidak perlu setup Firebase atau API key. Jikan punya batas request per detik, dan aplikasi akan menampilkan tombol "Coba lagi" jika server sedang ramai. Fitur ini hanya menampilkan metadata, tanpa video.
+Menu **AnimeUp** menampilkan jadwal rilis anime per hari (Senin–Minggu) beserta detail lengkap (jam tayang WIB, skor, studio, genre, sinopsis, trailer) dalam jendela popup, tanpa pindah halaman. Datanya diambil langsung dari browser pengunjung lewat API publik **AniList** (utama, jadwal per episode dalam WIB), dengan **Jikan** (MyAnimeList) sebagai cadangan, jadi tidak perlu setup Firebase atau API key. Hasil disimpan di browser selama 20 menit supaya cepat dan hemat request. Fitur ini hanya menampilkan metadata, tanpa video.
+
+**Gambar pratinjau episode:** link yang berakhiran `.png`, `.jpg`, `.jpeg`, `.webp`, atau `.gif` ditampilkan sebagai gambar di area player (cocok untuk episode yang belum rilis). Ganti dengan link video saat episodenya sudah siap.

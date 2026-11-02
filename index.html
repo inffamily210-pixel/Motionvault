@@ -279,6 +279,7 @@ body.is-watching .main, body.is-watching main{ padding-bottom:20px; }
 #auTrailerBox iframe{ width:100%; aspect-ratio:16/9; border:0; border-radius:var(--radius); margin-top:6px; background:#000; }
 .au-credit{ font-size:11px; color:var(--text-dim); margin:14px 0 0; }
 .anime-player[hidden], .anime-now[hidden]{ display:none; }
+.anime-player img{ width:100%; height:100%; object-fit:contain; background:#000; display:block; }
 .anime-player iframe, .anime-player video{ width:100%; height:100%; border:0; background:#000; }
 .anime-player__empty{ color:#bbb; font-size:14px; padding:20px; text-align:center; }
 .anime-now{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:12px 0; }
@@ -7622,6 +7623,7 @@ function animeNormalizeUrl(url){
   return m ? 'https://drive.google.com/file/d/' + m[1] + '/preview' : url;
 }
 function animeDetectType(url){
+  if(/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(url)) return 'image';
   if(/\.m3u8(\?|#|$)/i.test(url)) return 'hls';
   if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) return 'mp4';
   return 'embed';
@@ -7756,12 +7758,20 @@ function playAnimeEpisode(index){
   const startBtn = document.getElementById('animeStartBtn');
   if(startBtn) startBtn.style.display = 'none';
   const url = animeSafeUrl(ep.url);
+  const type = ep.type === 'embed' ? animeDetectType(url) : ep.type;
   const box = document.getElementById('animePlayer');
   stopAnimePlayer();
 
   if(!url){
     box.innerHTML = '<div class="anime-player__empty">Link episode tidak valid.</div>';
-  }else if(ep.type === 'embed'){
+  }else if(type === 'image'){
+    const im = document.createElement('img');
+    im.src = url;
+    im.alt = 'Pratinjau episode ' + ep.num;
+    im.referrerPolicy = 'no-referrer';
+    im.onerror = () => { box.innerHTML = '<div class="anime-player__empty">Gambar tidak bisa dimuat.</div>'; };
+    box.appendChild(im);
+  }else if(type === 'embed'){
     const f = document.createElement('iframe');
     f.src = url;
     f.allowFullscreen = true;
@@ -7775,7 +7785,7 @@ function playAnimeEpisode(index){
     v.playsInline = true;
     v.preload = 'metadata';
     box.appendChild(v);
-    if(ep.type === 'hls' && !v.canPlayType('application/vnd.apple.mpegurl')){
+    if(type === 'hls' && !v.canPlayType('application/vnd.apple.mpegurl')){
       loadHlsLib().then(() => {
         if(!window.Hls || !window.Hls.isSupported()){ box.innerHTML = '<div class="anime-player__empty">Browser tidak mendukung format HLS.</div>'; return; }
         animeHls = new window.Hls();
@@ -7946,7 +7956,7 @@ function drawAuGrid(){
   grid.innerHTML = c.items.map(a => {
     const img = animeSafeUrl(a.images && a.images.jpg && a.images.jpg.image_url);
     const time = auToWib(a.broadcast);
-    const meta = [a.type, a.score ? '★ ' + a.score : ''].filter(Boolean).join(' • ');
+    const meta = [a.type, a.airingEpisode ? 'Ep ' + a.airingEpisode : '', a.score ? '★ ' + a.score : ''].filter(Boolean).join(' • ');
     return `<button type="button" class="au-card" data-au-id="${a.mal_id}">
       <span class="au-card__poster">${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span class="anime-card__ph">🎬</span>'}
         ${time ? `<span class="au-card__time">${escapeHtml(time)}</span>` : ''}
@@ -7968,21 +7978,142 @@ function drawAuGrid(){
   more.hidden = !(c.hasNext && !auBusy && !c.error);
 }
 
+const AU_ANILIST = 'https://graphql.anilist.co';
+const AU_CACHE_MS = 20 * 60 * 1000;
+const AU_STATUS = { RELEASING:'Sedang tayang', FINISHED:'Selesai', NOT_YET_RELEASED:'Belum tayang', CANCELLED:'Dibatalkan', HIATUS:'Hiatus' };
+const AU_GQL = `query($from:Int,$to:Int,$page:Int){
+  Page(page:$page,perPage:50){
+    pageInfo{ hasNextPage }
+    airingSchedules(airingAt_greater:$from, airingAt_lesser:$to, sort:TIME){
+      airingAt episode
+      media{ id title{ romaji english native } format episodes status averageScore genres description(asHtml:false)
+             season seasonYear duration source isAdult studios(isMain:true){ nodes{ name } }
+             coverImage{ large extraLarge } trailer{ id site } }
+    }
+  }
+}`;
+
+function auDayRange(day){
+  // Rentang hari terpilih (Senin–Minggu minggu ini) dalam WIB, dalam detik UNIX
+  const now = new Date(Date.now() + 7 * 3600 * 1000);
+  const todayDow = now.getUTCDay();
+  const target = AU_DAYS.findIndex(d => d[0] === day);
+  const diff = ((target + 6) % 7) - ((todayDow + 6) % 7);
+  const startMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + diff) - 7 * 3600 * 1000;
+  return [Math.floor(startMs / 1000) - 1, Math.floor(startMs / 1000) + 86400];
+}
+
+function auMapAniList(row){
+  const m = row.media || {};
+  if(m.isAdult) return null;
+  const d = new Date((row.airingAt + 7 * 3600) * 1000);
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const mm = String(d.getUTCMinutes()).padStart(2, '0');
+  const t = m.title || {};
+  const syn = String(m.description || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').trim().slice(0, 1200);
+  const trailer = (m.trailer && m.trailer.site === 'youtube' && /^[\w-]{6,20}$/.test(m.trailer.id || '')) ? { embed_url: 'https://www.youtube.com/embed/' + m.trailer.id } : null;
+  return {
+    mal_id: 'al' + m.id,
+    _src: 'anilist',
+    title: t.romaji || t.english || t.native || '',
+    title_english: t.english || '',
+    title_japanese: t.native || '',
+    type: m.format ? String(m.format).replace('_', ' ') : '',
+    score: m.averageScore ? (m.averageScore / 10).toFixed(1) : '',
+    episodes: m.episodes || '',
+    airingEpisode: row.episode,
+    status: AU_STATUS[m.status] || '',
+    duration: m.duration ? m.duration + ' menit/ep' : '',
+    season: m.season ? m.season.charAt(0) + m.season.slice(1).toLowerCase() : '',
+    year: m.seasonYear || '',
+    source: m.source ? String(m.source).replace(/_/g, ' ').toLowerCase() : '',
+    genres: (m.genres || []).map(g => ({ name: g })),
+    studios: ((m.studios && m.studios.nodes) || []).map(s => ({ name: s.name })),
+    synopsis: syn,
+    images: { jpg: { image_url: (m.coverImage && m.coverImage.large) || '', large_image_url: (m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)) || '' } },
+    broadcast: { time: hh + ':' + mm, timezone: 'WIB' },
+    trailer
+  };
+}
+
+async function auFetchAniList(day, page){
+  const [from, to] = auDayRange(day);
+  const res = await fetch(AU_ANILIST, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ query: AU_GQL, variables: { from, to, page } })
+  });
+  if(!res.ok) throw new Error('AniList ' + res.status);
+  const json = await res.json();
+  if(json.errors || !json.data) throw new Error('AniList error');
+  const pg = json.data.Page;
+  return { items: pg.airingSchedules.map(auMapAniList).filter(Boolean), hasNext: !!(pg.pageInfo && pg.pageInfo.hasNextPage) };
+}
+
+async function auFetchJikan(day, page){
+  let lastErr;
+  for(let i = 0; i < 3; i++){
+    try{
+      const res = await fetch(`${AU_API}/schedules?filter=${day}&sfw=true&limit=25&page=${page}`);
+      if(res.status === 429 || res.status >= 500){ lastErr = new Error('Jikan ' + res.status); await new Promise(r => setTimeout(r, 1200 * (i + 1))); continue; }
+      if(!res.ok) throw new Error('Jikan ' + res.status);
+      const json = await res.json();
+      return {
+        items: (json.data || []).map(a => Object.assign(a, { _src: 'jikan' })),
+        hasNext: !!(json.pagination && json.pagination.has_next_page)
+      };
+    }catch(err){
+      lastErr = err;
+      await new Promise(r => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw lastErr || new Error('Jikan gagal');
+}
+
+function auCacheLoad(day){
+  try{
+    const raw = localStorage.getItem('au_cache_v2_' + day);
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    if(!o || Date.now() - o.t > AU_CACHE_MS || !Array.isArray(o.items) || !o.items.length) return null;
+    return { items: o.items, page: o.page, hasNext: o.hasNext, error: '', source: o.source };
+  }catch(_){ return null; }
+}
+function auCacheSave(day, c){
+  try{
+    localStorage.setItem('au_cache_v2_' + day, JSON.stringify({ t: Date.now(), items: c.items, page: c.page, hasNext: c.hasNext, source: c.source }));
+  }catch(_){}
+}
+
 async function auLoadMore(){
   if(auBusy) return;
   const day = auDay;
   let c = auCache[day];
-  if(!c){ c = auCache[day] = { items: [], page: 0, hasNext: true, error: '' }; }
+  if(!c){
+    c = auCache[day] = auCacheLoad(day) || { items: [], page: 0, hasNext: true, error: '', source: '' };
+    c.items.forEach(a => { auById[a.mal_id] = a; });
+    if(c.items.length){ drawAuGrid(); return; }
+  }
   if(!c.hasNext) return;
   auBusy = true; c.error = '';
   drawAuGrid();
   try{
-    const res = await fetch(`${AU_API}/schedules?filter=${day}&sfw=true&limit=25&page=${c.page + 1}`);
-    if(res.status === 429) throw new Error('Server jadwal sedang ramai. Tunggu sebentar lalu coba lagi.');
-    if(!res.ok) throw new Error('Gagal memuat jadwal (kode ' + res.status + ').');
-    const json = await res.json();
+    let r;
+    if(c.source === 'jikan'){
+      r = await auFetchJikan(day, c.page + 1);
+    }else{
+      try{
+        r = await auFetchAniList(day, c.page + 1);
+        c.source = 'anilist';
+      }catch(e1){
+        if(c.page > 0) throw e1;
+        console.warn('AniList gagal, mencoba Jikan:', e1);
+        r = await auFetchJikan(day, 1);
+        c.source = 'jikan';
+      }
+    }
     const seen = new Set(c.items.map(x => x.mal_id));
-    (json.data || []).forEach(a => {
+    r.items.forEach(a => {
       if(seen.has(a.mal_id)) return;
       seen.add(a.mal_id);
       c.items.push(a);
@@ -7990,10 +8121,11 @@ async function auLoadMore(){
     });
     c.items.sort((x, y) => auSortKey(x.broadcast) - auSortKey(y.broadcast));
     c.page += 1;
-    c.hasNext = !!(json.pagination && json.pagination.has_next_page);
+    c.hasNext = r.hasNext;
+    auCacheSave(day, c);
   }catch(err){
     console.error('AnimeUp error:', err);
-    c.error = (err && err.message && !/Failed to fetch/i.test(err.message)) ? err.message : 'Tidak bisa terhubung ke server jadwal. Periksa koneksi internetmu.';
+    c.error = 'Jadwal belum bisa dimuat. Periksa koneksi internetmu lalu coba lagi.';
   }finally{
     auBusy = false;
     if(day === auDay && State.currentView === 'animeup') drawAuGrid();
@@ -8024,6 +8156,7 @@ function openAuDetail(id){
     </div>
     <div class="au-rows">
       ${auRow('Jam tayang', time ? (AU_DAY_FULL[auDay] || '') + ' • ' + time : '')}
+      ${auRow('Episode tayang', a.airingEpisode ? 'Episode ' + a.airingEpisode : '')}
       ${auRow('Jadwal asli', a.broadcast && a.broadcast.string)}
       ${auRow('Tipe', a.type)}
       ${auRow('Status', a.status)}
@@ -8040,7 +8173,7 @@ function openAuDetail(id){
     <h4 class="au-modal__h">Sinopsis</h4>
     <p class="au-modal__syn">${escapeHtml(a.synopsis || 'Belum ada sinopsis.')}</p>
     ${trailer ? `<button type="button" class="btn btn--primary" id="auTrailerBtn" data-src="${escapeHtml(trailer)}">▶ Tonton Trailer</button><div id="auTrailerBox"></div>` : ''}
-    <p class="au-credit">Data: MyAnimeList via Jikan.</p>`;
+    <p class="au-credit">Data: ${a._src === 'anilist' ? 'AniList' : 'MyAnimeList via Jikan'}.</p>`;
   const modal = document.getElementById('auModal');
   modal.hidden = false;
   modal.querySelector('.au-modal__card').scrollTop = 0;
